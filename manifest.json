@@ -1,0 +1,15 @@
+{
+  "name": "দ্বীনি মেহনত",
+  "short_name": "দ্বীনি মেহনত",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#071f18",
+  "theme_color": "#071f18",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
