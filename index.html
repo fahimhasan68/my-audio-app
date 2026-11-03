@@ -406,21 +406,47 @@
             `).join('');
         }
 
-        function renderArticles(articles) {
+        async function renderArticles(articles) {
             const container = document.getElementById('article-list');
-            if (articles.length === 0) {
-                container.innerHTML = '<div class="status-box">কোনো প্রবন্ধ পাওয়া যায়নি।</div>';
+            if (!container) return;
+
+            if (!articles || articles.length === 0) {
+                container.innerHTML = '<div class="status-box">কোনো প্রবন্ধ পাওয়া যায়নি।</div>';
                 return;
             }
-            container.innerHTML = articles.map(item => `
-                <div class="item-card">
-                    <div class="card-header">
-                        <div class="item-title">📜 ${item.title}</div>
-                        <div class="item-date">${item.date}</div>
+
+            container.innerHTML = '<div class="status-box">প্রবন্ধ লোড হচ্ছে...</div>';
+
+            let html = '';
+            for (const item of articles) {
+                let textContent = item.content || '';
+
+                // যদি আলাদা .txt ফাইল বা এক্সটার্নাল লিংক থাকে
+                if (item.file) {
+                    try {
+                        const response = await fetch(item.file + '?t=' + new Date().getTime());
+                        if (response.ok) {
+                            textContent = await response.text();
+                        } else {
+                            textContent = 'দুঃখিত, টেক্সট ফাইলটি লোড করা যায়নি (ফাইল লিংক চেক করুন)।';
+                        }
+                    } catch (err) {
+                        textContent = 'ফাইলটি পড়তে সমস্যা হচ্ছে। ইন্টারনেট সংযোগ পরীক্ষা করুন।';
+                    }
+                }
+
+                html += `
+                    <div class="item-card">
+                        <div class="card-header">
+                            <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
+                            <div class="item-date">${item.date || ''}</div>
+                        </div>
+                        <div class="item-desc" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; color: var(--text-light);">${textContent}</div>
                     </div>
-                    <div class="item-desc">${item.content}</div>
-                </div>
-            `).join('');
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         function renderNotices(notices) {
