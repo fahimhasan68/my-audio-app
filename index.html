@@ -460,7 +460,6 @@ function loadQazaData() {
     if (saved) {
         return JSON.parse(saved);
     }
-    // ডিফল্ট মান
     return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
 }
 
@@ -469,29 +468,32 @@ function saveQazaData(data) {
     renderQazaCards();
 }
 
-// ইউজার যখন একবারে দিনের সংখ্যা ইনপুট দেয়
-function setTotalQazaDays() {
-    const input = document.getElementById('qazaDaysInput');
-    const days = parseInt(input.value);
-    if (isNaN(days) || days < 0) {
-        alert("দয়া করে সঠিক দিনের সংখ্যা লিখুন!");
-        return;
-    }
-    if (confirm(`আপনি কি ৬ ওয়াক্ত নামাজের প্রতিটিতে মোট ${days} ওয়াক্ত কাজা সেট করতে চান?`)) {
-        const newData = {
-            fajr: days,
-            dhuhr: days,
-            asr: days,
-            maghrib: days,
-            isha: days,
-            witr: days
-        };
-        saveQazaData(newData);
-        input.value = '';
+// প্রতি ওয়াক্তের আলাদা ইনপুট সেভ করা
+function saveCustomQaza() {
+    const currentData = loadQazaData();
+    const updatedData = {};
+
+    WAQTS.forEach(w => {
+        const inputVal = document.getElementById('input_' + w.id).value.trim();
+        if (inputVal !== "") {
+            const parsed = parseInt(inputVal);
+            updatedData[w.id] = (isNaN(parsed) || parsed < 0) ? 0 : parsed;
+        } else {
+            updatedData[w.id] = currentData[w.id] || 0;
+        }
+    });
+
+    if (confirm("আপনি কি নিশ্চিতভাবে এই নতুন কাজা সংখ্যা সেট করতে চান?")) {
+        saveQazaData(updatedData);
+        // ইনপুট বক্সগুলো রিসেট করা
+        WAQTS.forEach(w => {
+            document.getElementById('input_' + w.id).value = '';
+        });
+        alert("কাজা নামাজের হিসাব সফলভাবে সেভ হয়েছে!");
     }
 }
 
-// এক ওয়াক্ত করে মাইনাস করার ফাংশন
+// এক ওয়াক্ত করে মাইনাস করার ফাংশন (-১)
 function decrementWaqt(waqtId) {
     const data = loadQazaData();
     if (data[waqtId] > 0) {
@@ -502,46 +504,78 @@ function decrementWaqt(waqtId) {
     }
 }
 
-// ভুলবশত মাইনাস হলে ১ বাড়ানোর ব্যাকআপ অপশন
+// ভুলবশত মাইনাস হলে প্লাস করার ফাংশন (+১)
 function incrementWaqt(waqtId) {
     const data = loadQazaData();
-    data[waqtId] += 1;
+    data[waqtId] = (data[waqtId] || 0) + 1;
     saveQazaData(data);
+}
+
+// সরাসরি কোনো নির্দিষ্ট ওয়াক্তের সংখ্যা এডিট করার সুবিধা
+function editWaqtDirectly(waqtId, waqtName) {
+    const data = loadQazaData();
+    const currentVal = data[waqtId] || 0;
+    const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
+    
+    if (newVal !== null) {
+        const parsed = parseInt(newVal.trim());
+        if (!isNaN(parsed) && parsed >= 0) {
+            data[waqtId] = parsed;
+            saveQazaData(data);
+        } else {
+            alert("দয়া করে সঠিক সংখ্যা লিখুন!");
+        }
+    }
 }
 
 // UI রেন্ডার করা
 function renderQazaCards() {
     const container = document.getElementById('qaza-grid');
+    const totalEl = document.getElementById('total-qaza-count');
     if (!container) return;
-    
+
     const data = loadQazaData();
-    
+    let totalCount = 0;
+
     container.innerHTML = WAQTS.map(w => {
-        const count = data[w.id];
+        const count = data[w.id] || 0;
+        totalCount += count;
+        
         return `
-            <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin-bottom: 0;">
+            <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; margin-bottom: 0;">
                 <div>
-                    <div style="font-size: 18px; font-weight: bold; color: var(--gold-light);">${w.name}</div>
-                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
-                        অবশিষ্ট কাজা: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
+                    <div style="font-size: 17px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+                        <span>${w.name}</span>
+                        <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="সরাসরি এডিট করুন" 
+                                style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">
+                            ✏️
+                        </button>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
+                        বাকি: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
                     </div>
                 </div>
+                
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
-                            style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-muted); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                            style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
                         +
                     </button>
                     <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
-                            style="padding: 8px 14px; font-size: 14px; display: flex; align-items: center; gap: 4px;">
-                        <span>✔ আদায় হয়েছে (-১)</span>
+                            style="padding: 8px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                        <span>✔ আদায় (-১)</span>
                     </button>
                 </div>
             </div>
         `;
     }).join('');
+
+    if (totalEl) {
+        totalEl.innerText = totalCount;
+    }
 }
 
-// পেজ লোড হওয়ার সময় কার্ডগুলো প্রদর্শন
+// পেজ ওপেন হলে স্বয়ংক্রিয়ভাবে কার্ডগুলো লোড হবে
 renderQazaCards();
     </script>
 </body>
