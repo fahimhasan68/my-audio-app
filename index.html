@@ -66,7 +66,7 @@
             color: var(--bg-deep);
         }
 
-        /* মেইন কন্টেন্ট এরিয়া */
+        /* মেইন কন্টেন্ট এরিয়া */
         main {
             flex: 1;
             overflow-y: auto;
@@ -131,7 +131,7 @@
             white-space: pre-line;
         }
 
-        /* অডিও প্লেয়ার ও ডাউনলোড কন্ট্রোল */
+        /* অডিও প্লেয়ার ও ডাউনলোড কন্ট্রোল */
         .audio-controls {
             margin-top: 12px;
             display: flex;
@@ -246,63 +246,64 @@
         <section id="tab-notices" class="tab-section">
             <div id="notice-list" class="status-box">ডাটা লোড হচ্ছে...</div>
         </section>
+
         <!-- ৪. উমরি কাজা সেকশন -->
-<section id="tab-qaza" class="tab-section">
-    <!-- কাস্টম ইনপুট সেটআপ বক্স -->
-    <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7); margin-bottom: 20px;">
-        <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">⚙️ ওয়াক্ত অনুযায়ী কাজা সংখ্যা নির্ধারণ করুন</div>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
-            যে ওয়াক্ত যত দিন কাজা হয়েছে তা সংশ্লিষ্ট ঘরে লিখুন। এরপর "সংরক্ষণ করুন" বাটনে চাপ দিন।
-        </p>
-        
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
-            <div>
-                <label style="font-size: 12px; color: var(--gold-light);">ফজর (ওয়াক্ত):</label>
-                <input type="number" id="input_fajr" placeholder="০" min="0"
-                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            </div>
-            <div>
-                <label style="font-size: 12px; color: var(--gold-light);">যোহর (ওয়াক্ত):</label>
-                <input type="number" id="input_dhuhr" placeholder="০" min="0"
-                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            </div>
-            <div>
-                <label style="font-size: 12px; color: var(--gold-light);">আসর (ওয়াক্ত):</label>
-                <input type="number" id="input_asr" placeholder="০" min="0"
-                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            </div>
-            <div>
-                <label style="font-size: 12px; color: var(--gold-light);">মাগরিব (ওয়াক্ত):</label>
-                <input type="number" id="input_maghrib" placeholder="০" min="0"
-                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            </div>
-            <div>
-                <label style="font-size: 12px; color: var(--gold-light);">এশা (ওয়াক্ত):</label>
-                <input type="number" id="input_isha" placeholder="০" min="0"
-                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            </div>
-            <div>
-                <label style="font-size: 12px; color: var(--gold-light);">বিতর (ওয়াক্ত):</label>
-                <input type="number" id="input_witr" placeholder="০" min="0"
-                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            </div>
-        </div>
+        <section id="tab-qaza" class="tab-section">
+            <!-- কাস্টম ইনপুট সেটআপ বক্স -->
+            <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7); margin-bottom: 20px;">
+                <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">⚙️ ওয়াক্ত অনুযায়ী কাজা সংখ্যা নির্ধারণ করুন</div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+                    যে ওয়াক্ত যত দিন কাজা হয়েছে তা সংশ্লিষ্ট ঘরে লিখুন। এরপর "সংরক্ষণ করুন" বাটনে চাপ দিন।
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 12px; color: var(--gold-light);">ফজর (ওয়াক্ত):</label>
+                        <input type="number" id="input_fajr" placeholder="০" min="0"
+                               style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--gold-light);">যোহর (ওয়াক্ত):</label>
+                        <input type="number" id="input_dhuhr" placeholder="০" min="0"
+                               style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--gold-light);">আসর (ওয়াক্ত):</label>
+                        <input type="number" id="input_asr" placeholder="০" min="0"
+                               style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--gold-light);">মাগরিব (ওয়াক্ত):</label>
+                        <input type="number" id="input_maghrib" placeholder="০" min="0"
+                               style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--gold-light);">এশা (ওয়াক্ত):</label>
+                        <input type="number" id="input_isha" placeholder="০" min="0"
+                               style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--gold-light);">বিতর (ওয়াক্ত):</label>
+                        <input type="number" id="input_witr" placeholder="০" min="0"
+                               style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                    </div>
+                </div>
 
-        <button class="btn-gold" onclick="saveCustomQaza()" style="width: 100%; justify-content: center; padding: 10px;">
-            💾 নতুন হিসাব সংরক্ষণ করুন
-        </button>
-    </div>
+                <button class="btn-gold" onclick="saveCustomQaza()" style="width: 100%; justify-content: center; padding: 10px;">
+                    💾 নতুন হিসাব সংরক্ষণ করুন
+                </button>
+            </div>
 
-    <!-- সর্বমোট অবশিষ্ট হিসাব কার্ড -->
-    <div id="qaza-summary" class="item-card" style="text-align: center; border-color: var(--gold-main); padding: 12px; margin-bottom: 15px;">
-        <span style="font-size: 13px; color: var(--text-muted);">সর্বমোট অবশিষ্ট কাজা: </span>
-        <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--gold-main);">০</span>
-        <span style="font-size: 13px; color: var(--text-muted);"> ওয়াক্ত</span>
-    </div>
+            <!-- সর্বমোট অবশিষ্ট হিসাব কার্ড -->
+            <div id="qaza-summary" class="item-card" style="text-align: center; border-color: var(--gold-main); padding: 12px; margin-bottom: 15px;">
+                <span style="font-size: 13px; color: var(--text-muted);">সর্বমোট অবশিষ্ট কাজা: </span>
+                <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--gold-main);">০</span>
+                <span style="font-size: 13px; color: var(--text-muted);"> ওয়াক্ত</span>
+            </div>
 
-    <!-- ৬ ওয়াক্তের ট্র্যাকিং কার্ড গ্রিড -->
-    <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 12px;"></div>
-</section>
+            <!-- ৬ ওয়াক্তের ট্র্যাকিং কার্ড গ্রিড -->
+            <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </section>
     </main>
 
     <!-- নিচের মেনু বার -->
@@ -319,15 +320,13 @@
             <span class="nav-icon">📌</span>
             <span>নোটিশবোর্ড</span>
         </button>
-        <!-- নতুন উমরি কাজা বাটন -->
-    <button class="nav-item" onclick="switchTab('qaza', this)">
-        <span class="nav-icon">📿</span>
-        <span>উমরি কাজা</span>
-    </button>
+        <button class="nav-item" onclick="switchTab('qaza', this)">
+            <span class="nav-icon">📿</span>
+            <span>উমরি কাজা</span>
+        </button>
     </nav>
 
     <script>
-        // আপনার GitHub বা সার্ভারের data.json ফাইলের Raw লিংক এখানে বসাবেন
         const DATA_URL = "data.json";
 
         function switchTab(tabName, btnElement) {
@@ -340,14 +339,12 @@
 
         async function fetchContent() {
             try {
-                // ক্যাশ এড়াতে টাইমস্ট্যাম্প যুক্ত করা হয়েছে যাতে আপলোডের সাথে সাথেই নতুন ডাটা আসে
                 const response = await fetch(DATA_URL + '?t=' + new Date().getTime());
                 const data = await response.json();
                 renderAudios(data.audios || []);
                 renderArticles(data.articles || []);
                 renderNotices(data.notices || []);
             } catch (error) {
-                // অফলাইনে বা প্রথমবার টেস্ট করার জন্য ডেমো ডাটা
                 const demoData = {
                     audios: [
                         {
@@ -359,9 +356,9 @@
                     ],
                     articles: [
                         {
-                            title: "সময়ের মূল্য ও আত্মশুদ্ধি",
+                            title: "সময়ের মূল্য ও আত্মশুদ্ধি",
                             date: "২ নভেম্বর ২০২৬",
-                            content: "মানুষের জীবনের প্রতিটি মুহূর্ত অত্যন্ত মূল্যবান। আমাদের উচিত প্রতিদিন অন্তত কিছু সময় জ্ঞানার্জন ও আত্মসমালোচনায় ব্যয় করা।\n\nএখানে আপনি যত বড় ইচ্ছা প্রবন্ধ লিখতে পারবেন, প্যারাগ্রাফ আকারে সুন্দরভাবে দেখা যাবে।"
+                            content: "মানুষের জীবনের প্রতিটি মুহূর্ত অত্যন্ত মূল্যবান। আমাদের উচিত প্রতিদিন অন্তত কিছু সময় জ্ঞানার্জন ও আত্মসমালোচনায় ব্যয় করা।\n\nএখানে আপনি যত বড় ইচ্ছা প্রবন্ধ লিখতে পারবেন, প্যারাগ্রাফ আকারে সুন্দরভাবে দেখা যাবে।"
                         }
                     ],
                     notices: [
@@ -382,7 +379,7 @@
         function renderAudios(audios) {
             const container = document.getElementById('audio-list');
             if (audios.length === 0) {
-                container.innerHTML = '<div class="status-box">কোনো অডিও ফাইল পাওয়া যায়নি।</div>';
+                container.innerHTML = '<div class="status-box">কোনো অডিও ফাইল পাওয়া যায়নি।</div>';
                 return;
             }
             container.innerHTML = audios.map(item => `
@@ -421,7 +418,6 @@
             for (const item of articles) {
                 let textContent = item.content || '';
 
-                // যদি আলাদা .txt ফাইল বা এক্সটার্নাল লিংক থাকে
                 if (item.file) {
                     try {
                         const response = await fetch(item.file + '?t=' + new Date().getTime());
@@ -436,12 +432,19 @@
                 }
 
                 html += `
-                    <div class="item-card">
-                        <div class="card-header">
-                            <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
-                            <div class="item-date">${item.date || ''}</div>
-                        </div>
-                        <div class="item-desc" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; color: var(--text-light);text-align: left">${textContent}</div>
+                    <div class="item-card" style="padding: 0; overflow: hidden; margin-bottom: 14px;">
+                        <details style="cursor: pointer;">
+                            <summary style="padding: 16px; display: flex; justify-content: space-between; align-items: center; list-style: none; outline: none; user-select: none;">
+                                <div class="item-title" style="display: flex; align-items: center; gap: 8px;">
+                                    <span>📜 ${item.title || 'শিরোনামহীন'}</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="item-date">${item.date || ''}</span>
+                                    <span style="font-size: 13px; color: var(--gold-main);">▼</span>
+                                </div>
+                            </summary>
+                            <div class="item-desc" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
+                        </details>
                     </div>
                 `;
             }
@@ -467,142 +470,133 @@
             `).join('');
         }
 
-        // অ্যাপ চালু হলেই ডাটা লোড করবে
         fetchContent();
+
         // উমরি কাজা ট্র্যাকিং লজিক (সম্পূর্ণ লোকাল ডাটা)
-// উমরি কাজা ট্র্যাকিং লজিক (সম্পূর্ণ লোকাল ডাটা)
-const WAQTS = [
-    { id: 'fajr', name: 'ফজর' },
-    { id: 'dhuhr', name: 'যোহর' },
-    { id: 'asr', name: 'আসর' },
-    { id: 'maghrib', name: 'মাগরিব' },
-    { id: 'isha', name: 'এশা' },
-    { id: 'witr', name: 'বিতর' }
-];
+        const WAQTS = [
+            { id: 'fajr', name: 'ফজর' },
+            { id: 'dhuhr', name: 'যোহর' },
+            { id: 'asr', name: 'আসর' },
+            { id: 'maghrib', name: 'মাগরিব' },
+            { id: 'isha', name: 'এশা' },
+            { id: 'witr', name: 'বিতর' }
+        ];
 
-// ইউজারের ডিভাইসের লোকাল মেমোরি থেকে ডাটা আনা
-function loadQazaData() {
-    const saved = localStorage.getItem('user_umri_qaza_data');
-    if (saved) {
-        return JSON.parse(saved);
-    }
-    return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
-}
-
-function saveQazaData(data) {
-    localStorage.setItem('user_umri_qaza_data', JSON.stringify(data));
-    renderQazaCards();
-}
-
-// প্রতি ওয়াক্তের আলাদা ইনপুট সেভ করা
-function saveCustomQaza() {
-    const currentData = loadQazaData();
-    const updatedData = {};
-
-    WAQTS.forEach(w => {
-        const inputVal = document.getElementById('input_' + w.id).value.trim();
-        if (inputVal !== "") {
-            const parsed = parseInt(inputVal);
-            updatedData[w.id] = (isNaN(parsed) || parsed < 0) ? 0 : parsed;
-        } else {
-            updatedData[w.id] = currentData[w.id] || 0;
+        function loadQazaData() {
+            const saved = localStorage.getItem('user_umri_qaza_data');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
         }
-    });
 
-    if (confirm("আপনি কি নিশ্চিতভাবে এই নতুন কাজা সংখ্যা সেট করতে চান?")) {
-        saveQazaData(updatedData);
-        // ইনপুট বক্সগুলো রিসেট করা
-        WAQTS.forEach(w => {
-            document.getElementById('input_' + w.id).value = '';
-        });
-        alert("কাজা নামাজের হিসাব সফলভাবে সেভ হয়েছে!");
-    }
-}
+        function saveQazaData(data) {
+            localStorage.setItem('user_umri_qaza_data', JSON.stringify(data));
+            renderQazaCards();
+        }
 
-// এক ওয়াক্ত করে মাইনাস করার ফাংশন (-১)
-function decrementWaqt(waqtId) {
-    const data = loadQazaData();
-    if (data[waqtId] > 0) {
-        data[waqtId] -= 1;
-        saveQazaData(data);
-    } else {
-        alert("আলহামদুলিল্লাহ! এই ওয়াক্তের আর কোনো কাজা বাকি নেই।");
-    }
-}
+        function saveCustomQaza() {
+            const currentData = loadQazaData();
+            const updatedData = {};
 
-// ভুলবশত মাইনাস হলে প্লাস করার ফাংশন (+১)
-function incrementWaqt(waqtId) {
-    const data = loadQazaData();
-    data[waqtId] = (data[waqtId] || 0) + 1;
-    saveQazaData(data);
-}
+            WAQTS.forEach(w => {
+                const inputVal = document.getElementById('input_' + w.id).value.trim();
+                if (inputVal !== "") {
+                    const parsed = parseInt(inputVal);
+                    updatedData[w.id] = (isNaN(parsed) || parsed < 0) ? 0 : parsed;
+                } else {
+                    updatedData[w.id] = currentData[w.id] || 0;
+                }
+            });
 
-// সরাসরি কোনো নির্দিষ্ট ওয়াক্তের সংখ্যা এডিট করার সুবিধা
-function editWaqtDirectly(waqtId, waqtName) {
-    const data = loadQazaData();
-    const currentVal = data[waqtId] || 0;
-    const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
-    
-    if (newVal !== null) {
-        const parsed = parseInt(newVal.trim());
-        if (!isNaN(parsed) && parsed >= 0) {
-            data[waqtId] = parsed;
+            if (confirm("আপনি কি নিশ্চিতভাবে এই নতুন কাজা সংখ্যা সেট করতে চান?")) {
+                saveQazaData(updatedData);
+                WAQTS.forEach(w => {
+                    document.getElementById('input_' + w.id).value = '';
+                });
+                alert("কাজা নামাজের হিসাব সফলভাবে সেভ হয়েছে!");
+            }
+        }
+
+        function decrementWaqt(waqtId) {
+            const data = loadQazaData();
+            if (data[waqtId] > 0) {
+                data[waqtId] -= 1;
+                saveQazaData(data);
+            } else {
+                alert("আলহামদুলিল্লাহ! এই ওয়াক্তের আর কোনো কাজা বাকি নেই।");
+            }
+        }
+
+        function incrementWaqt(waqtId) {
+            const data = loadQazaData();
+            data[waqtId] = (data[waqtId] || 0) + 1;
             saveQazaData(data);
-        } else {
-            alert("দয়া করে সঠিক সংখ্যা লিখুন!");
         }
-    }
-}
 
-// UI রেন্ডার করা
-function renderQazaCards() {
-    const container = document.getElementById('qaza-grid');
-    const totalEl = document.getElementById('total-qaza-count');
-    if (!container) return;
+        function editWaqtDirectly(waqtId, waqtName) {
+            const data = loadQazaData();
+            const currentVal = data[waqtId] || 0;
+            const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
+            
+            if (newVal !== null) {
+                const parsed = parseInt(newVal.trim());
+                if (!isNaN(parsed) && parsed >= 0) {
+                    data[waqtId] = parsed;
+                    saveQazaData(data);
+                } else {
+                    alert("দয়া করে সঠিক সংখ্যা লিখুন!");
+                }
+            }
+        }
 
-    const data = loadQazaData();
-    let totalCount = 0;
+        function renderQazaCards() {
+            const container = document.getElementById('qaza-grid');
+            const totalEl = document.getElementById('total-qaza-count');
+            if (!container) return;
 
-    container.innerHTML = WAQTS.map(w => {
-        const count = data[w.id] || 0;
-        totalCount += count;
-        
-        return `
-            <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; margin-bottom: 0;">
-                <div>
-                    <div style="font-size: 17px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
-                        <span>${w.name}</span>
-                        <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="সরাসরি এডিট করুন" 
-                                style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">
-                            ✏️
-                        </button>
-                    </div>
-                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
-                        বাকি: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
-                    </div>
-                </div>
+            const data = loadQazaData();
+            let totalCount = 0;
+
+            container.innerHTML = WAQTS.map(w => {
+                const count = data[w.id] || 0;
+                totalCount += count;
                 
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
-                            style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                        +
-                    </button>
-                    <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
-                            style="padding: 8px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
-                        <span>✔ আদায় (-১)</span>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
+                return `
+                    <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; margin-bottom: 0;">
+                        <div>
+                            <div style="font-size: 17px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+                                <span>${w.name}</span>
+                                <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="সরাসরি এডিট করুন" 
+                                        style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">
+                                    ✏️
+                                </button>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
+                                বাকি: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
+                                    style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                                +
+                            </button>
+                            <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
+                                    style="padding: 8px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                <span>✔ আদায় (-১)</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
 
-    if (totalEl) {
-        totalEl.innerText = totalCount;
-    }
-}
+            if (totalEl) {
+                totalEl.innerText = totalCount;
+            }
+        }
 
-// পেজ ওপেন হলে স্বয়ংক্রিয়ভাবে কার্ডগুলো লোড হবে
-renderQazaCards();
+        renderQazaCards();
     </script>
 </body>
 </html>
