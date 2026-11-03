@@ -131,7 +131,36 @@
             white-space: pre-line;
         }
 
-        /* অডিও প্লেয়ার ও ডাউনলোড কন্ট্রোল */
+        /* ফন্ট কন্ট্রোল বার */
+        .font-control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(13, 51, 39, 0.7);
+            border: 1px solid var(--border-gold);
+            padding: 8px 14px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .font-btn {
+            background: transparent;
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            font-size: 14px;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .font-btn:active {
+            background-color: var(--gold-main);
+            color: var(--bg-deep);
+        }
+
+        /* অডিও প্লেয়ার ও কন্ট্রোল */
         .audio-controls {
             margin-top: 12px;
             display: flex;
@@ -239,6 +268,15 @@
 
         <!-- ২. প্রবন্ধ সেকশন -->
         <section id="tab-articles" class="tab-section">
+            <!-- ফন্ট সাইজ বড়-ছোট করার কন্ট্রোল বার -->
+            <div class="font-control-bar">
+                <span style="font-size: 13px; color: var(--gold-light);">🔍 লেখার আকার: <b id="font-size-display">১৬px</b></span>
+                <div style="display: flex; gap: 8px;">
+                    <button class="font-btn" onclick="changeArticleFontSize(-1)" title="লেখা ছোট করুন">A-</button>
+                    <button class="font-btn" onclick="resetArticleFontSize()" title="স্বাভাবিক আকার">ডিফল্ট</button>
+                    <button class="font-btn" onclick="changeArticleFontSize(1)" title="লেখা বড় করুন">A+</button>
+                </div>
+            </div>
             <div id="article-list" class="status-box">ডাটা লোড হচ্ছে...</div>
         </section>
 
@@ -249,7 +287,6 @@
 
         <!-- ৪. উমরি কাজা সেকশন -->
         <section id="tab-qaza" class="tab-section">
-            <!-- কাস্টম ইনপুট সেটআপ বক্স -->
             <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7); margin-bottom: 20px;">
                 <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">⚙️ ওয়াক্ত অনুযায়ী কাজা সংখ্যা নির্ধারণ করুন</div>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
@@ -294,14 +331,12 @@
                 </button>
             </div>
 
-            <!-- সর্বমোট অবশিষ্ট হিসাব কার্ড -->
             <div id="qaza-summary" class="item-card" style="text-align: center; border-color: var(--gold-main); padding: 12px; margin-bottom: 15px;">
                 <span style="font-size: 13px; color: var(--text-muted);">সর্বমোট অবশিষ্ট কাজা: </span>
                 <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--gold-main);">০</span>
                 <span style="font-size: 13px; color: var(--text-muted);"> ওয়াক্ত</span>
             </div>
 
-            <!-- ৬ ওয়াক্তের ট্র্যাকিং কার্ড গ্রিড -->
             <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </section>
     </main>
@@ -328,6 +363,34 @@
 
     <script>
         const DATA_URL = "data.json";
+
+        // ফন্ট সাইজ নিয়ন্ত্রণ লজিক (ডিফল্ট ১৬px)
+        let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
+
+        function updateArticleFontSizeUI() {
+            const displayEl = document.getElementById('font-size-display');
+            if (displayEl) {
+                displayEl.innerText = currentArticleFontSize + 'px';
+            }
+            document.querySelectorAll('.article-content-body').forEach(el => {
+                el.style.fontSize = currentArticleFontSize + 'px';
+            });
+        }
+
+        function changeArticleFontSize(delta) {
+            currentArticleFontSize += delta;
+            // সর্বনিম্ন ১২px এবং সর্বোচ্চ ২৮px পর্যন্ত সীমাবদ্ধ
+            if (currentArticleFontSize < 12) currentArticleFontSize = 12;
+            if (currentArticleFontSize > 28) currentArticleFontSize = 28;
+            localStorage.setItem('user_article_font_size', currentArticleFontSize);
+            updateArticleFontSizeUI();
+        }
+
+        function resetArticleFontSize() {
+            currentArticleFontSize = 16;
+            localStorage.setItem('user_article_font_size', currentArticleFontSize);
+            updateArticleFontSizeUI();
+        }
 
         function switchTab(tabName, btnElement) {
             document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
@@ -443,13 +506,14 @@
                                     <span style="font-size: 13px; color: var(--gold-main);">▼</span>
                                 </div>
                             </summary>
-                            <div class="item-desc" style="white-space: pre-wrap; font-size: 16px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
+                            <div class="item-desc article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
                         </details>
                     </div>
                 `;
             }
 
             container.innerHTML = html;
+            updateArticleFontSizeUI();
         }
 
         function renderNotices(notices) {
