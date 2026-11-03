@@ -248,23 +248,60 @@
         </section>
         <!-- ৪. উমরি কাজা সেকশন -->
 <section id="tab-qaza" class="tab-section">
-    <!-- ইনপুট সেটআপ বক্স -->
-    <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7);">
-        <div class="item-title" style="font-size: 16px; margin-bottom: 8px;">⚙️ মোট কাজা নামাজের হিসাব সেট করুন</div>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-            আনুমানিক কত দিনের (কিংবা বছরের) নামাজ কাজা হয়েছে তা নিচে লিখুন। সেভ বাটনে চাপ দিলে ৬ ওয়াক্তের জন্যই স্বয়ংক্রিয়ভাবে মোট হিসাব সেট হয়ে যাবে।
+    <!-- কাস্টম ইনপুট সেটআপ বক্স -->
+    <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7); margin-bottom: 20px;">
+        <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">⚙️ ওয়াক্ত অনুযায়ী কাজা সংখ্যা নির্ধারণ করুন</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+            যে ওয়াক্ত যত দিন কাজা হয়েছে তা সংশ্লিষ্ট ঘরে লিখুন। এরপর "সংরক্ষণ করুন" বাটনে চাপ দিন।
         </p>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="number" id="qazaDaysInput" placeholder="মোট দিনের সংখ্যা (যেমন: ৩৬৫)" 
-                   style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
-            <button class="btn-gold" onclick="setTotalQazaDays()">সেট করুন</button>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
+            <div>
+                <label style="font-size: 12px; color: var(--gold-light);">ফজর (ওয়াক্ত):</label>
+                <input type="number" id="input_fajr" placeholder="০" min="0"
+                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--gold-light);">যোহর (ওয়াক্ত):</label>
+                <input type="number" id="input_dhuhr" placeholder="০" min="0"
+                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--gold-light);">আসর (ওয়াক্ত):</label>
+                <input type="number" id="input_asr" placeholder="০" min="0"
+                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--gold-light);">মাগরিব (ওয়াক্ত):</label>
+                <input type="number" id="input_maghrib" placeholder="০" min="0"
+                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--gold-light);">এশা (ওয়াক্ত):</label>
+                <input type="number" id="input_isha" placeholder="০" min="0"
+                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: var(--gold-light);">বিতর (ওয়াক্ত):</label>
+                <input type="number" id="input_witr" placeholder="০" min="0"
+                       style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            </div>
         </div>
+
+        <button class="btn-gold" onclick="saveCustomQaza()" style="width: 100%; justify-content: center; padding: 10px;">
+            💾 নতুন হিসাব সংরক্ষণ করুন
+        </button>
     </div>
 
-    <!-- ৬ ওয়াক্তের কার্ড গ্রিড -->
-    <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-        <!-- জাভাস্ক্রিপ্ট দিয়ে কার্ডগুলো তৈরি হবে -->
+    <!-- সর্বমোট অবশিষ্ট হিসাব কার্ড -->
+    <div id="qaza-summary" class="item-card" style="text-align: center; border-color: var(--gold-main); padding: 12px; margin-bottom: 15px;">
+        <span style="font-size: 13px; color: var(--text-muted);">সর্বমোট অবশিষ্ট কাজা: </span>
+        <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--gold-main);">০</span>
+        <span style="font-size: 13px; color: var(--text-muted);"> ওয়াক্ত</span>
     </div>
+
+    <!-- ৬ ওয়াক্তের ট্র্যাকিং কার্ড গ্রিড -->
+    <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 12px;"></div>
 </section>
     </main>
 
@@ -407,6 +444,7 @@
         // অ্যাপ চালু হলেই ডাটা লোড করবে
         fetchContent();
         // উমরি কাজা ট্র্যাকিং লজিক (সম্পূর্ণ লোকাল ডাটা)
+// উমরি কাজা ট্র্যাকিং লজিক (সম্পূর্ণ লোকাল ডাটা)
 const WAQTS = [
     { id: 'fajr', name: 'ফজর' },
     { id: 'dhuhr', name: 'যোহর' },
