@@ -246,6 +246,26 @@
         <section id="tab-notices" class="tab-section">
             <div id="notice-list" class="status-box">ডাটা লোড হচ্ছে...</div>
         </section>
+        <!-- ৪. উমরি কাজা সেকশন -->
+<section id="tab-qaza" class="tab-section">
+    <!-- ইনপুট সেটআপ বক্স -->
+    <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7);">
+        <div class="item-title" style="font-size: 16px; margin-bottom: 8px;">⚙️ মোট কাজা নামাজের হিসাব সেট করুন</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            আনুমানিক কত দিনের (কিংবা বছরের) নামাজ কাজা হয়েছে তা নিচে লিখুন। সেভ বাটনে চাপ দিলে ৬ ওয়াক্তের জন্যই স্বয়ংক্রিয়ভাবে মোট হিসাব সেট হয়ে যাবে।
+        </p>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="number" id="qazaDaysInput" placeholder="মোট দিনের সংখ্যা (যেমন: ৩৬৫)" 
+                   style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+            <button class="btn-gold" onclick="setTotalQazaDays()">সেট করুন</button>
+        </div>
+    </div>
+
+    <!-- ৬ ওয়াক্তের কার্ড গ্রিড -->
+    <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+        <!-- জাভাস্ক্রিপ্ট দিয়ে কার্ডগুলো তৈরি হবে -->
+    </div>
+</section>
     </main>
 
     <!-- নিচের মেনু বার -->
@@ -262,6 +282,11 @@
             <span class="nav-icon">📌</span>
             <span>নোটিশবোর্ড</span>
         </button>
+        <!-- নতুন উমরি কাজা বাটন -->
+    <button class="nav-item" onclick="switchTab('qaza', this)">
+        <span class="nav-icon">📿</span>
+        <span>উমরি কাজা</span>
+    </button>
     </nav>
 
     <script>
@@ -381,6 +406,105 @@
 
         // অ্যাপ চালু হলেই ডাটা লোড করবে
         fetchContent();
+        // উমরি কাজা ট্র্যাকিং লজিক (সম্পূর্ণ লোকাল ডাটা)
+const WAQTS = [
+    { id: 'fajr', name: 'ফজর' },
+    { id: 'dhuhr', name: 'যোহর' },
+    { id: 'asr', name: 'আসর' },
+    { id: 'maghrib', name: 'মাগরিব' },
+    { id: 'isha', name: 'এশা' },
+    { id: 'witr', name: 'বিতর' }
+];
+
+// ইউজারের ডিভাইসের লোকাল মেমোরি থেকে ডাটা আনা
+function loadQazaData() {
+    const saved = localStorage.getItem('user_umri_qaza_data');
+    if (saved) {
+        return JSON.parse(saved);
+    }
+    // ডিফল্ট মান
+    return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
+}
+
+function saveQazaData(data) {
+    localStorage.setItem('user_umri_qaza_data', JSON.stringify(data));
+    renderQazaCards();
+}
+
+// ইউজার যখন একবারে দিনের সংখ্যা ইনপুট দেয়
+function setTotalQazaDays() {
+    const input = document.getElementById('qazaDaysInput');
+    const days = parseInt(input.value);
+    if (isNaN(days) || days < 0) {
+        alert("দয়া করে সঠিক দিনের সংখ্যা লিখুন!");
+        return;
+    }
+    if (confirm(`আপনি কি ৬ ওয়াক্ত নামাজের প্রতিটিতে মোট ${days} ওয়াক্ত কাজা সেট করতে চান?`)) {
+        const newData = {
+            fajr: days,
+            dhuhr: days,
+            asr: days,
+            maghrib: days,
+            isha: days,
+            witr: days
+        };
+        saveQazaData(newData);
+        input.value = '';
+    }
+}
+
+// এক ওয়াক্ত করে মাইনাস করার ফাংশন
+function decrementWaqt(waqtId) {
+    const data = loadQazaData();
+    if (data[waqtId] > 0) {
+        data[waqtId] -= 1;
+        saveQazaData(data);
+    } else {
+        alert("আলহামদুলিল্লাহ! এই ওয়াক্তের আর কোনো কাজা বাকি নেই।");
+    }
+}
+
+// ভুলবশত মাইনাস হলে ১ বাড়ানোর ব্যাকআপ অপশন
+function incrementWaqt(waqtId) {
+    const data = loadQazaData();
+    data[waqtId] += 1;
+    saveQazaData(data);
+}
+
+// UI রেন্ডার করা
+function renderQazaCards() {
+    const container = document.getElementById('qaza-grid');
+    if (!container) return;
+    
+    const data = loadQazaData();
+    
+    container.innerHTML = WAQTS.map(w => {
+        const count = data[w.id];
+        return `
+            <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin-bottom: 0;">
+                <div>
+                    <div style="font-size: 18px; font-weight: bold; color: var(--gold-light);">${w.name}</div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                        অবশিষ্ট কাজা: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
+                            style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-muted); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                        +
+                    </button>
+                    <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
+                            style="padding: 8px 14px; font-size: 14px; display: flex; align-items: center; gap: 4px;">
+                        <span>✔ আদায় হয়েছে (-১)</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// পেজ লোড হওয়ার সময় কার্ডগুলো প্রদর্শন
+renderQazaCards();
     </script>
 </body>
 </html>
