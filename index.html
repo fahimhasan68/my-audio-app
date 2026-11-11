@@ -400,43 +400,28 @@
             if (btnElement) btnElement.classList.add('active');
         }
 
-        // টাইমআউট সহ নিরাপদ ফেচ ফাংশন (যাতে ফ্রিজ না হয়)
+        // টাইমআউট সহ নিরাপদ ফেচ ফাংশন (যাতে ফ্রিজ না হয়)
         async function fetchWithTimeout(resource, options = {}) {
             const { timeout = 8000 } = options;
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), timeout);
-            try {
-                const response = await fetch(resource, {
-                    ...options,
-                    signal: controller.signal
-                });
-                clearTimeout(id);
-                return response;
-            } catch (error) {
-                clearTimeout(id);
-                throw error;
-            }
+            const response = await fetch(resource, {
+                ...options,
+                signal: controller.signal
+            });
+            clearTimeout(id);
+            return response;
         }
 
         // ইন্টারনেট আর্কাইভ থেকে অডিও লোড (CORS ফলব্যাক সহ)
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
-
-            // ফোন অফলাইনে থাকলে নোটিশ দিয়ে থামবে
-            if (!navigator.onLine) {
-                container.innerHTML = `
-                    <div class="status-box">
-                        📡 আপনি বর্তমানে অফলাইনে আছেন।<br>
-                        অডিও শুনতে ইন্টারনেট সংযোগ চালু করে রিফ্রেশ করুন।
-                    </div>
-                `;
-                return;
-            }
-
             container.innerHTML = '<div class="status-box">ইন্টারনেট আর্কাইভ থেকে অডিও লোড হচ্ছে...</div>';
 
-            const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`; const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
+            const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
+            // CORS পলিসি ফেইল করলে ব্যাকআপ প্রক্সি
+            const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
 
             let data = null;
 
@@ -450,7 +435,7 @@
                 console.warn("Direct fetch blocked or timed out, trying CORS fallback...");
             }
 
-            // ২. ফেইল করলে ফলব্যাক প্রক্সি দিয়ে চেষ্টা
+            // ২. ফেইল করলে ফলব্যাক প্রক্সি দিয়ে চেষ্টা
             if (!data || !data.result) {
                 try {
                     const fallbackResponse = await fetchWithTimeout(fallbackUrl, { timeout: 8000 });
@@ -489,16 +474,16 @@
                 return `
                     <div class="item-card">
                         <div class="card-header">
-                            <div class="item-title">🎙️ \${displayTitle}</div>
+                            <div class="item-title">🎙️ ${displayTitle}</div>
                         </div>
                         <div class="audio-controls">
                             <audio controls preload="none">
-                                <source src="\${fileUrl}" type="audio/ogg; codecs=opus">
-                                <source src="\${fileUrl}" type="audio/opus">
+                                <source src="${fileUrl}" type="audio/ogg; codecs=opus">
+                                <source src="${fileUrl}" type="audio/opus">
                                 আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
                             </audio>
                             <div class="action-row">
-                                <a href="\${fileUrl}" download class="btn-gold">⬇️ ডাউনলোড (.opus)</a>
+                                <a href="${fileUrl}" download class="btn-gold">⬇️ ডাউনলোড (.opus)</a>
                             </div>
                         </div>
                     </div>
@@ -507,7 +492,7 @@
         }
 
         async function fetchContent() {
-            // অডিও লোড আলাদাভাবে ব্যাকগ্রাউন্ডে চলবে
+            // অডিও লোড আলাদাভাবে ব্যাকগ্রাউন্ডে চলবে (অন্যান্য ট্যাবে কোনো বাধা দেবে না)
             fetchAudiosFromArchive();
 
             // data.json থেকে আর্টিকেল ও নোটিশ লোড
@@ -557,14 +542,14 @@
                         <details style="cursor: pointer;">
                             <summary style="padding: 16px; display: flex; justify-content: space-between; align-items: center; list-style: none; outline: none; user-select: none;">
                                 <div class="item-title" style="display: flex; align-items: center; gap: 8px;">
-                                    <span>📜 \${item.title || 'শিরোনামহীন'}</span>
+                                    <span>📜 ${item.title || 'শিরোনামহীন'}</span>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="item-date">\${item.date || ''}</span>
+                                    <span class="item-date">${item.date || ''}</span>
                                     <span style="font-size: 13px; color: var(--gold-main);">▼</span>
                                 </div>
                             </summary>
-                            <div class="item-desc article-content-body" style="white-space: pre-wrap; font-size: \${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">\${textContent}</div>
+                            <div class="item-desc article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
                         </details>
                     </div>
                 `;
@@ -584,12 +569,12 @@
             }
             container.innerHTML = notices.map(item => `
                 <div class="item-card">
-                    <span class="notice-badge">🔔 \${item.priority || 'সাধারণ নোটিশ'}</span>
+                    <span class="notice-badge">🔔 ${item.priority || 'সাধারণ নোটিশ'}</span>
                     <div class="card-header">
-                        <div class="item-title">\${item.title}</div>
-                        <div class="item-date">\${item.date}</div>
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-date">${item.date}</div>
                     </div>
-                    <div class="item-desc">\${item.content}</div>
+                    <div class="item-desc">${item.content}</div>
                 </div>
             `).join('');
         }
@@ -659,7 +644,7 @@
         function editWaqtDirectly(waqtId, waqtName) {
             const data = loadQazaData();
             const currentVal = data[waqtId] || 0;
-            const newVal = prompt(`\${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
+            const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
             
             if (newVal !== null) {
                 const parsed = parseInt(newVal.trim());
@@ -687,4 +672,40 @@
                 return `
                     <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; margin-bottom: 0;">
                         <div>
-                            <div style="font-size
+                            <div style="font-size: 17px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+                                <span>${w.name}</span>
+                                <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="সরাসরি এডিট করুন" 
+                                        style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">
+                                    ✏️
+                                </button>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
+                                বাকি: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
+                                    style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                                +
+                            </button>
+                            <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
+                                    style="padding: 8px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                <span>✔ আদায় (-১)</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (totalEl) {
+                totalEl.innerText = totalCount;
+            }
+        }
+
+        // পেজ লোড হলে রান হবে
+        fetchContent();
+        renderQazaCards();
+    </script>
+</body>
+</html>
