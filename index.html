@@ -1,3 +1,10 @@
+আপনার দেওয়া কোডে দুটি জিনিস যোগ করতে হবে:
+১. অফলাইন অবস্থায় অডিও ট্যাবে বার্তা দেখানো (`if (!navigator.onLine)` চেক)।
+২. পেজের নিচে সার্ভিস ওয়ার্কার রেজিস্টার করার স্ক্রিপ্ট যুক্ত করা (যাতে `sw.js` দিয়ে কিতাব ও উমরি কাজা সম্পূর্ণ অফলাইনে চলে)।
+
+নিচে সংশোধিত সম্পূর্ণ `index.html` কোড দেওয়া হলো:
+
+```html
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -362,7 +369,7 @@
 
     <script>
         const DATA_URL = "data.json";
-        const ARCHIVE_IDENTIFIER = "20261111_202611";
+        const ARCHIVE_IDENTIFIER = "20261103_20261103_1708";
 
         // ফন্ট সাইজ নিয়ন্ত্রণ
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
@@ -400,27 +407,43 @@
             if (btnElement) btnElement.classList.add('active');
         }
 
-        // টাইমআউট সহ নিরাপদ ফেচ ফাংশন (যাতে ফ্রিজ না হয়)
+        // টাইমআউট সহ নিরাপদ ফেচ ফাংশন (যাতে ফ্রিজ না হয়)
         async function fetchWithTimeout(resource, options = {}) {
             const { timeout = 8000 } = options;
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), timeout);
-            const response = await fetch(resource, {
-                ...options,
-                signal: controller.signal
-            });
-            clearTimeout(id);
-            return response;
+            try {
+                const response = await fetch(resource, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(id);
+                return response;
+            } catch (error) {
+                clearTimeout(id);
+                throw error;
+            }
         }
 
-        // ইন্টারনেট আর্কাইভ থেকে অডিও লোড (CORS ফলব্যাক সহ)
+        // ইন্টারনেট আর্কাইভ থেকে অডিও লোড (CORS ফলব্যাক ও অফলাইন চেক সহ)
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
+
+            // অফলাইন চেক: ইন্টারনেট না থাকলে সরাসরি নোটিশ দেবে
+            if (!navigator.onLine) {
+                container.innerHTML = `
+                    <div class="status-box">
+                        📡 আপনি বর্তমানে অফলাইনে আছেন।<br>
+                        অডিও শুনতে ইন্টারনেট সংযোগ চালু করে রিফ্রেশ করুন।
+                    </div>
+                `;
+                return;
+            }
+
             container.innerHTML = '<div class="status-box">ইন্টারনেট আর্কাইভ থেকে অডিও লোড হচ্ছে...</div>';
 
             const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
-            // CORS পলিসি ফেইল করলে ব্যাকআপ প্রক্সি
             const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
 
             let data = null;
@@ -435,7 +458,7 @@
                 console.warn("Direct fetch blocked or timed out, trying CORS fallback...");
             }
 
-            // ২. ফেইল করলে ফলব্যাক প্রক্সি দিয়ে চেষ্টা
+            // ২. ফেইল করলে ফলব্যাক প্রক্সি দিয়ে চেষ্টা
             if (!data || !data.result) {
                 try {
                     const fallbackResponse = await fetchWithTimeout(fallbackUrl, { timeout: 8000 });
@@ -492,7 +515,7 @@
         }
 
         async function fetchContent() {
-            // অডিও লোড আলাদাভাবে ব্যাকগ্রাউন্ডে চলবে (অন্যান্য ট্যাবে কোনো বাধা দেবে না)
+            // অডিও লোড আলাদাভাবে ব্যাকগ্রাউন্ডে চলবে
             fetchAudiosFromArchive();
 
             // data.json থেকে আর্টিকেল ও নোটিশ লোড
@@ -706,6 +729,17 @@
         // পেজ লোড হলে রান হবে
         fetchContent();
         renderQazaCards();
+
+        // সার্ভিস ওয়ার্কার রেজিস্টার (অফলাইন সাপোর্ট চালু করার জন্য)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch((err) => {
+                    console.log('SW registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
+
+```
