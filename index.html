@@ -33,7 +33,6 @@
             overflow: hidden;
         }
 
-        /* উপরের হেডার */
         header {
             background: linear-gradient(135deg, #0a2920 0%, #134636 100%);
             padding: 16px 20px;
@@ -66,7 +65,6 @@
             color: var(--bg-deep);
         }
 
-        /* মেইন কন্টেন্ট এরিয়া */
         main {
             flex: 1;
             overflow-y: auto;
@@ -88,7 +86,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* কার্ড ডিজাইন */
         .item-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-gold);
@@ -131,7 +128,6 @@
             white-space: pre-line;
         }
 
-        /* ফন্ট কন্ট্রোল বার */
         .font-control-bar {
             display: flex;
             justify-content: space-between;
@@ -160,7 +156,6 @@
             color: var(--bg-deep);
         }
 
-        /* অডিও প্লেয়ার ও কন্ট্রোল */
         .audio-controls {
             margin-top: 12px;
             display: flex;
@@ -195,7 +190,6 @@
             gap: 6px;
         }
 
-        /* নোটিশ ব্যাজ */
         .notice-badge {
             display: inline-block;
             background-color: rgba(212, 175, 55, 0.2);
@@ -207,7 +201,6 @@
             margin-bottom: 6px;
         }
 
-        /* নিচের নেভিগেশন বার */
         nav {
             position: fixed;
             bottom: 0;
@@ -257,13 +250,16 @@
 
     <header>
         <div class="app-title">দ্বীনি মেহনত</div>
-        <button class="refresh-btn" onclick="fetchContent()">🔄 আপডেট</button>
+        <button class="refresh-btn" onclick="manualRefresh()">🔄 আপডেট</button>
     </header>
 
     <main>
         <!-- ১. অডিও সেকশন -->
         <section id="tab-audio" class="tab-section active">
-            <div id="audio-list" class="status-box">অডিও লোড হচ্ছে...</div>
+            <div id="audio-list" class="status-box">
+                অডিও লোড করতে নিচে বাটনে চাপুন অথবা রিফ্রেশ করুন।<br>
+                <button class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🎧 অডিও লোড করুন</button>
+            </div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
@@ -363,8 +359,8 @@
     <script>
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261103_20261103_1708";
+        let isAudioLoaded = false;
 
-        // ফন্ট সাইজ নিয়ন্ত্রণ
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
 
         function updateArticleFontSizeUI() {
@@ -398,15 +394,370 @@
             const targetSection = document.getElementById('tab-' + tabName);
             if (targetSection) targetSection.classList.add('active');
             if (btnElement) btnElement.classList.add('active');
+
+            // অডিও ট্যাবে ঢুকলে এবং আগে লোড না হয়ে থাকলে ফেচ করবে
+            if (tabName === 'audio' && !isAudioLoaded && navigator.onLine) {
+                fetchAudiosFromArchive();
+            }
         }
 
-        // টাইমআউট সহ নিরাপদ ফেচ ফাংশন
-        async function fetchWithTimeout(resource, options = {}) {
-            const { timeout = 8000 } = options;
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), timeout);
+        // কঠোর টাইমআউট দিয়ে ফেচ (যাতে কোনো অবস্থায় ফ্রন্টএন্ড না আটকে)
+        function fetchWithTimeout(resource, timeout = 4000) {
+            return Promise.race([
+                fetch(resource),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request Timeout')), timeout)
+                )
+            ]);
+        }
+
+        // ইন্টারনেট আর্কাইভ থেকে অডিও লোড
+        async function fetchAudiosFromArchive() {
+            const container = document.getElementById('audio-list');
+            if (!container) return;
+
+            if (!navigator.onLine) {
+                container.innerHTML = `
+                    <div class="status-box">
+                        📡 আপনি বর্তমানে অফলাইনে আছেন।<br>
+                        অডিও শুনতে ইন্টারনেট চালু করে রিফ্রেশ করুন।
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="status-box">ইন্টারনেট আর্কাইভ থেকে অডিও লোড হচ্ছে...</div>';
+
+            const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
+            const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
+
+            let data = null;
+
             try {
-                const response = await fetch(resource, {
-                    ...options,
-                    signal: controller.signal
+                const response = await fetchWithTimeout(primaryUrl, 4000);
+                if (response.ok) {
+                    data = await response.json();
+                }
+            } catch (err) {
+                console.warn("Direct fetch failed, trying fallback...");
+            }
+
+            if (!data || !data.result) {
+                try {
+                    const fallbackResponse = await fetchWithTimeout(fallbackUrl, 5000);
+                    if (fallbackResponse.ok) {
+                        data = await fallbackResponse.json();
+                    }
+                } catch (fallbackErr) {
+                    console.error("All fetch attempts failed");
+                }
+            }
+
+            if (!data || !data.result) {
+                container.innerHTML = `
+                    <div class="status-box">
+                        অডিও লোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ পরীক্ষা করুন।<br>
+                        <button class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const audioFiles = data.result.filter(file => 
+                file.name && file.name.toLowerCase().endsWith('.opus')
+            );
+
+            if (audioFiles.length === 0) {
+                container.innerHTML = '<div class="status-box">কোনো অডিও ফাইল পাওয়া যায়নি।</div>';
+                return;
+            }
+
+            container.innerHTML = audioFiles.map(file => {
+                const fileUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
+                const displayTitle = file.name.replace(/\.opus$/i, '');
+
+                return `
+                    <div class="item-card">
+                        <div class="card-header">
+                            <div class="item-title">🎙️ ${displayTitle}</div>
+                        </div>
+                        <div class="audio-controls">
+                            <audio controls preload="none">
+                                <source src="${fileUrl}" type="audio/ogg; codecs=opus">
+                                <source src="${fileUrl}" type="audio/opus">
+                                আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
+                            </audio>
+                            <div class="action-row">
+                                <a href="${fileUrl}" download class="btn-gold">⬇️ ডাউনলোড (.opus)</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            isAudioLoaded = true;
+        }
+
+        // প্রবন্ধ ও নোটিশ লোড (লোকাল ক্যাশ ফার্স্ট মেকানিজম)
+        async function fetchContent() {
+            // ১. লোকাল ক্যাশ থেকে সাথে সাথে লোড (অফলাইনে থাকলেও মুহূর্তেই স্ক্রিনে আসবে)
+            const cachedSiteData = localStorage.getItem('user_cached_site_data');
+            let hasCache = false;
+            if (cachedSiteData) {
+                try {
+                    const parsed = JSON.parse(cachedSiteData);
+                    renderArticles(parsed.articles || []);
+                    renderNotices(parsed.notices || []);
+                    hasCache = true;
+                } catch(e) {}
+            }
+
+            // ২. ব্যাকগ্রাউন্ডে অনলাইন ডাটা আপডেট
+            if (navigator.onLine) {
+                try {
+                    const response = await fetchWithTimeout(DATA_URL, 3500);
+                    if (response.ok) {
+                        const data = await response.json();
+                        localStorage.setItem('user_cached_site_data', JSON.stringify(data));
+                        renderArticles(data.articles || []);
+                        renderNotices(data.notices || []);
+                    }
+                } catch (error) {
+                    if (!hasCache) {
+                        renderArticles([]);
+                        renderNotices([]);
+                    }
+                }
+            } else if (!hasCache) {
+                renderArticles([]);
+                renderNotices([]);
+            }
+        }
+
+        // প্রবন্ধ রেন্ডারিং ও টেক্সট ক্যাশিং
+        async function renderArticles(articles) {
+            const container = document.getElementById('article-list');
+            if (!container) return;
+
+            if (!articles || articles.length === 0) {
+                container.innerHTML = '<div class="status-box">কোনো প্রবন্ধ পাওয়া যায়নি।</div>';
+                return;
+            }
+
+            let html = '';
+            for (const item of articles) {
+                let textContent = item.content || '';
+
+                if (item.file) {
+                    const cacheKey = 'text_cache_' + item.file;
+                    const savedText = localStorage.getItem(cacheKey);
+
+                    if (savedText) {
+                        textContent = savedText;
+                    }
+
+                    if (navigator.onLine) {
+                        try {
+                            const response = await fetchWithTimeout(item.file, 3500);
+                            if (response.ok) {
+                                textContent = await response.text();
+                                localStorage.setItem(cacheKey, textContent);
+                            }
+                        } catch (err) {
+                            if (!savedText) {
+                                textContent = 'ফাইলটি পড়ার জন্য একবার ইন্টারনেট চালু করে লোড করে নিন।';
+                            }
+                        }
+                    } else if (!savedText) {
+                        textContent = 'ফাইলটি অফলাইনে পড়ার জন্য পূর্বে লোড করা হয়নি।';
+                    }
+                }
+
+                html += `
+                    <div class="item-card" style="padding: 0; overflow: hidden; margin-bottom: 14px;">
+                        <details style="cursor: pointer;">
+                            <summary style="padding: 16px; display: flex; justify-content: space-between; align-items: center; list-style: none; outline: none; user-select: none;">
+                                <div class="item-title" style="display: flex; align-items: center; gap: 8px;">
+                                    <span>📜 ${item.title || 'শিরোনামহীন'}</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="item-date">${item.date || ''}</span>
+                                    <span style="font-size: 13px; color: var(--gold-main);">▼</span>
+                                </div>
+                            </summary>
+                            <div class="item-desc article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
+                        </details>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            updateArticleFontSizeUI();
+        }
+
+        function renderNotices(notices) {
+            const container = document.getElementById('notice-list');
+            if (!container) return;
+
+            if (!notices || notices.length === 0) {
+                container.innerHTML = '<div class="status-box">বর্তমানে কোনো নতুন নোটিশ নেই।</div>';
+                return;
+            }
+            container.innerHTML = notices.map(item => `
+                <div class="item-card">
+                    <span class="notice-badge">🔔 ${item.priority || 'সাধারণ নোটিশ'}</span>
+                    <div class="card-header">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-date">${item.date}</div>
+                    </div>
+                    <div class="item-desc">${item.content}</div>
+                </div>
+            `).join('');
+        }
+
+        // উমরি কাজা ট্র্যাকিং লজিক
+        const WAQTS = [
+            { id: 'fajr', name: 'ফজর' },
+            { id: 'dhuhr', name: 'যোহর' },
+            { id: 'asr', name: 'আসর' },
+            { id: 'maghrib', name: 'মাগরিব' },
+            { id: 'isha', name: 'এশা' },
+            { id: 'witr', name: 'বিতর' }
+        ];
+
+        function loadQazaData() {
+            const saved = localStorage.getItem('user_umri_qaza_data');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
+        }
+
+        function saveQazaData(data) {
+            localStorage.setItem('user_umri_qaza_data', JSON.stringify(data));
+            renderQazaCards();
+        }
+
+        function saveCustomQaza() {
+            const currentData = loadQazaData();
+            const updatedData = {};
+
+            WAQTS.forEach(w => {
+                const inputVal = document.getElementById('input_' + w.id).value.trim();
+                if (inputVal !== "") {
+                    const parsed = parseInt(inputVal);
+                    updatedData[w.id] = (isNaN(parsed) || parsed < 0) ? 0 : parsed;
+                } else {
+                    updatedData[w.id] = currentData[w.id] || 0;
+                }
+            });
+
+            if (confirm("আপনি কি নিশ্চিতভাবে এই নতুন কাজা সংখ্যা সেট করতে চান?")) {
+                saveQazaData(updatedData);
+                WAQTS.forEach(w => {
+                    document.getElementById('input_' + w.id).value = '';
                 });
+                alert("কাজা নামাজের হিসাব সফলভাবে সেভ হয়েছে!");
+            }
+        }
+
+        function decrementWaqt(waqtId) {
+            const data = loadQazaData();
+            if (data[waqtId] > 0) {
+                data[waqtId] -= 1;
+                saveQazaData(data);
+            } else {
+                alert("আলহামদুলিল্লাহ! এই ওয়াক্তের আর কোনো কাজা বাকি নেই।");
+            }
+        }
+
+        function incrementWaqt(waqtId) {
+            const data = loadQazaData();
+            data[waqtId] = (data[waqtId] || 0) + 1;
+            saveQazaData(data);
+        }
+
+        function editWaqtDirectly(waqtId, waqtName) {
+            const data = loadQazaData();
+            const currentVal = data[waqtId] || 0;
+            const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
+            
+            if (newVal !== null) {
+                const parsed = parseInt(newVal.trim());
+                if (!isNaN(parsed) && parsed >= 0) {
+                    data[waqtId] = parsed;
+                    saveQazaData(data);
+                } else {
+                    alert("দয়া করে সঠিক সংখ্যা লিখুন!");
+                }
+            }
+        }
+
+        function renderQazaCards() {
+            const container = document.getElementById('qaza-grid');
+            const totalEl = document.getElementById('total-qaza-count');
+            if (!container) return;
+
+            const data = loadQazaData();
+            let totalCount = 0;
+
+            container.innerHTML = WAQTS.map(w => {
+                const count = data[w.id] || 0;
+                totalCount += count;
+                
+                return `
+                    <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; margin-bottom: 0;">
+                        <div>
+                            <div style="font-size: 17px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+                                <span>${w.name}</span>
+                                <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="সরাসরি এডিট করুন" 
+                                        style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">
+                                    ✏️
+                                </button>
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
+                                বাকি: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
+                                    style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                                +
+                            </button>
+                            <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
+                                    style="padding: 8px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+                                <span>✔ আদায় (-১)</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (totalEl) {
+                totalEl.innerText = totalCount;
+            }
+        }
+
+        function manualRefresh() {
+            fetchContent();
+            if (navigator.onLine) {
+                isAudioLoaded = false;
+                fetchAudiosFromArchive();
+            }
+        }
+
+        // শুরুতে লোড
+        fetchContent();
+        renderQazaCards();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch((err) => {
+                    console.log('SW registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
