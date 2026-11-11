@@ -263,12 +263,11 @@
     <main>
         <!-- ১. অডিও সেকশন -->
         <section id="tab-audio" class="tab-section active">
-            <div id="audio-list" class="status-box">ডাটা লোড হচ্ছে...</div>
+            <div id="audio-list" class="status-box">অডিও লোড হচ্ছে...</div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
         <section id="tab-articles" class="tab-section">
-            <!-- ফন্ট সাইজ বড়-ছোট করার কন্ট্রোল বার -->
             <div class="font-control-bar">
                 <span style="font-size: 13px; color: var(--gold-light);">🔍 লেখার আকার: <b id="font-size-display">১৬px</b></span>
                 <div style="display: flex; gap: 8px;">
@@ -363,8 +362,9 @@
 
     <script>
         const DATA_URL = "data.json";
+        // ইন্টারনেট আর্কাইভের আইটেম আইডেন্টিফায়ার
+        const ARCHIVE_IDENTIFIER = "20261103_20261103_1708";
 
-        // ফন্ট সাইজ নিয়ন্ত্রণ লজিক (ডিফল্ট ১৬px)
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
 
         function updateArticleFontSizeUI() {
@@ -379,7 +379,6 @@
 
         function changeArticleFontSize(delta) {
             currentArticleFontSize += delta;
-            // সর্বনিম্ন ১২px এবং সর্বোচ্চ ২৮px পর্যন্ত সীমাবদ্ধ
             if (currentArticleFontSize < 12) currentArticleFontSize = 12;
             if (currentArticleFontSize > 28) currentArticleFontSize = 28;
             localStorage.setItem('user_article_font_size', currentArticleFontSize);
@@ -400,70 +399,67 @@
             btnElement.classList.add('active');
         }
 
-        async function fetchContent() {
+        // আর্কাইভ থেকে স্বয়ংক্রিয়ভাবে সব .opus ফাইল রিড করার ফাংশন
+        async function fetchAudiosFromArchive() {
+            const container = document.getElementById('audio-list');
+            if (!container) return;
+            container.innerHTML = '<div class="status-box">ইন্টারনেট আর্কাইভ থেকে অডিও তালিকা লোড হচ্ছে...</div>';
+
             try {
-                const response = await fetch(DATA_URL + '?t=' + new Date().getTime());
+                const response = await fetch(`https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`);
                 const data = await response.json();
-                renderAudios(data.audios || []);
-                renderArticles(data.articles || []);
-                renderNotices(data.notices || []);
+                
+                const audioFiles = (data.result || []).filter(file => 
+                    file.name && file.name.toLowerCase().endsWith('.opus')
+                );
+
+                if (audioFiles.length === 0) {
+                    container.innerHTML = '<div class="status-box">কোনো অডিও ফাইল পাওয়া যায়নি।</div>';
+                    return;
+                }
+
+                container.innerHTML = audioFiles.map(file => {
+                    const fileUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
+                    const displayTitle = file.name.replace(/\.opus\$/i, '');
+
+                    return `
+                        <div class="item-card">
+                            <div class="card-header">
+                                <div class="item-title">🎙️ ${displayTitle}</div>
+                            </div>
+                            <div class="audio-controls">
+                                <audio controls preload="none">
+                                    <source src="${fileUrl}" type="audio/ogg; codecs=opus">
+                                    <source src="${fileUrl}" type="audio/opus">
+                                    আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
+                                </audio>
+                                <div class="action-row">
+                                    <a href="${fileUrl}" download class="btn-gold">⬇️ ডাউনলোড (.opus)</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
             } catch (error) {
-                const demoData = {
-                    audios: [
-                        {
-                            title: "দারসুল কুরআন ও বিশেষ আলোচনা - পর্ব ১",
-                            date: "২ নভেম্বর ২০২৬",
-                            note: "অডিওটি শুনতে প্লে বাটনে চাপুন অথবা ডাউনলোড করে অফলাইনে শুনুন।",
-                            url: "sample.opus"
-                        }
-                    ],
-                    articles: [
-                        {
-                            title: "সময়ের মূল্য ও আত্মশুদ্ধি",
-                            date: "২ নভেম্বর ২০২৬",
-                            content: "মানুষের জীবনের প্রতিটি মুহূর্ত অত্যন্ত মূল্যবান। আমাদের উচিত প্রতিদিন অন্তত কিছু সময় জ্ঞানার্জন ও আত্মসমালোচনায় ব্যয় করা।\n\nএখানে আপনি যত বড় ইচ্ছা প্রবন্ধ লিখতে পারবেন, প্যারাগ্রাফ আকারে সুন্দরভাবে দেখা যাবে।"
-                        }
-                    ],
-                    notices: [
-                        {
-                            title: "আগামী শুক্রবারের বিশেষ সেশন প্রসঙ্গে",
-                            date: "২ নভেম্বর ২০২৬",
-                            priority: "জরুরি নোটিশ",
-                            content: "আগামী শুক্রবার বাদ মাগরিব নতুন অডিও লেকচার আপলোড করা হবে ইনশাআল্লাহ।"
-                        }
-                    ]
-                };
-                renderAudios(demoData.audios);
-                renderArticles(demoData.articles);
-                renderNotices(demoData.notices);
+                container.innerHTML = '<div class="status-box">অডিও লোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>';
             }
         }
 
-        function renderAudios(audios) {
-            const container = document.getElementById('audio-list');
-            if (audios.length === 0) {
-                container.innerHTML = '<div class="status-box">কোনো অডিও ফাইল পাওয়া যায়নি।</div>';
-                return;
+        async function fetchContent() {
+            // ১. ইন্টারনেট আর্কাইভ থেকে স্বয়ংক্রিয় অডিও ফেচ
+            fetchAudiosFromArchive();
+
+            // ২. data.json থেকে আর্টিকেল ও নোটিশ ফেচ
+            try {
+                const response = await fetch(DATA_URL + '?t=' + new Date().getTime());
+                const data = await response.json();
+                renderArticles(data.articles || []);
+                renderNotices(data.notices || []);
+            } catch (error) {
+                renderArticles([]);
+                renderNotices([]);
             }
-            container.innerHTML = audios.map(item => `
-                <div class="item-card">
-                    <div class="card-header">
-                        <div class="item-title">🎙️ ${item.title}</div>
-                        <div class="item-date">${item.date}</div>
-                    </div>
-                    ${item.note ? `<div class="item-desc">${item.note}</div>` : ''}
-                    <div class="audio-controls">
-                        <audio controls preload="none">
-                            <source src="${item.url}" type="audio/ogg; codecs=opus">
-                            <source src="${item.url}" type="audio/opus">
-                            আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
-                        </audio>
-                        <div class="action-row">
-                            <a href="${item.url}" download class="btn-gold">⬇️ ডাউনলোড (.opus)</a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
         }
 
         async function renderArticles(articles) {
@@ -471,196 +467,4 @@
             if (!container) return;
 
             if (!articles || articles.length === 0) {
-                container.innerHTML = '<div class="status-box">কোনো প্রবন্ধ পাওয়া যায়নি।</div>';
-                return;
-            }
-
-            container.innerHTML = '<div class="status-box">প্রবন্ধ লোড হচ্ছে...</div>';
-
-            let html = '';
-            for (const item of articles) {
-                let textContent = item.content || '';
-
-                if (item.file) {
-                    try {
-                        const response = await fetch(item.file + '?t=' + new Date().getTime());
-                        if (response.ok) {
-                            textContent = await response.text();
-                        } else {
-                            textContent = 'দুঃখিত, টেক্সট ফাইলটি লোড করা যায়নি (ফাইল লিংক চেক করুন)।';
-                        }
-                    } catch (err) {
-                        textContent = 'ফাইলটি পড়তে সমস্যা হচ্ছে। ইন্টারনেট সংযোগ পরীক্ষা করুন।';
-                    }
-                }
-
-                html += `
-                    <div class="item-card" style="padding: 0; overflow: hidden; margin-bottom: 14px;">
-                        <details style="cursor: pointer;">
-                            <summary style="padding: 16px; display: flex; justify-content: space-between; align-items: center; list-style: none; outline: none; user-select: none;">
-                                <div class="item-title" style="display: flex; align-items: center; gap: 8px;">
-                                    <span>📜 ${item.title || 'শিরোনামহীন'}</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="item-date">${item.date || ''}</span>
-                                    <span style="font-size: 13px; color: var(--gold-main);">▼</span>
-                                </div>
-                            </summary>
-                            <div class="item-desc article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
-                        </details>
-                    </div>
-                `;
-            }
-
-            container.innerHTML = html;
-            updateArticleFontSizeUI();
-        }
-
-        function renderNotices(notices) {
-            const container = document.getElementById('notice-list');
-            if (notices.length === 0) {
-                container.innerHTML = '<div class="status-box">বর্তমানে কোনো নতুন নোটিশ নেই।</div>';
-                return;
-            }
-            container.innerHTML = notices.map(item => `
-                <div class="item-card">
-                    <span class="notice-badge">🔔 ${item.priority || 'সাধারণ নোটিশ'}</span>
-                    <div class="card-header">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-date">${item.date}</div>
-                    </div>
-                    <div class="item-desc">${item.content}</div>
-                </div>
-            `).join('');
-        }
-
-        fetchContent();
-
-        // উমরি কাজা ট্র্যাকিং লজিক (সম্পূর্ণ লোকাল ডাটা)
-        const WAQTS = [
-            { id: 'fajr', name: 'ফজর' },
-            { id: 'dhuhr', name: 'যোহর' },
-            { id: 'asr', name: 'আসর' },
-            { id: 'maghrib', name: 'মাগরিব' },
-            { id: 'isha', name: 'এশা' },
-            { id: 'witr', name: 'বিতর' }
-        ];
-
-        function loadQazaData() {
-            const saved = localStorage.getItem('user_umri_qaza_data');
-            if (saved) {
-                return JSON.parse(saved);
-            }
-            return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
-        }
-
-        function saveQazaData(data) {
-            localStorage.setItem('user_umri_qaza_data', JSON.stringify(data));
-            renderQazaCards();
-        }
-
-        function saveCustomQaza() {
-            const currentData = loadQazaData();
-            const updatedData = {};
-
-            WAQTS.forEach(w => {
-                const inputVal = document.getElementById('input_' + w.id).value.trim();
-                if (inputVal !== "") {
-                    const parsed = parseInt(inputVal);
-                    updatedData[w.id] = (isNaN(parsed) || parsed < 0) ? 0 : parsed;
-                } else {
-                    updatedData[w.id] = currentData[w.id] || 0;
-                }
-            });
-
-            if (confirm("আপনি কি নিশ্চিতভাবে এই নতুন কাজা সংখ্যা সেট করতে চান?")) {
-                saveQazaData(updatedData);
-                WAQTS.forEach(w => {
-                    document.getElementById('input_' + w.id).value = '';
-                });
-                alert("কাজা নামাজের হিসাব সফলভাবে সেভ হয়েছে!");
-            }
-        }
-
-        function decrementWaqt(waqtId) {
-            const data = loadQazaData();
-            if (data[waqtId] > 0) {
-                data[waqtId] -= 1;
-                saveQazaData(data);
-            } else {
-                alert("আলহামদুলিল্লাহ! এই ওয়াক্তের আর কোনো কাজা বাকি নেই।");
-            }
-        }
-
-        function incrementWaqt(waqtId) {
-            const data = loadQazaData();
-            data[waqtId] = (data[waqtId] || 0) + 1;
-            saveQazaData(data);
-        }
-
-        function editWaqtDirectly(waqtId, waqtName) {
-            const data = loadQazaData();
-            const currentVal = data[waqtId] || 0;
-            const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা লিখুন:`, currentVal);
-            
-            if (newVal !== null) {
-                const parsed = parseInt(newVal.trim());
-                if (!isNaN(parsed) && parsed >= 0) {
-                    data[waqtId] = parsed;
-                    saveQazaData(data);
-                } else {
-                    alert("দয়া করে সঠিক সংখ্যা লিখুন!");
-                }
-            }
-        }
-
-        function renderQazaCards() {
-            const container = document.getElementById('qaza-grid');
-            const totalEl = document.getElementById('total-qaza-count');
-            if (!container) return;
-
-            const data = loadQazaData();
-            let totalCount = 0;
-
-            container.innerHTML = WAQTS.map(w => {
-                const count = data[w.id] || 0;
-                totalCount += count;
-                
-                return `
-                    <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; margin-bottom: 0;">
-                        <div>
-                            <div style="font-size: 17px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
-                                <span>${w.name}</span>
-                                <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="সরাসরি এডিট করুন" 
-                                        style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">
-                                    ✏️
-                                </button>
-                            </div>
-                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 3px;">
-                                বাকি: <span style="font-size: 16px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <button onclick="incrementWaqt('${w.id}')" title="১ ওয়াক্ত যোগ করুন" 
-                                    style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;">
-                                +
-                            </button>
-                            <button class="btn-gold" onclick="decrementWaqt('${w.id}')" 
-                                    style="padding: 8px 12px; font-size: 13px; display: flex; align-items: center; gap: 4px;">
-                                <span>✔ আদায় (-১)</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            if (totalEl) {
-                totalEl.innerText = totalCount;
-            }
-        }
-
-        renderQazaCards();
-    </script>
-</body>
-</html>
+                container.innerHTML = '<div class="status-box">
