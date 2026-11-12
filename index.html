@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>দ্বীনি মেহনত</title>
+    <meta name="theme-color" content="#164431">
     <style>
         :root {
-            --bg-deep: #071f18;
-            --bg-card: #0d3327;
-            --bg-surface: #134636;
-            --gold-main: #d4af37;
-            --gold-light: #f3e5ab;
-            --text-light: #ecfdf5;
-            --text-muted: #a7f3d0;
-            --border-gold: rgba(212, 175, 55, 0.35);
+            --green-primary: #164431;      /* কিতাবের প্রচ্ছদের গাঢ় সবুজ */
+            --green-dark: #0f3022;         /* গভীর সবুজ */
+            --green-soft: #e7efe9;         /* হালকা সবুজ হাইলাইট */
+            --cream-bg: #f6f5ee;           /* প্রচ্ছদের উপরের অফ-হোয়াইট/ক্রিম শেড */
+            --card-white: #ffffff;         /* পরিষ্কার সাদা কার্ড */
+            --gold-main: #d4af37;          /* সোনালী বর্ডার ও অ্যাকসেন্ট */
+            --gold-text: #f0d77b;          /* গাঢ় ব্যাকগ্রাউন্ডে সোনালী লেখা */
+            --text-dark: #163024;          /* আরামদায়ক গাঢ় টেক্সট */
+            --text-muted: #526b5e;         /* তারিখ ও সাব-টেক্সট */
+            --border-subtle: #d5dfd9;      /* হালকা বর্ডার */
         }
 
         * {
@@ -25,8 +28,10 @@
         }
 
         html, body {
-            background-color: var(--bg-deep);
-            color: var(--text-light);
+            background-color: var(--cream-bg);
+            background-image: radial-gradient(rgba(22, 68, 49, 0.06) 1px, transparent 1px);
+            background-size: 16px 16px;
+            color: var(--text-dark);
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -36,36 +41,37 @@
         }
 
         header {
-            background: linear-gradient(135deg, #0a2920 0%, #134636 100%);
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
             padding: 14px 18px;
-            border-bottom: 2px solid var(--gold-main);
+            border-bottom: 3px solid var(--gold-main);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
             flex-shrink: 0;
         }
 
         .app-title {
             font-size: 20px;
             font-weight: bold;
-            color: var(--gold-main);
+            color: var(--gold-text);
             letter-spacing: 0.5px;
         }
 
         .refresh-btn {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--gold-main);
-            color: var(--gold-light);
+            color: var(--gold-text);
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 13px;
             cursor: pointer;
+            transition: 0.2s;
         }
 
         .refresh-btn:active {
             background-color: var(--gold-main);
-            color: var(--bg-deep);
+            color: var(--green-dark);
         }
 
         main {
@@ -93,12 +99,13 @@
         }
 
         .item-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-gold);
+            background-color: var(--card-white);
+            border: 1px solid var(--border-subtle);
+            border-left: 4px solid var(--green-primary);
             border-radius: 12px;
             padding: 14px 16px;
             margin-bottom: 12px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+            box-shadow: 0 2px 8px rgba(22, 68, 49, 0.06);
             width: 100%;
             text-align: left;
         }
@@ -106,7 +113,7 @@
         .item-title {
             font-size: 17px;
             font-weight: bold;
-            color: var(--gold-light);
+            color: var(--green-primary);
             line-height: 1.5;
             width: 100%;
             text-align: left;
@@ -117,16 +124,16 @@
             font-size: 12px;
             color: var(--text-muted);
             display: inline-block;
-            margin-top: 6px;
+            margin-top: 5px;
         }
 
         .item-desc {
             font-size: 15px;
-            color: var(--text-light);
-            line-height: 1.7;
+            color: var(--text-dark);
+            line-height: 1.75;
             margin-top: 10px;
             white-space: pre-line;
-            border-top: 1px dashed var(--border-gold);
+            border-top: 1px dashed var(--border-subtle);
             padding-top: 10px;
             text-align: left;
         }
@@ -135,18 +142,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(13, 51, 39, 0.7);
-            border: 1px solid var(--border-gold);
+            background-color: var(--card-white);
+            border: 1px solid var(--gold-main);
             padding: 8px 12px;
             border-radius: 10px;
             margin-bottom: 12px;
             width: 100%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
         .font-btn {
-            background: transparent;
-            border: 1px solid var(--border-gold);
-            color: var(--gold-light);
+            background: var(--green-soft);
+            border: 1px solid var(--green-primary);
+            color: var(--green-primary);
             font-size: 13px;
             font-weight: bold;
             padding: 5px 12px;
@@ -155,8 +163,8 @@
         }
 
         .font-btn:active {
-            background-color: var(--gold-main);
-            color: var(--bg-deep);
+            background-color: var(--green-primary);
+            color: #ffffff;
         }
 
         .audio-controls {
@@ -173,29 +181,84 @@
         }
 
         .btn-gold {
-            background: linear-gradient(135deg, #d4af37 0%, #b59024 100%);
-            color: #071f18;
+            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+            color: var(--gold-text);
             text-decoration: none;
             font-weight: bold;
             font-size: 13px;
             padding: 8px 14px;
             border-radius: 8px;
-            border: none;
+            border: 1px solid var(--gold-main);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 5px rgba(22, 68, 49, 0.15);
+        }
+
+        .btn-gold:disabled {
+            opacity: 0.85;
+            cursor: wait;
         }
 
         .notice-badge {
             display: inline-block;
-            background-color: rgba(212, 175, 55, 0.2);
-            color: var(--gold-main);
-            border: 1px solid var(--gold-main);
+            background-color: var(--green-soft);
+            color: var(--green-primary);
+            border: 1px solid var(--green-primary);
             font-size: 12px;
+            font-weight: bold;
             padding: 2px 8px;
             border-radius: 4px;
             margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 9px 10px;
+            margin-top: 4px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: #fafaf7;
+            color: var(--text-dark);
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            border-color: var(--green-primary);
+            background: #ffffff;
+        }
+
+        /* নামাজের সময়সূচির সারি */
+        .prayer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 15px;
+        }
+
+        .prayer-row:last-child {
+            border-bottom: none;
+        }
+
+        .prayer-name {
+            font-weight: bold;
+            color: var(--green-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prayer-time {
+            font-weight: bold;
+            color: var(--text-dark);
+            background: var(--green-soft);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(22, 68, 49, 0.15);
         }
 
         nav {
@@ -203,38 +266,38 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: #051611;
-            border-top: 1px solid var(--border-gold);
+            background-color: var(--green-dark);
+            border-top: 2px solid var(--gold-main);
             display: flex;
             justify-content: space-around;
-            padding: 6px 0;
+            padding: 6px 2px;
             z-index: 100;
         }
 
         .nav-item {
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: #b7cfc3;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 3px;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
-            padding: 6px 12px;
+            padding: 6px 4px;
             border-radius: 8px;
             transition: 0.2s;
             flex: 1;
         }
 
         .nav-item.active {
-            color: var(--gold-main);
+            color: var(--gold-text);
             font-weight: bold;
-            background-color: rgba(212, 175, 55, 0.12);
+            background-color: rgba(212, 175, 55, 0.18);
         }
 
         .nav-icon {
-            font-size: 19px;
+            font-size: 18px;
         }
 
         .status-box {
@@ -242,37 +305,37 @@
             padding: 30px 15px;
             color: var(--text-muted);
             width: 100%;
+            line-height: 1.6;
         }
 
-        /* আরবি লেখার ফন্ট এবং সাইজ বড় ও অ্যাডজাস্টেবল করার জন্য */
-        /* আরবি লেখার ফন্ট এবং স্বাভাবিক ফাঁকা জায়গা ঠিক করার জন্য */
-/* মূল দরুদ ও আরবি পাঠের জন্য */
-.article-content-body .ar-box {
-    font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
-    font-size: 1.55em !important;
-    line-height: 1.85 !important;
-    text-align: right;
-    margin: -14px 0 !important;
-}
+        /* আরবি লেখার ফন্ট এবং স্বাভাবিক ফাঁকা জায়গা ঠিক করার জন্য */
+        .article-content-body .ar-box {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
+            font-size: 1.55em !important;
+            line-height: 1.85 !important;
+            text-align: right;
+            color: var(--green-dark);
+            margin: -14px 0 !important;
+        }
 
-/* হাদিস নম্বর (الحديث - ١) এর জন্য */
-.article-content-body .hadith-num {
-    font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
-    font-size: 1.15em !important;
-    font-weight: bold;
-    color: var(--gold-main);
-    text-align: right;
-    margin: -10px 0 -16px 0 !important;
-}
+        /* হাদিস নম্বর (الحديث - ١) এর জন্য */
+        .article-content-body .hadith-num {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
+            font-size: 1.15em !important;
+            font-weight: bold;
+            color: #9c7813;
+            text-align: right;
+            margin: -10px 0 -16px 0 !important;
+        }
 
-/* কিতাবের রেফারেন্স (صحيح البخاري) ছোট ও সুন্দর দেখানোর জন্য */
-.article-content-body .ref-box {
-    font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
-    font-size: 0.92em !important;
-    color: var(--text-muted);
-    text-align: left;
-    margin: -16px 0 -8px 0 !important;
-}
+        /* কিতাবের রেফারেন্স (صحيح البخاري) ছোট ও সুন্দর দেখানোর জন্য */
+        .article-content-body .ref-box {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
+            font-size: 0.92em !important;
+            color: var(--text-muted);
+            text-align: left;
+            margin: -16px 0 -8px 0 !important;
+        }
     </style>
 </head>
 <body>
@@ -294,8 +357,8 @@
         <!-- ২. প্রবন্ধ সেকশন -->
         <section id="tab-articles" class="tab-section">
             <div class="font-control-bar">
-                <span style="font-size: 13px; color: var(--gold-light);">🔍 লেখার আকার: <b id="font-size-display">16px</b></span>
-                <div style="display: flex; gap: 8px;">
+                <span style="font-size: 13px; color: var(--green-primary); font-weight: bold;">🔍 লেখার আকার: <b id="font-size-display">16px</b></span>
+                <div style="display: flex; gap: 6px;">
                     <button type="button" class="font-btn" onclick="changeArticleFontSize(-1)">A-</button>
                     <button type="button" class="font-btn" onclick="resetArticleFontSize()">ডিফল্ট</button>
                     <button type="button" class="font-btn" onclick="changeArticleFontSize(1)">A+</button>
@@ -304,43 +367,59 @@
             <div id="article-list" class="status-box">ডাটা লোড হচ্ছে...</div>
         </section>
 
-        <!-- ৩. নোটিশবোর্ড সেকশন -->
+        <!-- ৩. নামাজের সময়সূচি সেকশন -->
+        <section id="tab-prayer" class="tab-section">
+            <div class="item-card" style="border-top: 3px solid var(--gold-main);">
+                <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">🕌 জেলাভিত্তিক নামাজের সময়সূচি</div>
+                <label for="district-select" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                    আপনার জেলা নির্বাচন করুন (হানাফি মাজহাব অনুযায়ী):
+                </label>
+                <select id="district-select" class="form-input" onchange="onDistrictChange()" style="font-weight: bold; color: var(--green-primary);"></select>
+                <div id="prayer-date-info" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"></div>
+            </div>
+
+            <div id="prayer-times-container" class="item-card" style="padding: 0; overflow: hidden;">
+                <div class="status-box">সময়সূচি লোড হচ্ছে...</div>
+            </div>
+        </section>
+
+        <!-- ৪. নোটিশবোর্ড সেকশন -->
         <section id="tab-notices" class="tab-section">
             <div id="notice-list" class="status-box">ডাটা লোড হচ্ছে...</div>
         </section>
 
-        <!-- ৪. উমরি কাজা সেকশন -->
+        <!-- ৫. উমরি কাজা সেকশন -->
         <section id="tab-qaza" class="tab-section">
-            <div class="item-card" style="border: 1px dashed var(--gold-main); background: rgba(13, 51, 39, 0.7); margin-bottom: 16px;">
-                <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">⚙️ ওয়াক্ত অনুযায়ী কাজা নির্ধারণ</div>
+            <div class="item-card" style="border-top: 3px solid var(--gold-main); margin-bottom: 14px;">
+                <div class="item-title" style="font-size: 16px; margin-bottom: 4px;">⚙️ ওয়াক্ত অনুযায়ী কাজা নির্ধারণ</div>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
                     যে ওয়াক্ত যত দিন কাজা হয়েছে লিখে সংরক্ষণ করুন।
                 </p>
                 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
                     <div>
-                        <label style="font-size: 12px; color: var(--gold-light);">ফজর:</label>
-                        <input type="number" id="input_fajr" placeholder="০" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">ফজর:</label>
+                        <input type="number" id="input_fajr" placeholder="০" min="0" class="form-input">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--gold-light);">যোহর:</label>
-                        <input type="number" id="input_dhuhr" placeholder="০" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">যোহর:</label>
+                        <input type="number" id="input_dhuhr" placeholder="০" min="0" class="form-input">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--gold-light);">আসর:</label>
-                        <input type="number" id="input_asr" placeholder="০" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">আসর:</label>
+                        <input type="number" id="input_asr" placeholder="০" min="0" class="form-input">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--gold-light);">মাগরিব:</label>
-                        <input type="number" id="input_maghrib" placeholder="০" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">মাগরিব:</label>
+                        <input type="number" id="input_maghrib" placeholder="০" min="0" class="form-input">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--gold-light);">এশা:</label>
-                        <input type="number" id="input_isha" placeholder="০" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">এশা:</label>
+                        <input type="number" id="input_isha" placeholder="০" min="0" class="form-input">
                     </div>
                     <div>
-                        <label style="font-size: 12px; color: var(--gold-light);">বিতর:</label>
-                        <input type="number" id="input_witr" placeholder="০" min="0" style="width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid var(--border-gold); background: #071f18; color: #fff; outline: none;">
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">বিতর:</label>
+                        <input type="number" id="input_witr" placeholder="০" min="0" class="form-input">
                     </div>
                 </div>
 
@@ -349,10 +428,10 @@
                 </button>
             </div>
 
-            <div id="qaza-summary" class="item-card" style="text-align: center; border-color: var(--gold-main); padding: 10px; margin-bottom: 12px;">
-                <span style="font-size: 13px; color: var(--text-muted);">সর্বমোট অবশিষ্ট কাজা: </span>
-                <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--gold-main);">০</span>
-                <span style="font-size: 13px; color: var(--text-muted);"> ওয়াক্ত</span>
+            <div id="qaza-summary" class="item-card" style="text-align: center; background-color: var(--green-soft); border-color: var(--green-primary); padding: 10px; margin-bottom: 12px;">
+                <span style="font-size: 13px; color: var(--text-dark); font-weight: bold;">সর্বমোট অবশিষ্ট কাজা: </span>
+                <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--green-primary);">০</span>
+                <span style="font-size: 13px; color: var(--text-dark); font-weight: bold;"> ওয়াক্ত</span>
             </div>
 
             <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 10px;"></div>
@@ -368,9 +447,13 @@
             <span class="nav-icon">📖</span>
             <span>প্রবন্ধ</span>
         </button>
+        <button type="button" class="nav-item" data-tab="prayer" onclick="switchTab('prayer', this)">
+            <span class="nav-icon">🕌</span>
+            <span>নামাজ</span>
+        </button>
         <button type="button" class="nav-item" data-tab="notices" onclick="switchTab('notices', this)">
             <span class="nav-icon">📌</span>
-            <span>নোটিশবোর্ড</span>
+            <span>নোটিশ</span>
         </button>
         <button type="button" class="nav-item" data-tab="qaza" onclick="switchTab('qaza', this)">
             <span class="nav-icon">📿</span>
@@ -382,11 +465,77 @@
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
         
-        // পূর্বের সক্রিয় ট্যাব মনে রাখা (যাতে অফলাইনে রিলোড হলেও অডিও ট্যাবে ফিরে না যায়)
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         let isAudioLoaded = false;
-
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
+
+        // বাংলাদেশের ৬৪ জেলার তালিকা (বাংলা নাম ও API Query নাম)
+        const BD_DISTRICTS = [
+            { bn: "খুলনা", en: "Khulna" },
+            { bn: "ঢাকা", en: "Dhaka" },
+            { bn: "বাগেরহাট", en: "Bagerhat" },
+            { bn: "যশোর", en: "Jessore" },
+            { bn: "সাতক্ষীরা", en: "Satkhira" },
+            { bn: "কুষ্টিয়া", en: "Kushtia" },
+            { bn: "ঝিনাইদহ", en: "Jhenaidah" },
+            { bn: "মাগুরা", en: "Magura" },
+            { bn: "মেহেরপুর", en: "Meherpur" },
+            { bn: "নড়াইল", en: "Narail" },
+            { bn: "চুয়াডাঙ্গা", en: "Chuadanga" },
+            { bn: "চট্টগ্রাম", en: "Chittagong" },
+            { bn: "কক্সবাজার", en: "Cox's Bazar" },
+            { bn: "কুমিল্লা", en: "Comilla" },
+            { bn: "ব্রাহ্মণবাড়িয়া", en: "Brahmanbaria" },
+            { bn: "চাঁদপুর", en: "Chandpur" },
+            { bn: "নোয়াখালী", en: "Noakhali" },
+            { bn: "ফেনী", en: "Feni" },
+            { bn: "লক্ষ্মীপুর", en: "Lakshmipur" },
+            { bn: "রাঙ্গামাটি", en: "Rangamati" },
+            { bn: "খাগড়াছড়ি", en: "Khagrachhari" },
+            { bn: "বান্দরবান", en: "Bandarban" },
+            { bn: "সিলেট", en: "Sylhet" },
+            { bn: "মৌলভীবাজার", en: "Moulvibazar" },
+            { bn: "হবিগঞ্জ", en: "Habiganj" },
+            { bn: "সুনামগঞ্জ", en: "Sunamganj" },
+            { bn: "রাজশাহী", en: "Rajshahi" },
+            { bn: "বগুড়া", en: "Bogra" },
+            { bn: "পাবনা", en: "Pabna" },
+            { bn: "সিরাজগঞ্জ", en: "Sirajganj" },
+            { bn: "নাটোর", en: "Natore" },
+            { bn: "নওগাঁ", en: "Naogaon" },
+            { bn: "চাঁপাইনবাবগঞ্জ", en: "Chapainawabganj" },
+            { bn: "জয়পুরহাট", en: "Joypurhat" },
+            { bn: "রংপুর", en: "Rangpur" },
+            { bn: "দিনাজপুর", en: "Dinajpur" },
+            { bn: "গাইবান্ধা", en: "Gaibandha" },
+            { bn: "কুড়িগ্রাম", en: "Kurigram" },
+            { bn: "লালমনিরহাট", en: "Lalmonirhat" },
+            { bn: "নীলফামারী", en: "Nilphamari" },
+            { bn: "পঞ্চগড়", en: "Panchagarh" },
+            { bn: "ঠাকুরগাঁও", en: "Thakurgaon" },
+            { bn: "বরিশাল", en: "Barisal" },
+            { bn: "পটুয়াখালী", en: "Patuakhali" },
+            { bn: "ভোলা", en: "Bhola" },
+            { bn: "পিরোজপুর", en: "Pirojpur" },
+            { bn: "বরগুনা", en: "Barguna" },
+            { bn: "ঝালকাঠি", en: "Jhalokati" },
+            { bn: "ময়মনসিংহ", en: "Mymensingh" },
+            { bn: "জামালপুর", en: "Jamalpur" },
+            { bn: "নেত্রকোনা", en: "Netrokona" },
+            { bn: "শেরপুর", en: "Sherpur" },
+            { bn: "গাজীপুর", en: "Gazipur" },
+            { bn: "নারায়ণগঞ্জ", en: "Narayanganj" },
+            { bn: "টাঙ্গাইল", en: "Tangail" },
+            { bn: "কিশোরগঞ্জ", en: "Kishoreganj" },
+            { bn: "মানিকগঞ্জ", en: "Manikganj" },
+            { bn: "মুন্সিগঞ্জ", en: "Munshiganj" },
+            { bn: "নরসিংদী", en: "Narsingdi" },
+            { bn: "ফরিদপুর", en: "Faridpur" },
+            { bn: "গোপালগঞ্জ", en: "Gopalganj" },
+            { bn: "মাদারীপুর", en: "Madaripur" },
+            { bn: "রাজবাড়ী", en: "Rajbari" },
+            { bn: "শরীয়তপুর", en: "Shariatpur" }
+        ];
 
         function updateArticleFontSizeUI() {
             const displayEl = document.getElementById('font-size-display');
@@ -430,9 +579,12 @@
             if (tabName === 'audio' && !isAudioLoaded && navigator.onLine) {
                 fetchAudiosFromArchive();
             }
+            if (tabName === 'prayer') {
+                loadPrayerTimes();
+            }
         }
 
-        function fetchWithTimeout(resource, timeout = 4000) {
+        function fetchWithTimeout(resource, timeout = 4500) {
             return Promise.race([
                 fetch(resource),
                 new Promise((_, reject) =>
@@ -441,6 +593,7 @@
             ]);
         }
 
+        // ১. ইন্টারনেট আর্কাইভ থেকে অডিও লোড
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -461,13 +614,13 @@
 
             let data = null;
             try {
-                const response = await fetchWithTimeout(primaryUrl, 4000);
+                const response = await fetchWithTimeout(primaryUrl, 4500);
                 if (response.ok) data = await response.json();
             } catch (err) {}
 
             if (!data || !data.result) {
                 try {
-                    const fallbackResponse = await fetchWithTimeout(fallbackUrl, 5000);
+                    const fallbackResponse = await fetchWithTimeout(fallbackUrl, 5500);
                     if (fallbackResponse.ok) data = await fallbackResponse.json();
                 } catch (fallbackErr) {}
             }
@@ -506,7 +659,7 @@
                                 আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
                             </audio>
                             <div style="display: flex; justify-content: flex-end;">
-                                <a href="${fileUrl}" download class="btn-gold">⬇️ ডাউনলোড</a>
+                                <button type="button" class="btn-gold" onclick="downloadAudioFile('${fileUrl}', '${file.name}', this)">⬇️ ডাউনলোড</button>
                             </div>
                         </div>
                     </div>
@@ -516,6 +669,174 @@
             isAudioLoaded = true;
         }
 
+        // ২. লাইভ শতাংশ প্রগ্রেস দেখিয়ে ফোনের Downloads ডিরেক্টরিতে সেভ করার ফাংশন
+        async function downloadAudioFile(url, fileName, btnElement) {
+            if (!navigator.onLine) {
+                alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
+                return;
+            }
+
+            if (btnElement.disabled) return;
+            const originalText = btnElement.innerHTML;
+            btnElement.disabled = true;
+            btnElement.innerHTML = "⏳ সংযোগ হচ্ছে...";
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Network error");
+
+                const contentLength = response.headers.get('content-length');
+                const total = contentLength ? parseInt(contentLength, 10) : 0;
+                let loaded = 0;
+
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+
+                    if (total > 0) {
+                        const percent = Math.round((loaded / total) * 100);
+                        btnElement.innerHTML = `⏳ ডাউনলোড হচ্ছে... ${percent}%`;
+                    } else {
+                        const mb = (loaded / (1024 * 1024)).toFixed(1);
+                        btnElement.innerHTML = `⏳ ডাউনলোড হচ্ছে... ${mb} MB`;
+                    }
+                }
+
+                // ফাইলটি তৈরি করে ফোনের Downloads ফোল্ডারে সেভ করা
+                const blob = new Blob(chunks, { type: 'audio/ogg' });
+                const blobUrl = URL.createObjectURL(blob);
+
+                const tempLink = document.createElement('a');
+                tempLink.href = blobUrl;
+                tempLink.download = fileName;
+                document.body.appendChild(tempLink);
+                tempLink.click();
+                document.body.removeChild(tempLink);
+
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+                btnElement.innerHTML = "✅ সেভ সম্পন্ন (Downloads)";
+                setTimeout(() => {
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
+                }, 4500);
+
+            } catch (error) {
+                // কোনো ফোনের WebView যদি সরাসরি Blob সেভ ব্লক করে, তবে নেটিভ ডাউনলোড ম্যানেজার ওপেন করবে
+                btnElement.innerHTML = "↗️ ডাউনলোড শুরু হচ্ছে...";
+                window.open(url, '_system') || window.open(url, '_blank');
+                
+                setTimeout(() => {
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
+                }, 3000);
+            }
+        }
+
+        // ৩. জেলাভিত্তিক নামাজের সময়সূচি লোড (AlAdhan API + অফলাইন ক্যাশ)
+        function initDistrictDropdown() {
+            const selectEl = document.getElementById('district-select');
+            if (!selectEl) return;
+
+            const savedDistrict = localStorage.getItem('user_selected_district') || 'Khulna';
+            selectEl.innerHTML = BD_DISTRICTS.map(d => 
+                `<option value="${d.en}" ${d.en === savedDistrict ? 'selected' : ''}>${d.bn} (${d.en})</option>`
+            ).join('');
+        }
+
+        function onDistrictChange() {
+            const selectEl = document.getElementById('district-select');
+            if (!selectEl) return;
+            localStorage.setItem('user_selected_district', selectEl.value);
+            loadPrayerTimes();
+        }
+
+        function formatTo12HourBn(time24) {
+            if (!time24) return '--:--';
+            const cleanTime = time24.split(' ')[0];
+            let [hours, minutes] = cleanTime.split(':').map(Number);
+            const period = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            const formattedStr = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes} ${period}`;
+            
+            // ইংরেজি সংখ্যাকে বাংলায় রূপান্তর
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return formattedStr.replace(/\d/g, d => bnDigits[d]);
+        }
+
+        async function loadPrayerTimes() {
+            const container = document.getElementById('prayer-times-container');
+            const dateInfoEl = document.getElementById('prayer-date-info');
+            const city = localStorage.getItem('user_selected_district') || 'Khulna';
+            const cacheKey = 'prayer_cache_' + city;
+
+            // পূর্বে সেভ করা ডাটা থাকলে সাথে সাথে দেখাবে
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    renderPrayerUI(parsed.timings, parsed.dateReadable);
+                } catch(e) {}
+            } else {
+                container.innerHTML = '<div class="status-box">নামাজের সময়সূচি লোড হচ্ছে...</div>';
+            }
+
+            // অনলাইনে থাকলে AlAdhan API (Karachi Method = 1, Hanafi School = 1) থেকে লেটেস্ট সময় আনা
+            if (navigator.onLine) {
+                try {
+                    const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Bangladesh&method=1&school=1`;
+                    const response = await fetchWithTimeout(apiUrl, 4500);
+                    if (response.ok) {
+                        const json = await response.json();
+                        if (json && json.data && json.data.timings) {
+                            const timings = json.data.timings;
+                            const dateReadable = json.data.date ? json.data.date.readable : '';
+                            localStorage.setItem(cacheKey, JSON.stringify({ timings, dateReadable }));
+                            renderPrayerUI(timings, dateReadable);
+                        }
+                    }
+                } catch (err) {
+                    if (!cached) {
+                        container.innerHTML = '<div class="status-box">সময়সূচি লোড করতে ইন্টারনেট সংযোগ প্রয়োজন।</div>';
+                    }
+                }
+            } else if (!cached) {
+                container.innerHTML = '<div class="status-box">📡 অফলাইনে আছেন। প্রথমবার সময়সূচি ডাউনলোড করতে ইন্টারনেট চালু করুন।</div>';
+            }
+        }
+
+        function renderPrayerUI(timings, dateReadable) {
+            const container = document.getElementById('prayer-times-container');
+            const dateInfoEl = document.getElementById('prayer-date-info');
+            if (!container) return;
+
+            if (dateInfoEl && dateReadable) {
+                dateInfoEl.innerText = `📅 তারিখ: ${dateReadable}`;
+            }
+
+            const rows = [
+                { icon: '🌙', name: 'সেহরির শেষ সময় (ফজর)', time: timings.Fajr },
+                { icon: '🌅', name: 'সূর্যোদয়', time: timings.Sunrise },
+                { icon: '☀️', name: 'যোহর', time: timings.Dhuhr },
+                { icon: '🌤️', name: 'আসর (হানাফি)', time: timings.Asr },
+                { icon: '🌇', name: 'মাগরিব / ইফতার', time: timings.Maghrib },
+                { icon: '🌌', name: 'এশা', time: timings.Isha }
+            ];
+
+            container.innerHTML = rows.map(r => `
+                <div class="prayer-row">
+                    <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
+                    <div class="prayer-time">${formatTo12HourBn(r.time)}</div>
+                </div>
+            `).join('');
+        }
+
+        // ৪. প্রবন্ধ ও নোটিশ লোড
         async function fetchContent() {
             const cachedSiteData = localStorage.getItem('user_cached_site_data');
             let hasCache = false;
@@ -593,10 +914,10 @@
                                 <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
                                     <span class="item-date">তারিখ: ${item.date || '—'}</span>
-                                    <span style="font-size: 13px; color: var(--gold-main);">পড়ুন ▼</span>
+                                    <span style="font-size: 13px; font-weight: bold; color: var(--green-primary);">পড়ুন ▼</span>
                                 </div>
                             </summary>
-                            <div class="article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
+                            <div class="article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.85; color: var(--text-dark); text-align: left; padding: 14px 16px 18px 16px; background-color: #fcfcf9; border-top: 1px dashed var(--border-subtle);">${textContent}</div>
                         </details>
                     </div>
                 `;
@@ -627,6 +948,7 @@
             `).join('');
         }
 
+        // ৫. উমরি কাজা ট্র্যাকিং লজিক
         const WAQTS = [
             { id: 'fajr', name: 'ফজর' },
             { id: 'dhuhr', name: 'যোহর' },
@@ -717,17 +1039,17 @@
                 return `
                     <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; margin-bottom: 0;">
                         <div>
-                            <div style="font-size: 16px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
+                            <div style="font-size: 16px; font-weight: bold; color: var(--green-primary); display: flex; align-items: center; gap: 8px;">
                                 <span>${w.name}</span>
                                 <button type="button" onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="এডিট করুন" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">✏️</button>
                             </div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
-                                বাকি: <span style="font-size: 15px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
+                                বাকি: <span style="font-size: 15px; font-weight: bold; color: ${count === 0 ? '#15803d' : '#b45309'};">${count}</span> ওয়াক্ত
                             </div>
                         </div>
                         
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <button type="button" onclick="incrementWaqt('${w.id}')" style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px;">+</button>
+                            <button type="button" onclick="incrementWaqt('${w.id}')" style="background: var(--green-soft); border: 1px solid var(--green-primary); color: var(--green-primary); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">+</button>
                             <button type="button" class="btn-gold" onclick="decrementWaqt('${w.id}')" style="padding: 6px 12px; font-size: 12px;">✔ আদায় (-১)</button>
                         </div>
                     </div>
@@ -739,18 +1061,20 @@
 
         function manualRefresh() {
             fetchContent();
+            loadPrayerTimes();
             if (currentActiveTab === 'audio' && navigator.onLine) {
                 isAudioLoaded = false;
                 fetchAudiosFromArchive();
             }
         }
 
-        // পেজ লোড হওয়ার পর পূর্বের নির্বাচিত ট্যাবটি পুনরুদ্ধার করা
+        // ইনিশিয়ালাইজেশন
+        initDistrictDropdown();
         switchTab(currentActiveTab);
         fetchContent();
         renderQazaCards();
+        loadPrayerTimes();
 
-        // অফলাইনে সার্ভিস ওয়ার্কারের কারণে যেন পেজ রিলোড না হয় তার গার্ড
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 if (navigator.onLine) {
