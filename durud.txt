@@ -38,7 +38,7 @@
 
 ----------------------------------------
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ<br>
 
@@ -88,7 +88,7 @@
 
 ----------------------------------------
 
-<div dir="rtl" style="text-align: center; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: center; font-size: 1.65em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
 
@@ -98,7 +98,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 سَلَامٌ عَلَى عِبَادِهِ الَّذِينَ اصْطَفَى
 
@@ -108,7 +108,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 سَلَامٌ عَلَى الْمُرْسَلِينَ
 
@@ -122,7 +122,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١<br>
 
@@ -134,7 +134,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢<br>
 
@@ -146,7 +146,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣<br>
 
@@ -158,7 +158,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٤<br>
 
@@ -170,7 +170,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٥<br>
 
@@ -182,7 +182,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٦<br>
 
@@ -194,7 +194,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٧<br>
 
@@ -206,7 +206,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٨<br>
 
@@ -218,7 +218,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٩<br>
 
@@ -230,7 +230,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٠<br>
 
@@ -242,7 +242,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١١<br>
 
@@ -254,7 +254,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٢<br>
 
@@ -266,7 +266,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٣<br>
 
@@ -278,7 +278,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٤<br>
 
@@ -290,7 +290,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٥<br>
 
@@ -302,7 +302,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٦<br>
 
@@ -314,7 +314,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٧<br>
 
@@ -326,7 +326,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٨<br>
 
@@ -338,7 +338,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ١٩<br>
 
@@ -350,7 +350,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٠<br>
 
@@ -362,7 +362,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢١<br>
 
@@ -374,7 +374,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٢<br>
 
@@ -386,7 +386,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٣<br>
 
@@ -398,7 +398,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٤<br>
 
@@ -410,7 +410,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٥<br>
 
@@ -422,7 +422,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٦<br>
 
@@ -434,7 +434,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٧<br>
 
@@ -446,7 +446,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٨<br>
 
@@ -458,7 +458,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٢٩<br>
 
@@ -470,7 +470,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٠<br>
 
@@ -482,7 +482,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣١<br>
 
@@ -494,7 +494,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٢<br>
 
@@ -506,7 +506,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٣<br>
 
@@ -518,7 +518,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٤<br>
 
@@ -530,7 +530,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٥<br>
 
@@ -542,7 +542,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٦<br>
 
@@ -554,7 +554,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٧<br>
 
@@ -566,7 +566,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٨<br>
 
@@ -578,7 +578,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٣٩<br>
 
@@ -590,7 +590,7 @@
 
 
 
-<div dir="rtl" style="text-align: right; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
+<div dir="rtl" style="text-align: right; font-size: 1.55em; line-height: 2.2; font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif;">
 
 الحديث - ٤٠<br>
 
