@@ -168,16 +168,25 @@
         }
 
         .audio-controls {
-            margin-top: 12px;
+            margin-top: 10px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
+        }
+
+        /* অডিও প্লেয়ার এবং মিনিমালিস্ট বাটন একই লাইনে */
+        .audio-player-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
         }
 
         audio {
-            width: 100%;
-            height: 40px;
+            flex: 1;
+            height: 38px;
             border-radius: 8px;
+            min-width: 0;
         }
 
         .btn-gold {
@@ -196,53 +205,94 @@
             box-shadow: 0 2px 5px rgba(22, 68, 49, 0.15);
         }
 
-        .btn-gold:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .btn-saved {
-            background: var(--green-soft);
-            color: #15803d;
-            font-weight: bold;
-            font-size: 12px;
-            padding: 7px 12px;
-            border-radius: 8px;
-            border: 1px solid #15803d;
+        /* মিনিমালিস্ট গোলাকার ডাউনলোড আইকন বাটন */
+        .btn-icon-dl {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+            color: var(--gold-text);
+            border: 1px solid var(--gold-main);
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(22, 68, 49, 0.15);
+            transition: transform 0.15s ease, opacity 0.2s;
+            padding: 0;
         }
 
-        .btn-delete {
+        .btn-icon-dl:active {
+            transform: scale(0.92);
+        }
+
+        .btn-icon-dl:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        /* সেভ হওয়া অবস্থার ছোট্ট টিক ব্যাজ */
+        .badge-icon-saved {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--green-soft);
+            color: #15803d;
+            border: 1px solid #86efac;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* মিনিমালিস্ট ডিলিট আইকন বাটন */
+        .btn-icon-del {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             background: #fef2f2;
             color: #dc2626;
-            font-weight: bold;
-            font-size: 12px;
-            padding: 7px 10px;
-            border-radius: 8px;
             border: 1px solid #fecaca;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.15s ease;
+            padding: 0;
+        }
+
+        .btn-icon-del:active {
+            transform: scale(0.92);
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .spin-icon {
+            animation: spin 1s linear infinite;
         }
 
         .dl-status-box {
             display: none;
-            margin-top: 6px;
+            margin-top: 4px;
             background: var(--green-soft);
             border: 1px solid var(--green-primary);
             border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 12px;
+            padding: 8px 10px;
+            font-size: 11px;
             color: var(--text-dark);
         }
 
         .dl-progress-track {
             width: 100%;
-            height: 8px;
+            height: 6px;
             background: #cbd5e1;
             border-radius: 10px;
             overflow: hidden;
-            margin: 6px 0;
+            margin: 5px 0;
         }
 
         .dl-progress-fill {
@@ -398,7 +448,7 @@
 <body>
 
     <header>
-        <div class="app-title">দ্বীনি মেহনত <span style="font-size: 11px; opacity: 0.8;">v3.1</span></div>
+        <div class="app-title">দ্বীনি মেহনত</div>
         <button type="button" class="refresh-btn" onclick="manualRefresh()">🔄 আপডেট</button>
     </header>
 
@@ -528,8 +578,13 @@
         let isAudioLoaded = false;
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
 
-        // ইন-মেমোরি Blob URL ক্যাশ যাতে বারবার ডিস্ক থেকে না পড়তে হয়
         const activeBlobUrls = {};
+
+        // মিনিমালিস্ট SVG আইকনসমূহ
+        const SVG_DOWNLOAD = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+        const SVG_SPINNER = `<svg class="spin-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+        const SVG_CHECK = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const SVG_TRASH = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 
         const BD_DISTRICTS = [
             { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
@@ -641,7 +696,6 @@
             localStorage.setItem('user_offline_audio_list_v3', JSON.stringify(list));
         }
 
-        // Base64 স্ট্রিং থেকে নিরাপদ Blob URL তৈরি (Filesystem.readFile এর জন্য)
         function base64ToPlayableUrl(base64Str) {
             let clean = String(base64Str).replace(/\s/g, '');
             if (clean.startsWith('data:')) {
@@ -730,7 +784,7 @@
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার ও অফলাইন ফাইল প্লেয়ারে যুক্ত করা
+        // ২. অডিও কার্ড রেন্ডার (মিনিমালিস্ট আইকন বাটনসহ)
         async function renderAudioCards(files, isOfflineMode) {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -762,7 +816,6 @@
                         audioSrc = activeBlobUrls[file.name];
                         preloadMode = "metadata";
                     } else if (savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
-                        // রুট DATA ডিরেক্টরি থেকে ফাইলটি পড়ে Blob URL তৈরি করা (যাতে যেকোনো অ্যান্ড্রয়েডে ১০০% প্লে হয়)
                         try {
                             const { Filesystem } = window.Capacitor.Plugins;
                             const readRes = await Filesystem.readFile({
@@ -790,29 +843,29 @@
                     }
                 }
 
+                // মিনিমালিস্ট আইকন কন্ট্রোল
                 const actionButtons = isSaved
-                    ? `<div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="btn-saved">✅ অ্যাপে সেভ করা আছে</span>
-                            <button type="button" class="btn-delete" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">🗑️ মুছুন</button>
+                    ? `<div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                            <span class="badge-icon-saved" title="অফলাইনে সেভ করা আছে">${SVG_CHECK}</span>
+                            <button type="button" class="btn-icon-del" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">${SVG_TRASH}</button>
                        </div>`
-                    : `<button type="button" class="btn-gold" id="dl-btn-${idx}" onclick="saveAudioInApp('${fileUrl}', '${file.name}', ${idx})">⬇️ অফলাইনে সেভ করুন</button>`;
+                    : `<button type="button" class="btn-icon-dl" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${file.name}', ${idx})">${SVG_DOWNLOAD}</button>`;
 
                 return `
                     <div class="item-card">
                         <div class="item-title">🎙️ ${displayTitle}</div>
                         <div class="audio-controls">
-                            <audio controls preload="${preloadMode}" src="${audioSrc}">
-                                আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
-                            </audio>
-                            <div style="display: flex; justify-content: flex-end;">
+                            <div class="audio-player-row">
+                                <audio controls preload="${preloadMode}" src="${audioSrc}">
+                                    আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
+                                </audio>
                                 ${actionButtons}
                             </div>
                             <div id="dl-box-${idx}" class="dl-status-box">
-                                <div style="font-weight: bold; color: var(--green-primary); margin-bottom: 3px;">📄 ${displayTitle}</div>
                                 <div class="dl-progress-track">
                                     <div id="dl-fill-${idx}" class="dl-progress-fill"></div>
                                 </div>
-                                <div id="dl-text-${idx}" style="font-weight: bold;">সার্ভারের সাথে সংযোগ হচ্ছে...</div>
+                                <div id="dl-text-${idx}" style="font-weight: bold;">ডাউনলোড হচ্ছে... ০%</div>
                             </div>
                         </div>
                     </div>
@@ -822,10 +875,10 @@
             container.innerHTML = headerNotice + cardsHtml.join('');
         }
 
-        // ৩. কোনো সাবফোল্ডার ছাড়াই সরাসরি রুট DATA ডিরেক্টরিতে সেভ (ENOENT এরর মুক্ত)
+        // ৩. সরাসরি রুট DATA ডিরেক্টরিতে সেভ
         async function saveAudioInApp(url, fileName, idx) {
             if (!navigator.onLine) {
-                alert("অডিও সেভ করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
+                alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
                 return;
             }
 
@@ -836,7 +889,7 @@
 
             if (!btn || btn.disabled) return;
             btn.disabled = true;
-            btn.innerHTML = "⏳ সেভ হচ্ছে...";
+            btn.innerHTML = SVG_SPINNER;
             box.style.display = "block";
             fill.style.width = "10%";
             text.style.color = "var(--text-dark)";
@@ -845,7 +898,6 @@
             let progressTimer = null;
 
             try {
-                // কোনো সাবফোল্ডার (offline_audios/) দেওয়া হয়নি যাতে ENOENT না আসে
                 const safeFileName = `deeni_audio_${idx}_${Date.now()}.opus`;
 
                 if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
@@ -856,7 +908,7 @@
                         if (fakeProgress < 92) {
                             fakeProgress += 4;
                             fill.style.width = fakeProgress + "%";
-                            text.innerText = `অ্যাপ মেমোরিতে সেভ হচ্ছে... ${fakeProgress}%`;
+                            text.innerText = `ডাউনলোড হচ্ছে... ${fakeProgress}%`;
                         }
                     }, 450);
 
@@ -878,12 +930,12 @@
 
                         fill.style.width = "100%";
                         text.style.color = "#15803d";
-                        text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই অ্যাপ থেকে শুনতে পারবেন।";
+                        text.innerText = "✅ সেভ সম্পন্ন!";
 
                         setTimeout(() => {
                             isAudioLoaded = false;
                             fetchAudiosFromArchive();
-                        }, 800);
+                        }, 600);
                         return;
                     }
                 }
@@ -901,20 +953,20 @@
                 saveAudioMetadata({ name: fileName });
                 fill.style.width = "100%";
                 text.style.color = "#15803d";
-                text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই শুনতে পারবেন।";
+                text.innerText = "✅ সেভ সম্পন্ন!";
 
                 setTimeout(() => {
                     isAudioLoaded = false;
                     fetchAudiosFromArchive();
-                }, 800);
+                }, 600);
 
             } catch (error) {
                 if (progressTimer) clearInterval(progressTimer);
                 console.error("Save failed:", error);
                 fill.style.width = "0%";
                 text.style.color = "#dc2626";
-                text.innerText = "❌ সেভ ব্যর্থ হয়েছে: " + (error.message || "নেটওয়ার্ক সমস্যা");
-                btn.innerHTML = "⬇️ আবার চেষ্টা করুন";
+                text.innerText = "❌ ব্যর্থ হয়েছে, আবার চেষ্টা করুন।";
+                btn.innerHTML = SVG_DOWNLOAD;
                 btn.disabled = false;
             }
         }
