@@ -80,7 +80,7 @@
         .tab-section {
             display: none;
             width: 100%;
-            animation: fadeIn 0.25s ease;
+            animation: fadeIn 0.2s ease;
         }
 
         .tab-section.active {
@@ -88,7 +88,7 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+            from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -249,7 +249,7 @@
 
     <header>
         <div class="app-title">দ্বীনি মেহনত</div>
-        <button class="refresh-btn" onclick="manualRefresh()">🔄 আপডেট</button>
+        <button type="button" class="refresh-btn" onclick="manualRefresh()">🔄 আপডেট</button>
     </header>
 
     <main>
@@ -257,18 +257,18 @@
         <section id="tab-audio" class="tab-section active">
             <div id="audio-list" class="status-box">
                 অডিও তালিকা দেখতে নিচের বাটনে চাপ দিন।<br>
-                <button class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🎧 অডিও লোড করুন</button>
+                <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🎧 অডিও লোড করুন</button>
             </div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
         <section id="tab-articles" class="tab-section">
             <div class="font-control-bar">
-                <span style="font-size: 13px; color: var(--gold-light);">🔍 লেখার আকার: <b id="font-size-display">১৬px</b></span>
+                <span style="font-size: 13px; color: var(--gold-light);">🔍 লেখার আকার: <b id="font-size-display">16px</b></span>
                 <div style="display: flex; gap: 8px;">
-                    <button class="font-btn" onclick="changeArticleFontSize(-1)">A-</button>
-                    <button class="font-btn" onclick="resetArticleFontSize()">ডিফল্ট</button>
-                    <button class="font-btn" onclick="changeArticleFontSize(1)">A+</button>
+                    <button type="button" class="font-btn" onclick="changeArticleFontSize(-1)">A-</button>
+                    <button type="button" class="font-btn" onclick="resetArticleFontSize()">ডিফল্ট</button>
+                    <button type="button" class="font-btn" onclick="changeArticleFontSize(1)">A+</button>
                 </div>
             </div>
             <div id="article-list" class="status-box">ডাটা লোড হচ্ছে...</div>
@@ -314,7 +314,7 @@
                     </div>
                 </div>
 
-                <button class="btn-gold" onclick="saveCustomQaza()" style="width: 100%; justify-content: center; padding: 10px;">
+                <button type="button" class="btn-gold" onclick="saveCustomQaza()" style="width: 100%; justify-content: center; padding: 10px;">
                     💾 নতুন হিসাব সংরক্ষণ করুন
                 </button>
             </div>
@@ -330,19 +330,19 @@
     </main>
 
     <nav>
-        <button class="nav-item active" data-tab="audio" onclick="switchTab('audio', this)">
+        <button type="button" class="nav-item active" data-tab="audio" onclick="switchTab('audio', this)">
             <span class="nav-icon">🎧</span>
             <span>অডিও</span>
         </button>
-        <button class="nav-item" data-tab="articles" onclick="switchTab('articles', this)">
+        <button type="button" class="nav-item" data-tab="articles" onclick="switchTab('articles', this)">
             <span class="nav-icon">📖</span>
             <span>প্রবন্ধ</span>
         </button>
-        <button class="nav-item" data-tab="notices" onclick="switchTab('notices', this)">
+        <button type="button" class="nav-item" data-tab="notices" onclick="switchTab('notices', this)">
             <span class="nav-icon">📌</span>
             <span>নোটিশবোর্ড</span>
         </button>
-        <button class="nav-item" data-tab="qaza" onclick="switchTab('qaza', this)">
+        <button type="button" class="nav-item" data-tab="qaza" onclick="switchTab('qaza', this)">
             <span class="nav-icon">📿</span>
             <span>উমরি কাজা</span>
         </button>
@@ -351,7 +351,9 @@
     <script>
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261103_20261103_1708";
-        let currentActiveTab = 'audio';
+        
+        // পূর্বের সক্রিয় ট্যাব মনে রাখা (যাতে অফলাইনে রিলোড হলেও অডিও ট্যাবে ফিরে না যায়)
+        let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         let isAudioLoaded = false;
 
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
@@ -380,12 +382,20 @@
 
         function switchTab(tabName, btnElement) {
             currentActiveTab = tabName;
+            sessionStorage.setItem('active_app_tab', tabName);
+
             document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 
             const targetSection = document.getElementById('tab-' + tabName);
             if (targetSection) targetSection.classList.add('active');
-            if (btnElement) btnElement.classList.add('active');
+            
+            if (btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                const savedBtn = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
+                if (savedBtn) savedBtn.classList.add('active');
+            }
 
             if (tabName === 'audio' && !isAudioLoaded && navigator.onLine) {
                 fetchAudiosFromArchive();
@@ -436,7 +446,7 @@
                 container.className = 'status-box';
                 container.innerHTML = `
                     অডিও লোড করতে সমস্যা হয়েছে।<br>
-                    <button class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
+                    <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
                 `;
                 return;
             }
@@ -679,7 +689,7 @@
                         <div>
                             <div style="font-size: 16px; font-weight: bold; color: var(--gold-light); display: flex; align-items: center; gap: 8px;">
                                 <span>${w.name}</span>
-                                <button onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="এডিট করুন" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">✏️</button>
+                                <button type="button" onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="এডিট করুন" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">✏️</button>
                             </div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
                                 বাকি: <span style="font-size: 15px; font-weight: bold; color: ${count === 0 ? '#10b981' : 'var(--gold-main)'};">${count}</span> ওয়াক্ত
@@ -687,8 +697,8 @@
                         </div>
                         
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <button onclick="incrementWaqt('${w.id}')" style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px;">+</button>
-                            <button class="btn-gold" onclick="decrementWaqt('${w.id}')" style="padding: 6px 12px; font-size: 12px;">✔ আদায় (-১)</button>
+                            <button type="button" onclick="incrementWaqt('${w.id}')" style="background: transparent; border: 1px solid var(--border-gold); color: var(--text-light); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px;">+</button>
+                            <button type="button" class="btn-gold" onclick="decrementWaqt('${w.id}')" style="padding: 6px 12px; font-size: 12px;">✔ আদায় (-১)</button>
                         </div>
                     </div>
                 `;
@@ -705,12 +715,17 @@
             }
         }
 
+        // পেজ লোড হওয়ার পর পূর্বের নির্বাচিত ট্যাবটি পুনরুদ্ধার করা
+        switchTab(currentActiveTab);
         fetchContent();
         renderQazaCards();
 
+        // অফলাইনে সার্ভিস ওয়ার্কারের কারণে যেন পেজ রিলোড না হয় তার গার্ড
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch((err) => {});
+                if (navigator.onLine) {
+                    navigator.serviceWorker.register('./sw.js').catch(() => {});
+                }
             });
         }
     </script>
