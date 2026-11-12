@@ -243,6 +243,14 @@
             color: var(--text-muted);
             width: 100%;
         }
+
+        /* আরবি লেখার ফন্ট এবং সাইজ বড় ও অ্যাডজাস্টেবল করার জন্য */
+        .article-content-body div[dir="rtl"] {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
+            font-size: 1.55em !important;
+            line-height: 2.2 !important;
+            margin: 8px 0;
+        }
     </style>
 </head>
 <body>
@@ -352,7 +360,7 @@
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
         
-        // পূর্বের সক্রিয় ট্যাব মনে রাখা (যাতে অফলাইনে রিলোড হলেও অডিও ট্যাবে ফিরে না যায়)
+        // পূর্বের সক্রিয় ট্যাব মনে রাখা (যাতে অফলাইনে রিলোড হলেও অডিও ট্যাবে ফিরে না যায়)
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         let isAudioLoaded = false;
 
@@ -715,12 +723,12 @@
             }
         }
 
-        // পেজ লোড হওয়ার পর পূর্বের নির্বাচিত ট্যাবটি পুনরুদ্ধার করা
+        // পেজ লোড হওয়ার পর পূর্বের নির্বাচিত ট্যাবটি পুনরুদ্ধার করা
         switchTab(currentActiveTab);
         fetchContent();
         renderQazaCards();
 
-        // অফলাইনে সার্ভিস ওয়ার্কারের কারণে যেন পেজ রিলোড না হয় তার গার্ড
+        // অফলাইনে সার্ভিস ওয়ার্কারের কারণে যেন পেজ রিলোড না হয় তার গার্ড
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 if (navigator.onLine) {
