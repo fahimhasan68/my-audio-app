@@ -777,22 +777,43 @@
             container.innerHTML = headerNotice + cardsHtml.join('');
         }
 
-        // মেমোরি-সেফ Base64 থেকে Blob রূপান্তর
-        function base64ToBlob(base64, mimeType) {
-            const byteCharacters = atob(base64);
-            const byteArrays = [];
-            for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-                const slice = byteCharacters.slice(offset, offset + 1024);
-                const byteNumbers = new Array(slice.length);
-                for (let i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
-                }
-                byteArrays.push(new Uint8Array(byteNumbers));
+        // যেকোনো ফরম্যাটের ডেটা (Base64 বা Raw Binary String) থেকে ক্র্যাশ-মুক্ত Blob তৈরি
+        function smartDataToBlob(rawData, mimeType) {
+            if (rawData instanceof Blob) return rawData;
+            if (rawData instanceof ArrayBuffer) return new Blob([rawData], { type: mimeType });
+
+            let str = String(rawData);
+            if (str.startsWith('data:')) {
+                str = str.split(',')[1] || '';
             }
-            return new Blob(byteArrays, { type: mimeType });
+
+            const cleaned = str.replace(/\s/g, '');
+            const isBase64 = /^[A-Za-z0-9+/=]+$/.test(cleaned) && (cleaned.length % 4 === 0);
+
+            if (isBase64) {
+                try {
+                    const byteCharacters = atob(cleaned);
+                    const byteArrays = [];
+                    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+                        const slice = byteCharacters.slice(offset, offset + 1024);
+                        const byteNumbers = new Array(slice.length);
+                        for (let i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i);
+                        }
+                        byteArrays.push(new Uint8Array(byteNumbers));
+                    }
+                    return new Blob(byteArrays, { type: mimeType });
+                } catch (e) {}
+            }
+
+            const bytes = new Uint8Array(str.length);
+            for (let i = 0; i < str.length; i++) {
+                bytes[i] = str.charCodeAt(i) & 0xff;
+            }
+            return new Blob([bytes], { type: mimeType });
         }
 
-        // ২. সরাসরি Archive.org স্ট্রিম ও নেটিভ ফোলব্যাক দিয়ে ১০০% নির্ভরযোগ্য ইন-অ্যাপ সেভ
+        // ২. ক্র্যাশ-মুক্ত ইন-অ্যাপ অডিও সেভ ফাংশন
         async function saveAudioInApp(url, fileName, idx) {
             if (!navigator.onLine) {
                 alert("অডিও সেভ করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
@@ -808,21 +829,59 @@
             btn.disabled = true;
             btn.innerHTML = "⏳ সেভ হচ্ছে...";
             box.style.display = "block";
-            fill.style.width = "5%";
+            fill.style.width = "10%";
             text.style.color = "var(--text-dark)";
-            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে...";
+            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ১০%";
+
+            let progressTimer = null;
 
             try {
                 let blob = null;
 
-                // ধাপ ১: সরাসরি Archive.org থেকে রিডাইরেক্ট ফলো করে স্ট্রিমিং ডাউনলোড
-                try {
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        mode: 'cors',
-                        redirect: 'follow'
-                    });
+                // ধাপ ১: Capacitor Native HTTP দিয়ে ডাউনলোড (smartDataToBlob ব্যবহার করে atob এরর মুক্ত)
+                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) {
+                    const { CapacitorHttp } = window.Capacitor.Plugins;
 
+                    let fakeProgress = 15;
+                    progressTimer = setInterval(() => {
+                        if (fakeProgress < 88) {
+                            fakeProgress += 4;
+                            fill.style.width = fakeProgress + "%";
+                            text.innerText = `অডিও ডাউনলোড হচ্ছে... ${fakeProgress}%`;
+                        }
+                    }, 450);
+
+                    try {
+                        const nativeRes = await CapacitorHttp.get({
+                            url: url,
+                            responseType: 'base64',
+                            readTimeout: 90000,
+                            connectTimeout: 25000
+                        });
+
+                        clearInterval(progressTimer);
+                        progressTimer = null;
+
+                        if (nativeRes && nativeRes.status === 200 && nativeRes.data) {
+                            fill.style.width = "94%";
+                            text.innerText = "অডিও ফাইল প্রস্তুত হচ্ছে... ৯৪%";
+                            blob = smartDataToBlob(nativeRes.data, 'audio/ogg');
+                        }
+                    } catch (nativeErr) {
+                        if (progressTimer) {
+                            clearInterval(progressTimer);
+                            progressTimer = null;
+                        }
+                        console.warn("Native HTTP failed, switching to stream:", nativeErr);
+                    }
+                }
+
+                // ধাপ ২: নেটিভ মেথড ব্যর্থ হলে সরাসরি ওয়েব স্ট্রিমিং ফোলব্যাক
+                if (!blob || blob.size < 2000) {
+                    fill.style.width = "20%";
+                    text.innerText = "বিকল্প সার্ভার থেকে ডাউনলোড হচ্ছে...";
+
+                    const response = await fetch(url, { mode: 'cors', redirect: 'follow' });
                     if (response.ok && response.body) {
                         const contentLength = response.headers.get('content-length');
                         const total = contentLength ? parseInt(contentLength, 10) : 0;
@@ -839,49 +898,26 @@
 
                             const mbLoaded = (loaded / (1024 * 1024)).toFixed(2);
                             if (total > 0) {
-                                const percent = Math.min(98, Math.round((loaded / total) * 100));
+                                const percent = Math.min(96, Math.round((loaded / total) * 100));
                                 fill.style.width = percent + "%";
                                 text.innerText = `ডাউনলোড হচ্ছে... ${percent}% (${mbLoaded} MB)`;
                             } else {
-                                const dynamicWidth = Math.min(92, 15 + Math.floor(loaded / (1024 * 150)));
+                                const dynamicWidth = Math.min(92, 20 + Math.floor(loaded / (1024 * 150)));
                                 fill.style.width = dynamicWidth + "%";
                                 text.innerText = `ডাউনলোড হচ্ছে... ${mbLoaded} MB সম্পন্ন`;
                             }
                         }
-
                         if (chunks.length > 0) {
                             blob = new Blob(chunks, { type: 'audio/ogg' });
                         }
                     }
-                } catch (directErr) {
-                    console.warn("Direct fetch fallback triggered:", directErr);
-                }
-
-                // ধাপ ২: সরাসরি স্ট্রিম ব্যর্থ হলে Capacitor Native HTTP ব্যবহার
-                if (!blob && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) {
-                    fill.style.width = "35%";
-                    text.innerText = "নেটিভ ইঞ্জিনে ডাউনলোড হচ্ছে (অপেক্ষা করুন)...";
-
-                    const { CapacitorHttp } = window.Capacitor.Plugins;
-                    const nativeRes = await CapacitorHttp.get({
-                        url: url,
-                        responseType: 'base64',
-                        readTimeout: 120000,
-                        connectTimeout: 30000
-                    });
-
-                    if (nativeRes && nativeRes.status === 200 && nativeRes.data) {
-                        fill.style.width = "95%";
-                        text.innerText = "ফাইল প্রসেস হচ্ছে... ৯৫%";
-                        blob = base64ToBlob(nativeRes.data, 'audio/ogg');
-                    }
                 }
 
                 if (!blob || blob.size < 2000) {
-                    throw new Error("ফাইল ডাউনলোড অসম্পূর্ণ রয়েছে");
+                    throw new Error("ডাউনলোড সম্পন্ন করা যায়নি");
                 }
 
-                // ধাপ ৩: Cache API-তে স্থায়ীভাবে সংরক্ষণ
+                // ধাপ ৩: Cache API-তে স্থায়ীভাবে সেভ করা
                 fill.style.width = "98%";
                 text.innerText = "অফলাইন মেমোরিতে সেভ করা হচ্ছে...";
 
@@ -902,6 +938,7 @@
                 }, 1000);
 
             } catch (error) {
+                if (progressTimer) clearInterval(progressTimer);
                 console.error("Save failed:", error);
                 fill.style.width = "0%";
                 text.style.color = "#dc2626";
