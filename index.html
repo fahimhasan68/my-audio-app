@@ -201,10 +201,34 @@
             cursor: not-allowed;
         }
 
+        .btn-saved {
+            background: var(--green-soft);
+            color: #15803d;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 7px 12px;
+            border-radius: 8px;
+            border: 1px solid #15803d;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 12px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+            cursor: pointer;
+        }
+
         /* ইন-অ্যাপ ডাউনলোড প্রগ্রেস বক্স */
         .dl-status-box {
             display: none;
-            margin-top: 8px;
+            margin-top: 6px;
             background: var(--green-soft);
             border: 1px solid var(--green-primary);
             border-radius: 8px;
@@ -384,10 +408,7 @@
     <main>
         <!-- ১. অডিও সেকশন -->
         <section id="tab-audio" class="tab-section active">
-            <div id="audio-list" class="status-box">
-                অডিও তালিকা দেখতে নিচের বাটনে চাপ দিন।<br>
-                <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🎧 অডিও লোড করুন</button>
-            </div>
+            <div id="audio-list" class="status-box">অডিও তালিকা লোড হচ্ছে...</div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
@@ -504,6 +525,7 @@
     <script>
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
+        const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v1";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         let isAudioLoaded = false;
@@ -583,7 +605,7 @@
                 if (savedBtn) savedBtn.classList.add('active');
             }
 
-            if (tabName === 'audio' && !isAudioLoaded && navigator.onLine) {
+            if (tabName === 'audio' && !isAudioLoaded) {
                 fetchAudiosFromArchive();
             }
             if (tabName === 'prayer') {
@@ -600,21 +622,57 @@
             ]);
         }
 
-        // ১. ইন্টারনেট আর্কাইভ থেকে অডিও তালিকা লোড
+        // সেভ করা অফলাইন অডিওর তালিকা ম্যানেজ করা
+        function getSavedAudioList() {
+            try {
+                return JSON.parse(localStorage.getItem('user_offline_audio_list')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveAudioMetadata(fileObj) {
+            const list = getSavedAudioList();
+            if (!list.some(item => item.name === fileObj.name)) {
+                list.push(fileObj);
+                localStorage.setItem('user_offline_audio_list', JSON.stringify(list));
+            }
+        }
+
+        function removeAudioMetadata(fileName) {
+            const list = getSavedAudioList().filter(item => item.name !== fileName);
+            localStorage.setItem('user_offline_audio_list', JSON.stringify(list));
+        }
+
+        // ১. অনলাইন ও অফলাইন অডিও লোড এবং রেন্ডার
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
 
+            const savedList = getSavedAudioList();
+
+            // অফলাইনে থাকলে শুধুমাত্র অ্যাপের ভেতর সেভ করা অডিওগুলো দেখাবে
             if (!navigator.onLine) {
-                container.className = 'status-box';
-                container.innerHTML = `
-                    📡 আপনি অফলাইনে আছেন। অডিও শুনতে ইন্টারনেট সংযোগ চালু করুন।
-                `;
+                if (savedList.length === 0) {
+                    container.className = 'status-box';
+                    container.innerHTML = `
+                        📡 আপনি অফলাইনে আছেন।<br>
+                        অ্যাপের ভেতরে কোনো অডিও এখনো সেভ করা হয়নি। ইন্টারনেট চালু করে অডিও সেভ করে রাখুন।
+                    `;
+                    return;
+                }
+                await renderAudioCards(savedList, true);
+                isAudioLoaded = true;
                 return;
             }
 
-            container.className = 'status-box';
-            container.innerHTML = 'অডিও লোড হচ্ছে...';
+            // অনলাইনে থাকলে প্রথমে সেভ করাগুলো দেখিয়ে ব্যাকগ্রাউন্ডে নতুন তালিকা আনবে
+            if (savedList.length > 0) {
+                await renderAudioCards(savedList, false);
+            } else {
+                container.className = 'status-box';
+                container.innerHTML = 'অডিও লোড হচ্ছে...';
+            }
 
             const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
             const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
@@ -633,11 +691,13 @@
             }
 
             if (!data || !data.result) {
-                container.className = 'status-box';
-                container.innerHTML = `
-                    অডিও লোড করতে সমস্যা হয়েছে।<br>
-                    <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
-                `;
+                if (savedList.length === 0) {
+                    container.className = 'status-box';
+                    container.innerHTML = `
+                        অডিও লোড করতে সমস্যা হয়েছে।<br>
+                        <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
+                    `;
+                }
                 return;
             }
 
@@ -645,48 +705,86 @@
                 file.name && file.name.toLowerCase().endsWith('.opus')
             );
 
-            if (audioFiles.length === 0) {
+            if (audioFiles.length === 0 && savedList.length === 0) {
                 container.className = 'status-box';
                 container.innerHTML = 'কোনো অডিও ফাইল পাওয়া যায়নি।';
                 return;
             }
 
+            await renderAudioCards(audioFiles, false);
+            isAudioLoaded = true;
+        }
+
+        async function renderAudioCards(files, isOfflineMode) {
+            const container = document.getElementById('audio-list');
+            if (!container) return;
+
+            const savedList = getSavedAudioList();
+            let cache = null;
+            if ('caches' in window) {
+                try {
+                    cache = await caches.open(AUDIO_CACHE_NAME);
+                } catch (e) {}
+            }
+
             container.className = '';
-            container.innerHTML = audioFiles.map((file, idx) => {
+            let headerNotice = isOfflineMode 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: অ্যাপের ভেতরে সেভ করা বয়ানসমূহ</div>` 
+                : '';
+
+            const cardsHtml = await Promise.all(files.map(async (file, idx) => {
                 const fileUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
                 const displayTitle = file.name.replace(/\.opus$/i, '');
+                const isSaved = savedList.some(item => item.name === file.name);
+
+                // যদি ক্যাশে সেভ থাকে, তবে লোকাল Blob URL তৈরি করে প্লেয়ারে দেওয়া (যাতে অফলাইনেও চলে)
+                let audioSrc = fileUrl;
+                if (cache && isSaved) {
+                    try {
+                        const cachedResponse = await cache.match(fileUrl);
+                        if (cachedResponse) {
+                            const blob = await cachedResponse.blob();
+                            audioSrc = URL.createObjectURL(blob);
+                        }
+                    } catch (e) {}
+                }
+
+                const actionButtons = isSaved
+                    ? `<div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="btn-saved">✅ অ্যাপে সেভ করা আছে</span>
+                            <button type="button" class="btn-delete" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">🗑️ মুছুন</button>
+                       </div>`
+                    : `<button type="button" class="btn-gold" id="dl-btn-${idx}" onclick="saveAudioInApp('${fileUrl}', '${file.name}', ${idx})">⬇️ অফলাইনে সেভ করুন</button>`;
 
                 return `
                     <div class="item-card">
                         <div class="item-title">🎙️ ${displayTitle}</div>
                         <div class="audio-controls">
-                            <audio controls preload="none">
-                                <source src="${fileUrl}" type="audio/ogg; codecs=opus">
-                                <source src="${fileUrl}" type="audio/opus">
+                            <audio controls preload="none" src="${audioSrc}">
                                 আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
                             </audio>
                             <div style="display: flex; justify-content: flex-end;">
-                                <button type="button" class="btn-gold" id="dl-btn-${idx}" onclick="downloadAudioToDevice('${fileUrl}', '${file.name}', ${idx})">⬇️ ডাউনলোড</button>
+                                ${actionButtons}
                             </div>
                             <div id="dl-box-${idx}" class="dl-status-box">
-                                <div style="font-weight: bold; color: var(--green-primary); margin-bottom: 3px;">📄 ফাইল: ${file.name}</div>
+                                <div style="font-weight: bold; color: var(--green-primary); margin-bottom: 3px;">📄 ${displayTitle}</div>
                                 <div class="dl-progress-track">
                                     <div id="dl-fill-${idx}" class="dl-progress-fill"></div>
                                 </div>
-                                <div id="dl-text-${idx}" style="font-weight: bold;">ডাউনলোড শুরু হচ্ছে... ০%</div>
+                                <div id="dl-text-${idx}" style="font-weight: bold;">অ্যাপে সেভ হচ্ছে... ০%</div>
                             </div>
                         </div>
                     </div>
                 `;
-            }).join('');
+            }));
 
-            isAudioLoaded = true;
+            container.innerHTML = headerNotice + cardsHtml.join('');
         }
 
-        // ২. Capacitor Native Filesystem.downloadFile ব্যবহার করে ফোনের মেমোরিতে সরাসরি সেভ করা
-        async function downloadAudioToDevice(url, fileName, idx) {
+        // ২. অ্যাপের ভেতরেই স্থায়ীভাবে সেভ করার ফাংশন (Cache API + CORS Proxy Fallback)
+        async function saveAudioInApp(url, fileName, idx) {
             if (!navigator.onLine) {
-                alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
+                alert("অডিও সেভ করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
                 return;
             }
 
@@ -695,60 +793,86 @@
             const fill = document.getElementById(`dl-fill-${idx}`);
             const text = document.getElementById(`dl-text-${idx}`);
 
-            if (btn.disabled) return;
+            if (!btn || btn.disabled) return;
             btn.disabled = true;
-            btn.innerHTML = "⏳ ডাউনলোড হচ্ছে...";
+            btn.innerHTML = "⏳ সেভ হচ্ছে...";
             box.style.display = "block";
-            fill.style.width = "10%";
+            fill.style.width = "8%";
             text.style.color = "var(--text-dark)";
-            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ১০%";
+            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ০%";
 
             try {
-                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
-                    const { Filesystem } = window.Capacitor.Plugins;
-
-                    let fakeProgress = 15;
-                    const progressTimer = setInterval(() => {
-                        if (fakeProgress < 90) {
-                            fakeProgress += 5;
-                            fill.style.width = fakeProgress + "%";
-                            text.innerText = `ডাউনলোড হচ্ছে... ${fakeProgress}%`;
-                        }
-                    }, 500);
-
-                    try {
-                        await Filesystem.downloadFile({
-                            url: url,
-                            path: `DeeniMehonot/${fileName}`,
-                            directory: 'DOCUMENTS',
-                            recursive: true
-                        });
-
-                        clearInterval(progressTimer);
-                        fill.style.width = "100%";
-                        text.style.color = "#15803d";
-                        text.innerText = `✅ ডাউনলোড কমপ্লিট! ফোনের File Manager > Documents > DeeniMehonot ফোল্ডারে "${fileName}" সেভ হয়েছে।`;
-                        btn.innerHTML = "✅ সেভ সম্পন্ন";
-                        btn.disabled = false;
-                        return;
-
-                    } catch (nativeErr) {
-                        clearInterval(progressTimer);
-                        console.error("Native download error:", nativeErr);
-                        throw nativeErr;
-                    }
-                } else {
-                    throw new Error("Not running in Capacitor");
+                let response = null;
+                try {
+                    response = await fetch(url);
+                } catch (e) {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    response = await fetch(proxyUrl);
                 }
 
-            } catch (error) {
+                if (!response || !response.ok) throw new Error("Fetch failed");
+
+                const contentLength = response.headers.get('content-length');
+                const total = contentLength ? parseInt(contentLength, 10) : 0;
+                let loaded = 0;
+
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+
+                    if (total > 0) {
+                        const percent = Math.min(99, Math.round((loaded / total) * 100));
+                        fill.style.width = percent + "%";
+                        text.innerText = `অ্যাপে সেভ হচ্ছে... ${percent}% (${(loaded / (1024 * 1024)).toFixed(2)} MB)`;
+                    } else {
+                        const mb = (loaded / (1024 * 1024)).toFixed(2);
+                        fill.style.width = "65%";
+                        text.innerText = `অ্যাপে সেভ হচ্ছে... ${mb} MB সম্পন্ন`;
+                    }
+                }
+
+                const blob = new Blob(chunks, { type: 'audio/ogg' });
+                const cache = await caches.open(AUDIO_CACHE_NAME);
+                await cache.put(url, new Response(blob, {
+                    headers: { 'Content-Type': 'audio/ogg' }
+                }));
+
+                saveAudioMetadata({ name: fileName });
+
                 fill.style.width = "100%";
-                text.style.color = "#b45309";
-                text.innerText = "↗️ ব্রাউজার ডাউনলোড ম্যানেজারে পাঠানো হচ্ছে (উপরের নোটিফিকেশন বার চেক করুন)...";
-                window.open(url, '_system');
-                btn.innerHTML = "⬇️ আবার ডাউনলোড করুন";
+                text.style.color = "#15803d";
+                text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই অ্যাপ থেকে শুনতে পারবেন।";
+
+                setTimeout(() => {
+                    isAudioLoaded = false;
+                    fetchAudiosFromArchive();
+                }, 1200);
+
+            } catch (error) {
+                console.error("In-app save error:", error);
+                fill.style.width = "0%";
+                text.style.color = "#dc2626";
+                text.innerText = "❌ সেভ করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।";
+                btn.innerHTML = "⬇️ আবার চেষ্টা করুন";
                 btn.disabled = false;
             }
+        }
+
+        // সেভ করা অডিও ডিলিট করা
+        async function deleteOfflineAudio(url, fileName) {
+            if (!confirm("অফলাইন মেমোরি থেকে এই অডিওটি মুছে ফেলতে চান?")) return;
+            try {
+                const cache = await caches.open(AUDIO_CACHE_NAME);
+                await cache.delete(url);
+            } catch (e) {}
+            removeAudioMetadata(fileName);
+            isAudioLoaded = false;
+            fetchAudiosFromArchive();
         }
 
         // ৩. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (ইশরাক, চাশত, তাহাজ্জুদ)
@@ -1124,10 +1248,8 @@
         function manualRefresh() {
             fetchContent();
             loadPrayerTimes();
-            if (currentActiveTab === 'audio' && navigator.onLine) {
-                isAudioLoaded = false;
-                fetchAudiosFromArchive();
-            }
+            isAudioLoaded = false;
+            fetchAudiosFromArchive();
         }
 
         // ইনিশিয়ালাইজেশন
