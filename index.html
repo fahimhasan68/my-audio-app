@@ -622,7 +622,6 @@
             ]);
         }
 
-        // সেভ করা অফলাইন অডিওর তালিকা ম্যানেজ করা
         function getSavedAudioList() {
             try {
                 return JSON.parse(localStorage.getItem('user_offline_audio_list')) || [];
@@ -656,7 +655,7 @@
                     container.className = 'status-box';
                     container.innerHTML = `
                         📡 আপনি অফলাইনে আছেন।<br>
-                        অ্যাপের ভেতরে কোনো অডিও এখনো সেভ করা হয়নি। ইন্টারনেট চালু করে অডিও সেভ করে রাখুন।
+                        অ্যাপের ভেতরে কোনো অডিও এখনো সেভ করা হয়নি। ইন্টারনেট চালু করে অডিও সেভ করে রাখুন।
                     `;
                     return;
                 }
@@ -727,7 +726,7 @@
 
             container.className = '';
             let headerNotice = isOfflineMode 
-                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: অ্যাপের ভেতরে সেভ করা বয়ানসমূহ</div>` 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: অ্যাপের ভেতরে সেভ করা বয়ানসমূহ</div>` 
                 : '';
 
             const cardsHtml = await Promise.all(files.map(async (file, idx) => {
@@ -768,7 +767,7 @@
                                 <div class="dl-progress-track">
                                     <div id="dl-fill-${idx}" class="dl-progress-fill"></div>
                                 </div>
-                                <div id="dl-text-${idx}" style="font-weight: bold;">অ্যাপে সেভ হচ্ছে... ০%</div>
+                                <div id="dl-text-${idx}" style="font-weight: bold;">সার্ভারের সাথে সংযোগ হচ্ছে...</div>
                             </div>
                         </div>
                     </div>
@@ -778,7 +777,22 @@
             container.innerHTML = headerNotice + cardsHtml.join('');
         }
 
-        // ২. Capacitor Native HTTP দিয়ে CORS ব্লক ছাড়াই অ্যাপের ভেতরে স্থায়ীভাবে সেভ করা
+        // মেমোরি-সেফ Base64 থেকে Blob রূপান্তর
+        function base64ToBlob(base64, mimeType) {
+            const byteCharacters = atob(base64);
+            const byteArrays = [];
+            for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+                const slice = byteCharacters.slice(offset, offset + 1024);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                byteArrays.push(new Uint8Array(byteNumbers));
+            }
+            return new Blob(byteArrays, { type: mimeType });
+        }
+
+        // ২. সরাসরি Archive.org স্ট্রিম ও নেটিভ ফোলব্যাক দিয়ে ১০০% নির্ভরযোগ্য ইন-অ্যাপ সেভ
         async function saveAudioInApp(url, fileName, idx) {
             if (!navigator.onLine) {
                 alert("অডিও সেভ করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
@@ -794,92 +808,83 @@
             btn.disabled = true;
             btn.innerHTML = "⏳ সেভ হচ্ছে...";
             box.style.display = "block";
-            fill.style.width = "10%";
+            fill.style.width = "5%";
             text.style.color = "var(--text-dark)";
-            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ১০%";
-
-            let progressTimer = null;
+            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে...";
 
             try {
                 let blob = null;
 
-                // পদ্ধতি ১: Capacitor Native HTTP (অ্যান্ড্রয়েড অ্যাপে CORS ছাড়াই সরাসরি ডাউনলোড করবে)
-                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) {
-                    const { CapacitorHttp } = window.Capacitor.Plugins;
-
-                    let fakeProgress = 15;
-                    progressTimer = setInterval(() => {
-                        if (fakeProgress < 88) {
-                            fakeProgress += 4;
-                            fill.style.width = fakeProgress + "%";
-                            text.innerText = `অ্যাপে ডাউনলোড হচ্ছে... ${fakeProgress}%`;
-                        }
-                    }, 400);
-
-                    const nativeRes = await CapacitorHttp.get({
-                        url: url,
-                        responseType: 'base64'
+                // ধাপ ১: সরাসরি Archive.org থেকে রিডাইরেক্ট ফলো করে স্ট্রিমিং ডাউনলোড
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        redirect: 'follow'
                     });
 
-                    clearInterval(progressTimer);
+                    if (response.ok && response.body) {
+                        const contentLength = response.headers.get('content-length');
+                        const total = contentLength ? parseInt(contentLength, 10) : 0;
+                        let loaded = 0;
+
+                        const reader = response.body.getReader();
+                        const chunks = [];
+
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            chunks.push(value);
+                            loaded += value.length;
+
+                            const mbLoaded = (loaded / (1024 * 1024)).toFixed(2);
+                            if (total > 0) {
+                                const percent = Math.min(98, Math.round((loaded / total) * 100));
+                                fill.style.width = percent + "%";
+                                text.innerText = `ডাউনলোড হচ্ছে... ${percent}% (${mbLoaded} MB)`;
+                            } else {
+                                const dynamicWidth = Math.min(92, 15 + Math.floor(loaded / (1024 * 150)));
+                                fill.style.width = dynamicWidth + "%";
+                                text.innerText = `ডাউনলোড হচ্ছে... ${mbLoaded} MB সম্পন্ন`;
+                            }
+                        }
+
+                        if (chunks.length > 0) {
+                            blob = new Blob(chunks, { type: 'audio/ogg' });
+                        }
+                    }
+                } catch (directErr) {
+                    console.warn("Direct fetch fallback triggered:", directErr);
+                }
+
+                // ধাপ ২: সরাসরি স্ট্রিম ব্যর্থ হলে Capacitor Native HTTP ব্যবহার
+                if (!blob && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) {
+                    fill.style.width = "35%";
+                    text.innerText = "নেটিভ ইঞ্জিনে ডাউনলোড হচ্ছে (অপেক্ষা করুন)...";
+
+                    const { CapacitorHttp } = window.Capacitor.Plugins;
+                    const nativeRes = await CapacitorHttp.get({
+                        url: url,
+                        responseType: 'base64',
+                        readTimeout: 120000,
+                        connectTimeout: 30000
+                    });
 
                     if (nativeRes && nativeRes.status === 200 && nativeRes.data) {
                         fill.style.width = "95%";
-                        text.innerText = "অফলাইন মেমোরিতে সংরক্ষণ হচ্ছে... ৯৫%";
-                        const dataUrl = `data:audio/ogg;base64,${nativeRes.data}`;
-                        const resFromData = await fetch(dataUrl);
-                        blob = await resFromData.blob();
+                        text.innerText = "ফাইল প্রসেস হচ্ছে... ৯৫%";
+                        blob = base64ToBlob(nativeRes.data, 'audio/ogg');
                     }
                 }
 
-                // পদ্ধতি ২: ওয়েব ব্রাউজার বা প্রক্সি ফোলব্যাক (যদি নেটিভ HTTP না পায়)
-                if (!blob) {
-                    const proxyUrls = [
-                        url,
-                        `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-                    ];
-
-                    let response = null;
-                    for (const targetUrl of proxyUrls) {
-                        try {
-                            const r = await fetch(targetUrl);
-                            if (r.ok) {
-                                response = r;
-                                break;
-                            }
-                        } catch (e) {}
-                    }
-
-                    if (!response) throw new Error("All download methods failed");
-
-                    const contentLength = response.headers.get('content-length');
-                    const total = contentLength ? parseInt(contentLength, 10) : 0;
-                    let loaded = 0;
-
-                    const reader = response.body.getReader();
-                    const chunks = [];
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        chunks.push(value);
-                        loaded += value.length;
-
-                        if (total > 0) {
-                            const percent = Math.min(99, Math.round((loaded / total) * 100));
-                            fill.style.width = percent + "%";
-                            text.innerText = `অ্যাপে ডাউনলোড হচ্ছে... ${percent}% (${(loaded / (1024 * 1024)).toFixed(2)} MB)`;
-                        } else {
-                            const mb = (loaded / (1024 * 1024)).toFixed(2);
-                            fill.style.width = "70%";
-                            text.innerText = `অ্যাপে ডাউনলোড হচ্ছে... ${mb} MB সম্পন্ন`;
-                        }
-                    }
-                    blob = new Blob(chunks, { type: 'audio/ogg' });
+                if (!blob || blob.size < 2000) {
+                    throw new Error("ফাইল ডাউনলোড অসম্পূর্ণ রয়েছে");
                 }
 
-                // Cache API-তে স্থায়ীভাবে সেভ করা
+                // ধাপ ৩: Cache API-তে স্থায়ীভাবে সংরক্ষণ
+                fill.style.width = "98%";
+                text.innerText = "অফলাইন মেমোরিতে সেভ করা হচ্ছে...";
+
                 const cache = await caches.open(AUDIO_CACHE_NAME);
                 await cache.put(url, new Response(blob, {
                     headers: { 'Content-Type': 'audio/ogg' }
@@ -889,25 +894,23 @@
 
                 fill.style.width = "100%";
                 text.style.color = "#15803d";
-                text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই অ্যাপ থেকে শুনতে পারবেন।";
+                text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই অ্যাপ থেকে শুনতে পারবেন।";
 
                 setTimeout(() => {
                     isAudioLoaded = false;
                     fetchAudiosFromArchive();
-                }, 1200);
+                }, 1000);
 
             } catch (error) {
-                if (progressTimer) clearInterval(progressTimer);
-                console.error("In-app save error:", error);
+                console.error("Save failed:", error);
                 fill.style.width = "0%";
                 text.style.color = "#dc2626";
-                text.innerText = "❌ সেভ করা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+                text.innerText = "❌ সেভ ব্যর্থ হয়েছে: " + (error.message || "নেটওয়ার্ক ত্রুটি");
                 btn.innerHTML = "⬇️ আবার চেষ্টা করুন";
                 btn.disabled = false;
             }
         }
 
-        // সেভ করা অডিও ডিলিট করা
         async function deleteOfflineAudio(url, fileName) {
             if (!confirm("অফলাইন মেমোরি থেকে এই অডিওটি মুছে ফেলতে চান?")) return;
             try {
@@ -1289,11 +1292,24 @@
             if (totalEl) totalEl.innerText = totalCount;
         }
 
-        function manualRefresh() {
-            fetchContent();
-            loadPrayerTimes();
-            isAudioLoaded = false;
-            fetchAudiosFromArchive();
+        // ক্যাশ ক্লিয়ারিং রিফ্রেশ বাটন (অডিও ক্যাশ নিরাপদ রেখে নতুন কোড লোড করবে)
+        async function manualRefresh() {
+            if (navigator.onLine) {
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (const key of keys) {
+                        if (key !== AUDIO_CACHE_NAME) {
+                            await caches.delete(key);
+                        }
+                    }
+                }
+                window.location.reload(true);
+            } else {
+                fetchContent();
+                loadPrayerTimes();
+                isAudioLoaded = false;
+                fetchAudiosFromArchive();
+            }
         }
 
         // ইনিশিয়ালাইজেশন
