@@ -1,14 +1,20 @@
-const CACHE_NAME = 'deeni-mehonot-live-v1';
+const CACHE_NAME = 'deeni-mehonot-live-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
   './data.json',
-  './manifest.json'
+  './manifest.json',
+  './irshadus_saeed.txt'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      // কোনো একটি ফাইল সাময়িকভাবে না পাওয়া গেলেও যেন ইনস্টলেশন আটকে না যায়
+      return Promise.allSettled(
+        CORE_ASSETS.map((url) => cache.add(url))
+      );
+    })
   );
   self.skipWaiting();
 });
@@ -25,7 +31,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // অডিও এবং গুগল শিটসের রিকোয়েস্ট সরাসরি ইন্টারনেটে যাবে
+  // শুধু GET রিকোয়েস্ট হ্যান্ডেল করা হবে
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // অডিও এবং গুগল শিটসের রিকোয়েস্ট সরাসরি ইন্টারনেটে যাবে
   if (
     event.request.url.includes('archive.org') ||
     event.request.url.includes('allorigins') ||
