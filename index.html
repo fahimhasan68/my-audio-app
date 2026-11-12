@@ -258,7 +258,7 @@
             background: #ffffff;
         }
 
-        /* নামাজের সময়সূচি সেকশন */
+        /* নামাজের সময়সূচি সেকশন */
         .prayer-section-header {
             background-color: var(--green-primary);
             color: var(--gold-text);
@@ -403,23 +403,23 @@
             <div id="article-list" class="status-box">ডাটা লোড হচ্ছে...</div>
         </section>
 
-        <!-- ৩. নামাজের সময়সূচি সেকশন -->
+        <!-- ৩. নামাজের সময়সূচি সেকশন -->
         <section id="tab-prayer" class="tab-section">
             <div class="item-card" style="border-top: 3px solid var(--gold-main);">
-                <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">🕌 জেলাভিত্তিক নামাজের সময়সূচি</div>
+                <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">🕌 জেলাভিত্তিক নামাজের সময়সূচি</div>
                 <label for="district-select" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">
-                    আপনার জেলা নির্বাচন করুন (হানাফি মাজহাব অনুযায়ী):
+                    আপনার জেলা নির্বাচন করুন (হানাফি মাজহাব অনুযায়ী):
                 </label>
                 <select id="district-select" class="form-input" onchange="onDistrictChange()" style="font-weight: bold; color: var(--green-primary);"></select>
                 <div id="prayer-date-info" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"></div>
             </div>
 
             <div id="prayer-times-container" class="item-card" style="padding: 0; overflow: hidden; margin-bottom: 14px;">
-                <div class="status-box">ফরজ ওয়াক্তের সময় লোড হচ্ছে...</div>
+                <div class="status-box">ফরজ ওয়াক্তের সময় লোড হচ্ছে...</div>
             </div>
 
             <div id="nafl-times-container" class="item-card" style="padding: 0; overflow: hidden;">
-                <div class="status-box">নফল নামাজের সময় লোড হচ্ছে...</div>
+                <div class="status-box">নফল নামাজের সময় লোড হচ্ছে...</div>
             </div>
         </section>
 
@@ -683,19 +683,7 @@
             isAudioLoaded = true;
         }
 
-        // ২. ফোনের Download ডিরেক্টরিতে আসল ফাইল সেভ করা ও ইন-অ্যাপ লাইভ % দেখানো
-        function blobToBase64(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const base64Data = reader.result.split(',')[1];
-                    resolve(base64Data);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-        }
-
+        // ২. Capacitor Native Filesystem.downloadFile ব্যবহার করে ফোনের মেমোরিতে সরাসরি সেভ করা
         async function downloadAudioToDevice(url, fileName, idx) {
             if (!navigator.onLine) {
                 alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
@@ -711,96 +699,59 @@
             btn.disabled = true;
             btn.innerHTML = "⏳ ডাউনলোড হচ্ছে...";
             box.style.display = "block";
-            fill.style.width = "5%";
+            fill.style.width = "10%";
             text.style.color = "var(--text-dark)";
-            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ০%";
+            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ১০%";
 
             try {
-                // সরাসরি ফেচ এবং CORS ব্লক হলে প্রক্সি ফলব্যাক
-                let response = null;
-                try {
-                    response = await fetch(url);
-                } catch (e) {
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                    response = await fetch(proxyUrl);
-                }
-
-                if (!response || !response.ok) throw new Error("Fetch failed");
-
-                const contentLength = response.headers.get('content-length');
-                const total = contentLength ? parseInt(contentLength, 10) : 0;
-                let loaded = 0;
-
-                const reader = response.body.getReader();
-                const chunks = [];
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    chunks.push(value);
-                    loaded += value.length;
-
-                    if (total > 0) {
-                        const percent = Math.min(99, Math.round((loaded / total) * 100));
-                        fill.style.width = percent + "%";
-                        text.innerText = `ডাউনলোড হচ্ছে... ${percent}% (${(loaded / (1024 * 1024)).toFixed(2)} MB)`;
-                    } else {
-                        const mb = (loaded / (1024 * 1024)).toFixed(2);
-                        fill.style.width = "65%";
-                        text.innerText = `ডাউনলোড হচ্ছে... ${mb} MB সম্পন্ন`;
-                    }
-                }
-
-                fill.style.width = "100%";
-                text.innerText = "ফোনের Downloads ফোল্ডারে সেভ করা হচ্ছে...";
-
-                const blob = new Blob(chunks, { type: 'audio/ogg' });
-
-                // Capacitor Native Filesystem দিয়ে সরাসরি ফোনের Download ডিরেক্টরিতে সেভ করা
                 if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
                     const { Filesystem } = window.Capacitor.Plugins;
-                    const base64Data = await blobToBase64(blob);
 
-                    await Filesystem.writeFile({
-                        path: `Download/${fileName}`,
-                        data: base64Data,
-                        directory: 'EXTERNAL_STORAGE',
-                        recursive: true
-                    });
+                    let fakeProgress = 15;
+                    const progressTimer = setInterval(() => {
+                        if (fakeProgress < 90) {
+                            fakeProgress += 5;
+                            fill.style.width = fakeProgress + "%";
+                            text.innerText = `ডাউনলোড হচ্ছে... ${fakeProgress}%`;
+                        }
+                    }, 500);
 
-                    text.style.color = "#15803d";
-                    text.innerText = `✅ ডাউনলোড কমপ্লিট! ফোনের File Manager > Downloads ফোল্ডারে "${fileName}" সেভ হয়েছে।`;
-                    btn.innerHTML = "✅ সেভ সম্পন্ন";
+                    try {
+                        await Filesystem.downloadFile({
+                            url: url,
+                            path: `DeeniMehonot/${fileName}`,
+                            directory: 'DOCUMENTS',
+                            recursive: true
+                        });
+
+                        clearInterval(progressTimer);
+                        fill.style.width = "100%";
+                        text.style.color = "#15803d";
+                        text.innerText = `✅ ডাউনলোড কমপ্লিট! ফোনের File Manager > Documents > DeeniMehonot ফোল্ডারে "${fileName}" সেভ হয়েছে।`;
+                        btn.innerHTML = "✅ সেভ সম্পন্ন";
+                        btn.disabled = false;
+                        return;
+
+                    } catch (nativeErr) {
+                        clearInterval(progressTimer);
+                        console.error("Native download error:", nativeErr);
+                        throw nativeErr;
+                    }
                 } else {
-                    // সাধারণ ব্রাউজারে ওপেন করলে ব্রাউজার ডাউনলোড
-                    const blobUrl = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = blobUrl;
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-
-                    text.style.color = "#15803d";
-                    text.innerText = `✅ ডাউনলোড কমপ্লিট! ফোনের Downloads ফোল্ডার চেক করুন।`;
-                    btn.innerHTML = "✅ সেভ সম্পন্ন";
+                    throw new Error("Not running in Capacitor");
                 }
 
-                btn.disabled = false;
-
             } catch (error) {
-                console.error("Download error:", error);
-                fill.style.width = "0%";
-                text.style.color = "#dc2626";
-                text.innerText = "❌ সরাসরি অ্যাপে সেভ করা যায়নি। সিস্টেম ব্রাউজারে ডাউনলোড শুরু হচ্ছে...";
+                fill.style.width = "100%";
+                text.style.color = "#b45309";
+                text.innerText = "↗️ ব্রাউজার ডাউনলোড ম্যানেজারে পাঠানো হচ্ছে (উপরের নোটিফিকেশন বার চেক করুন)...";
                 window.open(url, '_system');
                 btn.innerHTML = "⬇️ আবার ডাউনলোড করুন";
                 btn.disabled = false;
             }
         }
 
-        // ৩. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (ইশরাক, চাশত, তাহাজ্জুদ)
+        // ৩. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (ইশরাক, চাশত, তাহাজ্জুদ)
         function initDistrictDropdown() {
             const selectEl = document.getElementById('district-select');
             if (!selectEl) return;
@@ -857,7 +808,7 @@
                     renderPrayerUI(parsed.timings, parsed.dateReadable);
                 } catch(e) {}
             } else {
-                container.innerHTML = '<div class="status-box">নামাজের সময়সূচি লোড হচ্ছে...</div>';
+                container.innerHTML = '<div class="status-box">নামাজের সময়সূচি লোড হচ্ছে...</div>';
                 naflContainer.innerHTML = '';
             }
 
@@ -876,11 +827,11 @@
                     }
                 } catch (err) {
                     if (!cached) {
-                        container.innerHTML = '<div class="status-box">সময়সূচি লোড করতে ইন্টারনেট সংযোগ প্রয়োজন।</div>';
+                        container.innerHTML = '<div class="status-box">সময়সূচি লোড করতে ইন্টারনেট সংযোগ প্রয়োজন।</div>';
                     }
                 }
             } else if (!cached) {
-                container.innerHTML = '<div class="status-box">📡 অফলাইনে আছেন। প্রথমবার সময়সূচি ডাউনলোড করতে ইন্টারনেট চালু করুন।</div>';
+                container.innerHTML = '<div class="status-box">📡 অফলাইনে আছেন। প্রথমবার সময়সূচি ডাউনলোড করতে ইন্টারনেট চালু করুন।</div>';
             }
         }
 
@@ -894,10 +845,9 @@
                 dateInfoEl.innerText = `📅 তারিখ: ${dateReadable}`;
             }
 
-            // ফরজ ওয়াক্ত ও সেহরি-ইফতার
             const fardRows = [
-                { icon: '🌙', name: 'সেহরির শেষ সময় (ফজর)', time: formatTo12HourBn(timings.Fajr) },
-                { icon: '🌅', name: 'সূর্যোদয়', time: formatTo12HourBn(timings.Sunrise) },
+                { icon: '🌙', name: 'সেহরির শেষ সময় (ফজর)', time: formatTo12HourBn(timings.Fajr) },
+                { icon: '🌅', name: 'সূর্যোদয়', time: formatTo12HourBn(timings.Sunrise) },
                 { icon: '☀️', name: 'যোহর', time: formatTo12HourBn(timings.Dhuhr) },
                 { icon: '🌤️', name: 'আসর (হানাফি)', time: formatTo12HourBn(timings.Asr) },
                 { icon: '🌇', name: 'মাগরিব / ইফতার', time: formatTo12HourBn(timings.Maghrib) },
@@ -905,7 +855,7 @@
             ];
 
             container.innerHTML = `
-                <div class="prayer-section-header">🕌 পাঁচ ওয়াক্ত নামাজ ও সেহরি-ইফতার</div>
+                <div class="prayer-section-header">🕌 পাঁচ ওয়াক্ত নামাজ ও সেহরি-ইফতার</div>
                 ${fardRows.map(r => `
                     <div class="prayer-row">
                         <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
@@ -914,21 +864,16 @@
                 `).join('')}
             `;
 
-            // নফল নামাজের সময় হিসাব (ইশরাক, চাশত, তাহাজ্জুদ)
             const sunriseMins = parseMinutes(timings.Sunrise);
             const dhuhrMins = parseMinutes(timings.Dhuhr);
-            const ishaMins = parseMinutes(timings.Isha);
             const fajrMins = parseMinutes(timings.Fajr);
 
-            // ইশরাক: সূর্যোদয়ের ১৫ মিনিট পর থেকে
             const ishraqStart = minutesTo12HourBn(sunriseMins + 15);
             const ishraqEnd = minutesTo12HourBn(sunriseMins + 90);
 
-            // চাশত (সালাতুত দুহা): সূর্যোদয় ও যোহরের মধ্যবর্তী সময় থেকে যোহরের ১০ মিনিট আগ পর্যন্ত
             const chashtStart = minutesTo12HourBn(Math.floor((sunriseMins + dhuhrMins) / 2));
             const chashtEnd = minutesTo12HourBn(dhuhrMins - 10);
 
-            // তাহাজ্জুদ: রাতের শেষ তৃতীয়াংশ থেকে ফজর (সেহরি) পর্যন্ত
             const nightDuration = (1440 - parseMinutes(timings.Maghrib)) + fajrMins;
             const lastThirdStart = fajrMins - Math.floor(nightDuration / 3);
             const tahajjudStart = minutesTo12HourBn(lastThirdStart);
@@ -937,12 +882,12 @@
             const naflRows = [
                 { icon: '✨', name: 'ইশরাক', time: `${ishraqStart} - ${ishraqEnd}` },
                 { icon: '🌞', name: 'চাশত (সালাতুত দুহা)', time: `${chashtStart} - ${chashtEnd}` },
-                { icon: '🤲', name: 'তাহাজ্জুদ (উত্তম সময়)', time: `${tahajjudStart} - ${tahajjudEnd}` }
+                { icon: '🤲', name: 'তাহাজ্জুদ (উত্তম সময়)', time: `${tahajjudStart} - ${tahajjudEnd}` }
             ];
 
             if (naflContainer) {
                 naflContainer.innerHTML = `
-                    <div class="prayer-section-header">📿 নফল নামাজের সময়সূচি</div>
+                    <div class="prayer-section-header">📿 নফল নামাজের সময়সূচি</div>
                     ${naflRows.map(r => `
                         <div class="prayer-row">
                             <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
@@ -1185,7 +1130,7 @@
             }
         }
 
-        // ইনিশিয়ালাইজেশন
+        // ইনিশিয়ালাইজেশন
         initDistrictDropdown();
         switchTab(currentActiveTab);
         fetchContent();
