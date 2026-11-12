@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Auto-Updating Android APK
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Prepare Web Assets for APK
+      - name: Prepare Local Fallback Assets
         run: |
           mkdir -p www
           cp index.html www/
@@ -33,14 +33,29 @@ jobs:
           cp -f manifest.json www/ 2>/dev/null || true
           cp -f *.txt www/ 2>/dev/null || true
 
-      - name: Initialize Capacitor and Android Project
+      - name: Initialize Capacitor with Live Server URL
         run: |
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           npx cap init "দ্বীনি মেহনত" "com.deenimehonot.app" --web-dir www
+          
+          # আপনার GitHub Pages লাইভ লিংক সেট করা (নিচের URL-টি আপনার আসল লিংক দিয়ে পরিবর্তন করুন)
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.deenimehonot.app",
+            "appName": "দ্বীনি মেহনত",
+            "webDir": "www",
+            "server": {
+              "url": "https://আপনার-ইউজারনেম.github.io/রিপোজিটরি-নাম/",
+              "cleartext": true,
+              "allowNavigation": ["*"]
+            }
+          }
+          EOF
+          
           npx cap add android
 
-      - name: Configure Android Permissions and UI
+      - name: Configure Android Permissions
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           sed -i 's|<application|    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n    <application android:usesCleartextTraffic="true"|g' $MANIFEST
@@ -54,5 +69,5 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Deeni-Mehonot-APK
+          name: Deeni-Mehonot-AutoUpdate-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
