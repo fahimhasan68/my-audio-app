@@ -398,7 +398,7 @@
 <body>
 
     <header>
-        <div class="app-title">দ্বীনি মেহনত <span style="font-size: 11px; opacity: 0.8;">v3.0</span></div>
+        <div class="app-title">দ্বীনি মেহনত <span style="font-size: 11px; opacity: 0.8;">v3.1</span></div>
         <button type="button" class="refresh-btn" onclick="manualRefresh()">🔄 আপডেট</button>
     </header>
 
@@ -522,11 +522,14 @@
     <script>
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
-        const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v2";
+        const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         let isAudioLoaded = false;
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
+
+        // ইন-মেমোরি Blob URL ক্যাশ যাতে বারবার ডিস্ক থেকে না পড়তে হয়
+        const activeBlobUrls = {};
 
         const BD_DISTRICTS = [
             { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
@@ -621,7 +624,7 @@
 
         function getSavedAudioList() {
             try {
-                return JSON.parse(localStorage.getItem('user_offline_audio_list_v2')) || [];
+                return JSON.parse(localStorage.getItem('user_offline_audio_list_v3')) || [];
             } catch (e) {
                 return [];
             }
@@ -630,12 +633,32 @@
         function saveAudioMetadata(fileObj) {
             const list = getSavedAudioList().filter(item => item.name !== fileObj.name);
             list.push(fileObj);
-            localStorage.setItem('user_offline_audio_list_v2', JSON.stringify(list));
+            localStorage.setItem('user_offline_audio_list_v3', JSON.stringify(list));
         }
 
         function removeAudioMetadata(fileName) {
             const list = getSavedAudioList().filter(item => item.name !== fileName);
-            localStorage.setItem('user_offline_audio_list_v2', JSON.stringify(list));
+            localStorage.setItem('user_offline_audio_list_v3', JSON.stringify(list));
+        }
+
+        // Base64 স্ট্রিং থেকে নিরাপদ Blob URL তৈরি (Filesystem.readFile এর জন্য)
+        function base64ToPlayableUrl(base64Str) {
+            let clean = String(base64Str).replace(/\s/g, '');
+            if (clean.startsWith('data:')) {
+                clean = clean.split(',')[1] || '';
+            }
+            const byteCharacters = atob(clean);
+            const byteArrays = [];
+            for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+                const slice = byteCharacters.slice(offset, offset + 1024);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                byteArrays.push(new Uint8Array(byteNumbers));
+            }
+            const blob = new Blob(byteArrays, { type: 'audio/ogg; codecs=opus' });
+            return URL.createObjectURL(blob);
         }
 
         // ১. অনলাইন ও অফলাইন অডিও লোড
@@ -707,7 +730,7 @@
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার (লোকাল ফাইল URL ব্যবহার করে যাতে Android WebView-তে ১০০% প্লে হয়)
+        // ২. অডিও কার্ড রেন্ডার ও অফলাইন ফাইল প্লেয়ারে যুক্ত করা
         async function renderAudioCards(files, isOfflineMode) {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -735,17 +758,32 @@
                 let preloadMode = "none";
 
                 if (isSaved) {
-                    // প্রথম অগ্রাধিকার: Capacitor লোকাল ফাইল পাথ (অ্যান্ড্রয়েডে ১০০% প্লে হয়)
-                    if (savedItem.localUri && window.Capacitor && window.Capacitor.convertFileSrc) {
-                        audioSrc = window.Capacitor.convertFileSrc(savedItem.localUri);
+                    if (activeBlobUrls[file.name]) {
+                        audioSrc = activeBlobUrls[file.name];
                         preloadMode = "metadata";
+                    } else if (savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+                        // রুট DATA ডিরেক্টরি থেকে ফাইলটি পড়ে Blob URL তৈরি করা (যাতে যেকোনো অ্যান্ড্রয়েডে ১০০% প্লে হয়)
+                        try {
+                            const { Filesystem } = window.Capacitor.Plugins;
+                            const readRes = await Filesystem.readFile({
+                                path: savedItem.safeName,
+                                directory: 'DATA'
+                            });
+                            if (readRes && readRes.data) {
+                                audioSrc = base64ToPlayableUrl(readRes.data);
+                                activeBlobUrls[file.name] = audioSrc;
+                                preloadMode = "metadata";
+                            }
+                        } catch (readErr) {
+                            console.warn("Read file error:", readErr);
+                        }
                     } else if (cache) {
-                        // দ্বিতীয় অগ্রাধিকার: Cache API
                         try {
                             const cachedResponse = await cache.match(fileUrl);
                             if (cachedResponse) {
                                 const blob = await cachedResponse.blob();
                                 audioSrc = URL.createObjectURL(blob);
+                                activeBlobUrls[file.name] = audioSrc;
                                 preloadMode = "metadata";
                             }
                         } catch (e) {}
@@ -784,7 +822,7 @@
             container.innerHTML = headerNotice + cardsHtml.join('');
         }
 
-        // ৩. নেটিভ Filesystem.downloadFile দিয়ে সরাসরি ফোনের অ্যাপ স্টোরেজে সেভ (কোনো র‍্যাম ক্র্যাশ ছাড়াই)
+        // ৩. কোনো সাবফোল্ডার ছাড়াই সরাসরি রুট DATA ডিরেক্টরিতে সেভ (ENOENT এরর মুক্ত)
         async function saveAudioInApp(url, fileName, idx) {
             if (!navigator.onLine) {
                 alert("অডিও সেভ করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
@@ -802,32 +840,30 @@
             box.style.display = "block";
             fill.style.width = "10%";
             text.style.color = "var(--text-dark)";
-            text.innerText = "ডাউনলোড শুরু হচ্ছে...";
+            text.innerText = "ডাউনলোড শুরু হচ্ছে... ১০%";
 
             let progressTimer = null;
 
             try {
-                // নিরাপদ ফাইল নেম (স্পেস বা বাংলা অক্ষরের কারণে লোকাল প্লেয়ারে যেন সমস্যা না হয়)
-                const safeFileName = `audio_${Date.now()}_${idx}.opus`;
+                // কোনো সাবফোল্ডার (offline_audios/) দেওয়া হয়নি যাতে ENOENT না আসে
+                const safeFileName = `deeni_audio_${idx}_${Date.now()}.opus`;
 
-                // পদ্ধতি ১: Capacitor Native Filesystem.downloadFile (র‍্যামে লোড না করে সরাসরি ডিস্কে লেখে)
                 if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
                     const { Filesystem } = window.Capacitor.Plugins;
 
-                    let fakeProgress = 12;
+                    let fakeProgress = 14;
                     progressTimer = setInterval(() => {
                         if (fakeProgress < 92) {
-                            fakeProgress += 3;
+                            fakeProgress += 4;
                             fill.style.width = fakeProgress + "%";
-                            text.innerText = `অ্যাপ স্টোরেজে সেভ হচ্ছে... ${fakeProgress}%`;
+                            text.innerText = `অ্যাপ মেমোরিতে সেভ হচ্ছে... ${fakeProgress}%`;
                         }
-                    }, 500);
+                    }, 450);
 
                     const dlResult = await Filesystem.downloadFile({
                         url: url,
-                        path: `offline_audios/${safeFileName}`,
-                        directory: 'DATA',
-                        recursive: true
+                        path: safeFileName,
+                        directory: 'DATA'
                     });
 
                     clearInterval(progressTimer);
@@ -842,52 +878,27 @@
 
                         fill.style.width = "100%";
                         text.style.color = "#15803d";
-                        text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই প্লে বাটনে চেপে শুনতে পারবেন।";
+                        text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই অ্যাপ থেকে শুনতে পারবেন।";
 
                         setTimeout(() => {
                             isAudioLoaded = false;
                             fetchAudiosFromArchive();
-                        }, 1000);
+                        }, 800);
                         return;
                     }
                 }
 
-                // পদ্ধতি ২: ওয়েব ব্রাউজার ফোলব্যাক (Cache API)
+                // ওয়েব ব্রাউজার ফোলব্যাক
                 const response = await fetch(url, { mode: 'cors', redirect: 'follow' });
-                if (!response.ok || !response.body) throw new Error("সার্ভার সংযোগ ব্যর্থ");
+                if (!response.ok) throw new Error("সার্ভার সংযোগ ব্যর্থ");
+                const blob = await response.blob();
 
-                const contentLength = response.headers.get('content-length');
-                const total = contentLength ? parseInt(contentLength, 10) : 0;
-                let loaded = 0;
-
-                const reader = response.body.getReader();
-                const chunks = [];
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    chunks.push(value);
-                    loaded += value.length;
-
-                    const mbLoaded = (loaded / (1024 * 1024)).toFixed(2);
-                    if (total > 0) {
-                        const percent = Math.min(98, Math.round((loaded / total) * 100));
-                        fill.style.width = percent + "%";
-                        text.innerText = `ডাউনলোড হচ্ছে... ${percent}% (${mbLoaded} MB)`;
-                    } else {
-                        fill.style.width = "70%";
-                        text.innerText = `ডাউনলোড হচ্ছে... ${mbLoaded} MB সম্পন্ন`;
-                    }
-                }
-
-                const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
                 const cache = await caches.open(AUDIO_CACHE_NAME);
                 await cache.put(url, new Response(blob, {
                     headers: { 'Content-Type': 'audio/ogg; codecs=opus' }
                 }));
 
                 saveAudioMetadata({ name: fileName });
-
                 fill.style.width = "100%";
                 text.style.color = "#15803d";
                 text.innerText = "✅ সম্পন্ন! এখন ইন্টারনেট ছাড়াই শুনতে পারবেন।";
@@ -895,7 +906,7 @@
                 setTimeout(() => {
                     isAudioLoaded = false;
                     fetchAudiosFromArchive();
-                }, 1000);
+                }, 800);
 
             } catch (error) {
                 if (progressTimer) clearInterval(progressTimer);
@@ -912,10 +923,15 @@
             if (!confirm("অফলাইন মেমোরি থেকে এই অডিওটি মুছে ফেলতে চান?")) return;
             const savedItem = getSavedAudioList().find(item => item.name === fileName);
 
+            if (activeBlobUrls[fileName]) {
+                URL.revokeObjectURL(activeBlobUrls[fileName]);
+                delete activeBlobUrls[fileName];
+            }
+
             if (savedItem && savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
                 try {
                     await window.Capacitor.Plugins.Filesystem.deleteFile({
-                        path: `offline_audios/${savedItem.safeName}`,
+                        path: savedItem.safeName,
                         directory: 'DATA'
                     });
                 } catch (e) {}
@@ -1301,7 +1317,6 @@
             if (totalEl) totalEl.innerText = totalCount;
         }
 
-        // সার্ভিস ওয়ার্কার আনরেজিস্টার + ক্যাশ ক্লিয়ার করে জোরপূর্বক নতুন ভার্সন লোড করা
         async function manualRefresh() {
             if (navigator.onLine) {
                 if ('serviceWorker' in navigator) {
