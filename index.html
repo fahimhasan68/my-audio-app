@@ -245,12 +245,14 @@
         }
 
         /* আরবি লেখার ফন্ট এবং সাইজ বড় ও অ্যাডজাস্টেবল করার জন্য */
-        .article-content-body div[dir="rtl"] {
-            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
-            font-size: 1.55em !important;
-            line-height: 2.2 !important;
-            margin: 8px 0;
-        }
+        /* আরবি লেখার ফন্ট এবং স্বাভাবিক ফাঁকা জায়গা ঠিক করার জন্য */
+.article-content-body div[dir="rtl"] {
+    font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
+    font-size: 1.55em !important;
+    line-height: 1.8 !important;
+    margin: -18px 0 -18px 0 !important;
+    padding: 0 !important;
+}
     </style>
 </head>
 <body>
