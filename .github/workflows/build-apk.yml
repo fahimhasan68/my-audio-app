@@ -33,10 +33,11 @@ jobs:
           cp -f manifest.json www/ 2>/dev/null || true
           cp -f *.txt www/ 2>/dev/null || true
 
-      - name: Initialize Capacitor with Filesystem Plugin
+      - name: Initialize Capacitor and Generate Custom App Icon
         run: |
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6
+          npm install -D @capacitor/assets
           npx cap init "দ্বীনি মেহনত" "com.deenimehonot.app" --web-dir www
           
           cat << 'EOF' > capacitor.config.json
@@ -53,6 +54,13 @@ jobs:
           EOF
           
           npx cap add android
+          
+          # আপনার আপলোড করা icon.png থেকে সব সাইজের অ্যান্ড্রয়েড আইকন তৈরি
+          if [ -f "icon.png" ]; then
+            mkdir -p assets
+            cp icon.png assets/icon.png
+            npx capacitor-assets generate --android --iconBackgroundColor '#164431' --splashBackgroundColor '#164431'
+          fi
 
       - name: Configure Android Storage Permissions
         run: |
