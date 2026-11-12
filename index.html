@@ -7,16 +7,16 @@
     <meta name="theme-color" content="#164431">
     <style>
         :root {
-            --green-primary: #164431;      /* কিতাবের প্রচ্ছদের গাঢ় সবুজ */
-            --green-dark: #0f3022;         /* গভীর সবুজ */
-            --green-soft: #e7efe9;         /* হালকা সবুজ হাইলাইট */
-            --cream-bg: #f6f5ee;           /* প্রচ্ছদের উপরের অফ-হোয়াইট/ক্রিম শেড */
-            --card-white: #ffffff;         /* পরিষ্কার সাদা কার্ড */
-            --gold-main: #d4af37;          /* সোনালী বর্ডার ও অ্যাকসেন্ট */
-            --gold-text: #f0d77b;          /* গাঢ় ব্যাকগ্রাউন্ডে সোনালী লেখা */
-            --text-dark: #163024;          /* আরামদায়ক গাঢ় টেক্সট */
-            --text-muted: #526b5e;         /* তারিখ ও সাব-টেক্সট */
-            --border-subtle: #d5dfd9;      /* হালকা বর্ডার */
+            --green-primary: #164431;
+            --green-dark: #0f3022;
+            --green-soft: #e7efe9;
+            --cream-bg: #f6f5ee;
+            --card-white: #ffffff;
+            --gold-main: #d4af37;
+            --gold-text: #f0d77b;
+            --text-dark: #163024;
+            --text-muted: #526b5e;
+            --border-subtle: #d5dfd9;
         }
 
         * {
@@ -197,8 +197,36 @@
         }
 
         .btn-gold:disabled {
-            opacity: 0.85;
-            cursor: wait;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* ইন-অ্যাপ ডাউনলোড প্রগ্রেস বক্স */
+        .dl-status-box {
+            display: none;
+            margin-top: 8px;
+            background: var(--green-soft);
+            border: 1px solid var(--green-primary);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--text-dark);
+        }
+
+        .dl-progress-track {
+            width: 100%;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .dl-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--green-primary), var(--gold-main));
+            transition: width 0.2s ease;
         }
 
         .notice-badge {
@@ -230,7 +258,16 @@
             background: #ffffff;
         }
 
-        /* নামাজের সময়সূচির সারি */
+        /* নামাজের সময়সূচি সেকশন */
+        .prayer-section-header {
+            background-color: var(--green-primary);
+            color: var(--gold-text);
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+
         .prayer-row {
             display: flex;
             justify-content: space-between;
@@ -259,6 +296,7 @@
             padding: 4px 10px;
             border-radius: 6px;
             border: 1px solid rgba(22, 68, 49, 0.15);
+            font-size: 14px;
         }
 
         nav {
@@ -318,7 +356,6 @@
             margin: -14px 0 !important;
         }
 
-        /* হাদিস নম্বর (الحديث - ١) এর জন্য */
         .article-content-body .hadith-num {
             font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
             font-size: 1.15em !important;
@@ -328,7 +365,6 @@
             margin: -10px 0 -16px 0 !important;
         }
 
-        /* কিতাবের রেফারেন্স (صحيح البخاري) ছোট ও সুন্দর দেখানোর জন্য */
         .article-content-body .ref-box {
             font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
             font-size: 0.92em !important;
@@ -378,8 +414,12 @@
                 <div id="prayer-date-info" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"></div>
             </div>
 
-            <div id="prayer-times-container" class="item-card" style="padding: 0; overflow: hidden;">
-                <div class="status-box">সময়সূচি লোড হচ্ছে...</div>
+            <div id="prayer-times-container" class="item-card" style="padding: 0; overflow: hidden; margin-bottom: 14px;">
+                <div class="status-box">ফরজ ওয়াক্তের সময় লোড হচ্ছে...</div>
+            </div>
+
+            <div id="nafl-times-container" class="item-card" style="padding: 0; overflow: hidden;">
+                <div class="status-box">নফল নামাজের সময় লোড হচ্ছে...</div>
             </div>
         </section>
 
@@ -469,72 +509,39 @@
         let isAudioLoaded = false;
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
 
-        // বাংলাদেশের ৬৪ জেলার তালিকা (বাংলা নাম ও API Query নাম)
         const BD_DISTRICTS = [
-            { bn: "খুলনা", en: "Khulna" },
-            { bn: "ঢাকা", en: "Dhaka" },
-            { bn: "বাগেরহাট", en: "Bagerhat" },
-            { bn: "যশোর", en: "Jessore" },
-            { bn: "সাতক্ষীরা", en: "Satkhira" },
-            { bn: "কুষ্টিয়া", en: "Kushtia" },
-            { bn: "ঝিনাইদহ", en: "Jhenaidah" },
-            { bn: "মাগুরা", en: "Magura" },
-            { bn: "মেহেরপুর", en: "Meherpur" },
-            { bn: "নড়াইল", en: "Narail" },
-            { bn: "চুয়াডাঙ্গা", en: "Chuadanga" },
-            { bn: "চট্টগ্রাম", en: "Chittagong" },
-            { bn: "কক্সবাজার", en: "Cox's Bazar" },
-            { bn: "কুমিল্লা", en: "Comilla" },
-            { bn: "ব্রাহ্মণবাড়িয়া", en: "Brahmanbaria" },
-            { bn: "চাঁদপুর", en: "Chandpur" },
-            { bn: "নোয়াখালী", en: "Noakhali" },
-            { bn: "ফেনী", en: "Feni" },
-            { bn: "লক্ষ্মীপুর", en: "Lakshmipur" },
-            { bn: "রাঙ্গামাটি", en: "Rangamati" },
-            { bn: "খাগড়াছড়ি", en: "Khagrachhari" },
-            { bn: "বান্দরবান", en: "Bandarban" },
-            { bn: "সিলেট", en: "Sylhet" },
-            { bn: "মৌলভীবাজার", en: "Moulvibazar" },
-            { bn: "হবিগঞ্জ", en: "Habiganj" },
-            { bn: "সুনামগঞ্জ", en: "Sunamganj" },
-            { bn: "রাজশাহী", en: "Rajshahi" },
-            { bn: "বগুড়া", en: "Bogra" },
-            { bn: "পাবনা", en: "Pabna" },
-            { bn: "সিরাজগঞ্জ", en: "Sirajganj" },
-            { bn: "নাটোর", en: "Natore" },
-            { bn: "নওগাঁ", en: "Naogaon" },
-            { bn: "চাঁপাইনবাবগঞ্জ", en: "Chapainawabganj" },
-            { bn: "জয়পুরহাট", en: "Joypurhat" },
-            { bn: "রংপুর", en: "Rangpur" },
-            { bn: "দিনাজপুর", en: "Dinajpur" },
-            { bn: "গাইবান্ধা", en: "Gaibandha" },
-            { bn: "কুড়িগ্রাম", en: "Kurigram" },
-            { bn: "লালমনিরহাট", en: "Lalmonirhat" },
-            { bn: "নীলফামারী", en: "Nilphamari" },
-            { bn: "পঞ্চগড়", en: "Panchagarh" },
-            { bn: "ঠাকুরগাঁও", en: "Thakurgaon" },
-            { bn: "বরিশাল", en: "Barisal" },
-            { bn: "পটুয়াখালী", en: "Patuakhali" },
-            { bn: "ভোলা", en: "Bhola" },
-            { bn: "পিরোজপুর", en: "Pirojpur" },
-            { bn: "বরগুনা", en: "Barguna" },
-            { bn: "ঝালকাঠি", en: "Jhalokati" },
-            { bn: "ময়মনসিংহ", en: "Mymensingh" },
-            { bn: "জামালপুর", en: "Jamalpur" },
-            { bn: "নেত্রকোনা", en: "Netrokona" },
-            { bn: "শেরপুর", en: "Sherpur" },
-            { bn: "গাজীপুর", en: "Gazipur" },
-            { bn: "নারায়ণগঞ্জ", en: "Narayanganj" },
-            { bn: "টাঙ্গাইল", en: "Tangail" },
-            { bn: "কিশোরগঞ্জ", en: "Kishoreganj" },
-            { bn: "মানিকগঞ্জ", en: "Manikganj" },
-            { bn: "মুন্সিগঞ্জ", en: "Munshiganj" },
-            { bn: "নরসিংদী", en: "Narsingdi" },
-            { bn: "ফরিদপুর", en: "Faridpur" },
-            { bn: "গোপালগঞ্জ", en: "Gopalganj" },
-            { bn: "মাদারীপুর", en: "Madaripur" },
-            { bn: "রাজবাড়ী", en: "Rajbari" },
-            { bn: "শরীয়তপুর", en: "Shariatpur" }
+            { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
+            { bn: "বাগেরহাট", en: "Bagerhat" }, { bn: "যশোর", en: "Jessore" },
+            { bn: "সাতক্ষীরা", en: "Satkhira" }, { bn: "কুষ্টিয়া", en: "Kushtia" },
+            { bn: "ঝিনাইদহ", en: "Jhenaidah" }, { bn: "মাগুরা", en: "Magura" },
+            { bn: "মেহেরপুর", en: "Meherpur" }, { bn: "নড়াইল", en: "Narail" },
+            { bn: "চুয়াডাঙ্গা", en: "Chuadanga" }, { bn: "চট্টগ্রাম", en: "Chittagong" },
+            { bn: "কক্সবাজার", en: "Cox's Bazar" }, { bn: "কুমিল্লা", en: "Comilla" },
+            { bn: "ব্রাহ্মণবাড়িয়া", en: "Brahmanbaria" }, { bn: "চাঁদপুর", en: "Chandpur" },
+            { bn: "নোয়াখালী", en: "Noakhali" }, { bn: "ফেনী", en: "Feni" },
+            { bn: "লক্ষ্মীপুর", en: "Lakshmipur" }, { bn: "রাঙ্গামাটি", en: "Rangamati" },
+            { bn: "খাগড়াছড়ি", en: "Khagrachhari" }, { bn: "বান্দরবান", en: "Bandarban" },
+            { bn: "সিলেট", en: "Sylhet" }, { bn: "মৌলভীবাজার", en: "Moulvibazar" },
+            { bn: "হবিগঞ্জ", en: "Habiganj" }, { bn: "সুনামগঞ্জ", en: "Sunamganj" },
+            { bn: "রাজশাহী", en: "Rajshahi" }, { bn: "বগুড়া", en: "Bogra" },
+            { bn: "পাবনা", en: "Pabna" }, { bn: "সিরাজগঞ্জ", en: "Sirajganj" },
+            { bn: "নাটোর", en: "Natore" }, { bn: "নওগাঁ", en: "Naogaon" },
+            { bn: "চাঁপাইনবাবগঞ্জ", en: "Chapainawabganj" }, { bn: "জয়পুরহাট", en: "Joypurhat" },
+            { bn: "রংপুর", en: "Rangpur" }, { bn: "দিনাজপুর", en: "Dinajpur" },
+            { bn: "গাইবান্ধা", en: "Gaibandha" }, { bn: "কুড়িগ্রাম", en: "Kurigram" },
+            { bn: "লালমনিরহাট", en: "Lalmonirhat" }, { bn: "নীলফামারী", en: "Nilphamari" },
+            { bn: "পঞ্চগড়", en: "Panchagarh" }, { bn: "ঠাকুরগাঁও", en: "Thakurgaon" },
+            { bn: "বরিশাল", en: "Barisal" }, { bn: "পটুয়াখালী", en: "Patuakhali" },
+            { bn: "ভোলা", en: "Bhola" }, { bn: "পিরোজপুর", en: "Pirojpur" },
+            { bn: "বরগুনা", en: "Barguna" }, { bn: "ঝালকাঠি", en: "Jhalokati" },
+            { bn: "ময়মনসিংহ", en: "Mymensingh" }, { bn: "জামালপুর", en: "Jamalpur" },
+            { bn: "নেত্রকোনা", en: "Netrokona" }, { bn: "শেরপুর", en: "Sherpur" },
+            { bn: "গাজীপুর", en: "Gazipur" }, { bn: "নারায়ণগঞ্জ", en: "Narayanganj" },
+            { bn: "টাঙ্গাইল", en: "Tangail" }, { bn: "কিশোরগঞ্জ", en: "Kishoreganj" },
+            { bn: "মানিকগঞ্জ", en: "Manikganj" }, { bn: "মুন্সিগঞ্জ", en: "Munshiganj" },
+            { bn: "নরসিংদী", en: "Narsingdi" }, { bn: "ফরিদপুর", en: "Faridpur" },
+            { bn: "গোপালগঞ্জ", en: "Gopalganj" }, { bn: "মাদারীপুর", en: "Madaripur" },
+            { bn: "রাজবাড়ী", en: "Rajbari" }, { bn: "শরীয়তপুর", en: "Shariatpur" }
         ];
 
         function updateArticleFontSizeUI() {
@@ -593,7 +600,7 @@
             ]);
         }
 
-        // ১. ইন্টারনেট আর্কাইভ থেকে অডিও লোড
+        // ১. ইন্টারনেট আর্কাইভ থেকে অডিও তালিকা লোড
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -645,7 +652,7 @@
             }
 
             container.className = '';
-            container.innerHTML = audioFiles.map(file => {
+            container.innerHTML = audioFiles.map((file, idx) => {
                 const fileUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
                 const displayTitle = file.name.replace(/\.opus$/i, '');
 
@@ -659,7 +666,14 @@
                                 আপনার ডিভাইসটি এই অডিও সাপোর্ট করছে না।
                             </audio>
                             <div style="display: flex; justify-content: flex-end;">
-                                <button type="button" class="btn-gold" onclick="downloadAudioFile('${fileUrl}', '${file.name}', this)">⬇️ ডাউনলোড</button>
+                                <button type="button" class="btn-gold" id="dl-btn-${idx}" onclick="downloadAudioToDevice('${fileUrl}', '${file.name}', ${idx})">⬇️ ডাউনলোড</button>
+                            </div>
+                            <div id="dl-box-${idx}" class="dl-status-box">
+                                <div style="font-weight: bold; color: var(--green-primary); margin-bottom: 3px;">📄 ফাইল: ${file.name}</div>
+                                <div class="dl-progress-track">
+                                    <div id="dl-fill-${idx}" class="dl-progress-fill"></div>
+                                </div>
+                                <div id="dl-text-${idx}" style="font-weight: bold;">ডাউনলোড শুরু হচ্ছে... ০%</div>
                             </div>
                         </div>
                     </div>
@@ -669,21 +683,49 @@
             isAudioLoaded = true;
         }
 
-        // ২. লাইভ শতাংশ প্রগ্রেস দেখিয়ে ফোনের Downloads ডিরেক্টরিতে সেভ করার ফাংশন
-        async function downloadAudioFile(url, fileName, btnElement) {
+        // ২. ফোনের Download ডিরেক্টরিতে আসল ফাইল সেভ করা ও ইন-অ্যাপ লাইভ % দেখানো
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64Data = reader.result.split(',')[1];
+                    resolve(base64Data);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function downloadAudioToDevice(url, fileName, idx) {
             if (!navigator.onLine) {
                 alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
                 return;
             }
 
-            if (btnElement.disabled) return;
-            const originalText = btnElement.innerHTML;
-            btnElement.disabled = true;
-            btnElement.innerHTML = "⏳ সংযোগ হচ্ছে...";
+            const btn = document.getElementById(`dl-btn-${idx}`);
+            const box = document.getElementById(`dl-box-${idx}`);
+            const fill = document.getElementById(`dl-fill-${idx}`);
+            const text = document.getElementById(`dl-text-${idx}`);
+
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.innerHTML = "⏳ ডাউনলোড হচ্ছে...";
+            box.style.display = "block";
+            fill.style.width = "5%";
+            text.style.color = "var(--text-dark)";
+            text.innerText = "সার্ভারের সাথে সংযোগ হচ্ছে... ০%";
 
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Network error");
+                // সরাসরি ফেচ এবং CORS ব্লক হলে প্রক্সি ফলব্যাক
+                let response = null;
+                try {
+                    response = await fetch(url);
+                } catch (e) {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    response = await fetch(proxyUrl);
+                }
+
+                if (!response || !response.ok) throw new Error("Fetch failed");
 
                 const contentLength = response.headers.get('content-length');
                 const total = contentLength ? parseInt(contentLength, 10) : 0;
@@ -699,46 +741,66 @@
                     loaded += value.length;
 
                     if (total > 0) {
-                        const percent = Math.round((loaded / total) * 100);
-                        btnElement.innerHTML = `⏳ ডাউনলোড হচ্ছে... ${percent}%`;
+                        const percent = Math.min(99, Math.round((loaded / total) * 100));
+                        fill.style.width = percent + "%";
+                        text.innerText = `ডাউনলোড হচ্ছে... ${percent}% (${(loaded / (1024 * 1024)).toFixed(2)} MB)`;
                     } else {
-                        const mb = (loaded / (1024 * 1024)).toFixed(1);
-                        btnElement.innerHTML = `⏳ ডাউনলোড হচ্ছে... ${mb} MB`;
+                        const mb = (loaded / (1024 * 1024)).toFixed(2);
+                        fill.style.width = "65%";
+                        text.innerText = `ডাউনলোড হচ্ছে... ${mb} MB সম্পন্ন`;
                     }
                 }
 
-                // ফাইলটি তৈরি করে ফোনের Downloads ফোল্ডারে সেভ করা
+                fill.style.width = "100%";
+                text.innerText = "ফোনের Downloads ফোল্ডারে সেভ করা হচ্ছে...";
+
                 const blob = new Blob(chunks, { type: 'audio/ogg' });
-                const blobUrl = URL.createObjectURL(blob);
 
-                const tempLink = document.createElement('a');
-                tempLink.href = blobUrl;
-                tempLink.download = fileName;
-                document.body.appendChild(tempLink);
-                tempLink.click();
-                document.body.removeChild(tempLink);
+                // Capacitor Native Filesystem দিয়ে সরাসরি ফোনের Download ডিরেক্টরিতে সেভ করা
+                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+                    const { Filesystem } = window.Capacitor.Plugins;
+                    const base64Data = await blobToBase64(blob);
 
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+                    await Filesystem.writeFile({
+                        path: `Download/${fileName}`,
+                        data: base64Data,
+                        directory: 'EXTERNAL_STORAGE',
+                        recursive: true
+                    });
 
-                btnElement.innerHTML = "✅ সেভ সম্পন্ন (Downloads)";
-                setTimeout(() => {
-                    btnElement.innerHTML = originalText;
-                    btnElement.disabled = false;
-                }, 4500);
+                    text.style.color = "#15803d";
+                    text.innerText = `✅ ডাউনলোড কমপ্লিট! ফোনের File Manager > Downloads ফোল্ডারে "${fileName}" সেভ হয়েছে।`;
+                    btn.innerHTML = "✅ সেভ সম্পন্ন";
+                } else {
+                    // সাধারণ ব্রাউজারে ওপেন করলে ব্রাউজার ডাউনলোড
+                    const blobUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+
+                    text.style.color = "#15803d";
+                    text.innerText = `✅ ডাউনলোড কমপ্লিট! ফোনের Downloads ফোল্ডার চেক করুন।`;
+                    btn.innerHTML = "✅ সেভ সম্পন্ন";
+                }
+
+                btn.disabled = false;
 
             } catch (error) {
-                // কোনো ফোনের WebView যদি সরাসরি Blob সেভ ব্লক করে, তবে নেটিভ ডাউনলোড ম্যানেজার ওপেন করবে
-                btnElement.innerHTML = "↗️ ডাউনলোড শুরু হচ্ছে...";
-                window.open(url, '_system') || window.open(url, '_blank');
-                
-                setTimeout(() => {
-                    btnElement.innerHTML = originalText;
-                    btnElement.disabled = false;
-                }, 3000);
+                console.error("Download error:", error);
+                fill.style.width = "0%";
+                text.style.color = "#dc2626";
+                text.innerText = "❌ সরাসরি অ্যাপে সেভ করা যায়নি। সিস্টেম ব্রাউজারে ডাউনলোড শুরু হচ্ছে...";
+                window.open(url, '_system');
+                btn.innerHTML = "⬇️ আবার ডাউনলোড করুন";
+                btn.disabled = false;
             }
         }
 
-        // ৩. জেলাভিত্তিক নামাজের সময়সূচি লোড (AlAdhan API + অফলাইন ক্যাশ)
+        // ৩. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (ইশরাক, চাশত, তাহাজ্জুদ)
         function initDistrictDropdown() {
             const selectEl = document.getElementById('district-select');
             if (!selectEl) return;
@@ -756,26 +818,38 @@
             loadPrayerTimes();
         }
 
+        function toBnDigits(str) {
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return String(str).replace(/\d/g, d => bnDigits[d]);
+        }
+
+        function parseMinutes(time24) {
+            const clean = time24.split(' ')[0];
+            const [h, m] = clean.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function minutesTo12HourBn(totalMins) {
+            totalMins = ((totalMins % 1440) + 1440) % 1440;
+            let h = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            const period = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            const formatted = `${h < 10 ? '0' + h : h}:${m < 10 ? '0' + m : m} ${period}`;
+            return toBnDigits(formatted);
+        }
+
         function formatTo12HourBn(time24) {
             if (!time24) return '--:--';
-            const cleanTime = time24.split(' ')[0];
-            let [hours, minutes] = cleanTime.split(':').map(Number);
-            const period = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12 || 12;
-            const formattedStr = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes} ${period}`;
-            
-            // ইংরেজি সংখ্যাকে বাংলায় রূপান্তর
-            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-            return formattedStr.replace(/\d/g, d => bnDigits[d]);
+            return minutesTo12HourBn(parseMinutes(time24));
         }
 
         async function loadPrayerTimes() {
             const container = document.getElementById('prayer-times-container');
-            const dateInfoEl = document.getElementById('prayer-date-info');
+            const naflContainer = document.getElementById('nafl-times-container');
             const city = localStorage.getItem('user_selected_district') || 'Khulna';
             const cacheKey = 'prayer_cache_' + city;
 
-            // পূর্বে সেভ করা ডাটা থাকলে সাথে সাথে দেখাবে
             const cached = localStorage.getItem(cacheKey);
             if (cached) {
                 try {
@@ -784,9 +858,9 @@
                 } catch(e) {}
             } else {
                 container.innerHTML = '<div class="status-box">নামাজের সময়সূচি লোড হচ্ছে...</div>';
+                naflContainer.innerHTML = '';
             }
 
-            // অনলাইনে থাকলে AlAdhan API (Karachi Method = 1, Hanafi School = 1) থেকে লেটেস্ট সময় আনা
             if (navigator.onLine) {
                 try {
                     const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Bangladesh&method=1&school=1`;
@@ -812,6 +886,7 @@
 
         function renderPrayerUI(timings, dateReadable) {
             const container = document.getElementById('prayer-times-container');
+            const naflContainer = document.getElementById('nafl-times-container');
             const dateInfoEl = document.getElementById('prayer-date-info');
             if (!container) return;
 
@@ -819,21 +894,63 @@
                 dateInfoEl.innerText = `📅 তারিখ: ${dateReadable}`;
             }
 
-            const rows = [
-                { icon: '🌙', name: 'সেহরির শেষ সময় (ফজর)', time: timings.Fajr },
-                { icon: '🌅', name: 'সূর্যোদয়', time: timings.Sunrise },
-                { icon: '☀️', name: 'যোহর', time: timings.Dhuhr },
-                { icon: '🌤️', name: 'আসর (হানাফি)', time: timings.Asr },
-                { icon: '🌇', name: 'মাগরিব / ইফতার', time: timings.Maghrib },
-                { icon: '🌌', name: 'এশা', time: timings.Isha }
+            // ফরজ ওয়াক্ত ও সেহরি-ইফতার
+            const fardRows = [
+                { icon: '🌙', name: 'সেহরির শেষ সময় (ফজর)', time: formatTo12HourBn(timings.Fajr) },
+                { icon: '🌅', name: 'সূর্যোদয়', time: formatTo12HourBn(timings.Sunrise) },
+                { icon: '☀️', name: 'যোহর', time: formatTo12HourBn(timings.Dhuhr) },
+                { icon: '🌤️', name: 'আসর (হানাফি)', time: formatTo12HourBn(timings.Asr) },
+                { icon: '🌇', name: 'মাগরিব / ইফতার', time: formatTo12HourBn(timings.Maghrib) },
+                { icon: '🌌', name: 'এশা', time: formatTo12HourBn(timings.Isha) }
             ];
 
-            container.innerHTML = rows.map(r => `
-                <div class="prayer-row">
-                    <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
-                    <div class="prayer-time">${formatTo12HourBn(r.time)}</div>
-                </div>
-            `).join('');
+            container.innerHTML = `
+                <div class="prayer-section-header">🕌 পাঁচ ওয়াক্ত নামাজ ও সেহরি-ইফতার</div>
+                ${fardRows.map(r => `
+                    <div class="prayer-row">
+                        <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
+                        <div class="prayer-time">${r.time}</div>
+                    </div>
+                `).join('')}
+            `;
+
+            // নফল নামাজের সময় হিসাব (ইশরাক, চাশত, তাহাজ্জুদ)
+            const sunriseMins = parseMinutes(timings.Sunrise);
+            const dhuhrMins = parseMinutes(timings.Dhuhr);
+            const ishaMins = parseMinutes(timings.Isha);
+            const fajrMins = parseMinutes(timings.Fajr);
+
+            // ইশরাক: সূর্যোদয়ের ১৫ মিনিট পর থেকে
+            const ishraqStart = minutesTo12HourBn(sunriseMins + 15);
+            const ishraqEnd = minutesTo12HourBn(sunriseMins + 90);
+
+            // চাশত (সালাতুত দুহা): সূর্যোদয় ও যোহরের মধ্যবর্তী সময় থেকে যোহরের ১০ মিনিট আগ পর্যন্ত
+            const chashtStart = minutesTo12HourBn(Math.floor((sunriseMins + dhuhrMins) / 2));
+            const chashtEnd = minutesTo12HourBn(dhuhrMins - 10);
+
+            // তাহাজ্জুদ: রাতের শেষ তৃতীয়াংশ থেকে ফজর (সেহরি) পর্যন্ত
+            const nightDuration = (1440 - parseMinutes(timings.Maghrib)) + fajrMins;
+            const lastThirdStart = fajrMins - Math.floor(nightDuration / 3);
+            const tahajjudStart = minutesTo12HourBn(lastThirdStart);
+            const tahajjudEnd = minutesTo12HourBn(fajrMins - 2);
+
+            const naflRows = [
+                { icon: '✨', name: 'ইশরাক', time: `${ishraqStart} - ${ishraqEnd}` },
+                { icon: '🌞', name: 'চাশত (সালাতুত দুহা)', time: `${chashtStart} - ${chashtEnd}` },
+                { icon: '🤲', name: 'তাহাজ্জুদ (উত্তম সময়)', time: `${tahajjudStart} - ${tahajjudEnd}` }
+            ];
+
+            if (naflContainer) {
+                naflContainer.innerHTML = `
+                    <div class="prayer-section-header">📿 নফল নামাজের সময়সূচি</div>
+                    ${naflRows.map(r => `
+                        <div class="prayer-row">
+                            <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
+                            <div class="prayer-time">${r.time}</div>
+                        </div>
+                    `).join('')}
+                `;
+            }
         }
 
         // ৪. প্রবন্ধ ও নোটিশ লোড
