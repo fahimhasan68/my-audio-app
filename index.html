@@ -24,13 +24,15 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
             background-color: var(--bg-deep);
             color: var(--text-light);
             display: flex;
             flex-direction: column;
             height: 100vh;
+            width: 100%;
             overflow: hidden;
+            overscroll-behavior-y: contain;
         }
 
         header {
@@ -41,6 +43,7 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            flex-shrink: 0;
         }
 
         .app-title {
@@ -68,12 +71,15 @@
         main {
             flex: 1;
             overflow-y: auto;
+            overscroll-behavior-y: contain;
             padding: 12px;
             padding-bottom: 90px;
+            width: 100%;
         }
 
         .tab-section {
             display: none;
+            width: 100%;
             animation: fadeIn 0.25s ease;
         }
 
@@ -94,6 +100,7 @@
             margin-bottom: 12px;
             box-shadow: 0 3px 8px rgba(0,0,0,0.25);
             width: 100%;
+            text-align: left;
         }
 
         .item-title {
@@ -102,6 +109,7 @@
             color: var(--gold-light);
             line-height: 1.5;
             width: 100%;
+            text-align: left;
             word-break: break-word;
         }
 
@@ -120,6 +128,7 @@
             white-space: pre-line;
             border-top: 1px dashed var(--border-gold);
             padding-top: 10px;
+            text-align: left;
         }
 
         .font-control-bar {
@@ -131,6 +140,7 @@
             padding: 8px 12px;
             border-radius: 10px;
             margin-bottom: 12px;
+            width: 100%;
         }
 
         .font-btn {
@@ -214,6 +224,7 @@
             padding: 6px 12px;
             border-radius: 8px;
             transition: 0.2s;
+            flex: 1;
         }
 
         .nav-item.active {
@@ -228,8 +239,9 @@
 
         .status-box {
             text-align: center;
-            padding: 30px;
+            padding: 30px 15px;
             color: var(--text-muted);
+            width: 100%;
         }
     </style>
 </head>
@@ -318,19 +330,19 @@
     </main>
 
     <nav>
-        <button class="nav-item active" onclick="switchTab('audio', this)">
+        <button class="nav-item active" data-tab="audio" onclick="switchTab('audio', this)">
             <span class="nav-icon">🎧</span>
             <span>অডিও</span>
         </button>
-        <button class="nav-item" onclick="switchTab('articles', this)">
+        <button class="nav-item" data-tab="articles" onclick="switchTab('articles', this)">
             <span class="nav-icon">📖</span>
             <span>প্রবন্ধ</span>
         </button>
-        <button class="nav-item" onclick="switchTab('notices', this)">
+        <button class="nav-item" data-tab="notices" onclick="switchTab('notices', this)">
             <span class="nav-icon">📌</span>
             <span>নোটিশবোর্ড</span>
         </button>
-        <button class="nav-item" onclick="switchTab('qaza', this)">
+        <button class="nav-item" data-tab="qaza" onclick="switchTab('qaza', this)">
             <span class="nav-icon">📿</span>
             <span>উমরি কাজা</span>
         </button>
@@ -339,6 +351,7 @@
     <script>
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261103_20261103_1708";
+        let currentActiveTab = 'audio';
         let isAudioLoaded = false;
 
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
@@ -366,6 +379,7 @@
         }
 
         function switchTab(tabName, btnElement) {
+            currentActiveTab = tabName;
             document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 
@@ -392,15 +406,15 @@
             if (!container) return;
 
             if (!navigator.onLine) {
+                container.className = 'status-box';
                 container.innerHTML = `
-                    <div class="status-box">
-                        📡 আপনি অফলাইনে আছেন। অডিও শুনতে ইন্টারনেট সংযোগ চালু করুন।
-                    </div>
+                    📡 আপনি অফলাইনে আছেন। অডিও শুনতে ইন্টারনেট সংযোগ চালু করুন।
                 `;
                 return;
             }
 
-            container.innerHTML = '<div class="status-box">অডিও লোড হচ্ছে...</div>';
+            container.className = 'status-box';
+            container.innerHTML = 'অডিও লোড হচ্ছে...';
 
             const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
             const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
@@ -419,11 +433,10 @@
             }
 
             if (!data || !data.result) {
+                container.className = 'status-box';
                 container.innerHTML = `
-                    <div class="status-box">
-                        অডিও লোড করতে সমস্যা হয়েছে।<br>
-                        <button class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
-                    </div>
+                    অডিও লোড করতে সমস্যা হয়েছে।<br>
+                    <button class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
                 `;
                 return;
             }
@@ -433,10 +446,12 @@
             );
 
             if (audioFiles.length === 0) {
-                container.innerHTML = '<div class="status-box">কোনো অডিও ফাইল পাওয়া যায়নি।</div>';
+                container.className = 'status-box';
+                container.innerHTML = 'কোনো অডিও ফাইল পাওয়া যায়নি।';
                 return;
             }
 
+            container.className = '';
             container.innerHTML = audioFiles.map(file => {
                 const fileUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
                 const displayTitle = file.name.replace(/\.opus$/i, '');
@@ -499,9 +514,12 @@
             if (!container) return;
 
             if (!articles || articles.length === 0) {
-                container.innerHTML = '<div class="status-box">কোনো প্রবন্ধ পাওয়া যায়নি।</div>';
+                container.className = 'status-box';
+                container.innerHTML = 'কোনো প্রবন্ধ পাওয়া যায়নি।';
                 return;
             }
+
+            container.className = '';
 
             let html = '';
             for (const item of articles) {
@@ -521,10 +539,10 @@
                                 localStorage.setItem(cacheKey, textContent);
                             }
                         } catch (err) {
-                            if (!savedText) textContent = 'ফাইলটি পড়তে একবার ইন্টারনেট চালু করে লোড করে নিন।';
+                            if (!savedText) textContent = 'ফাইলটি পড়তে একবার ইন্টারনেট চালু করে লোড করে নিন।';
                         }
                     } else if (!savedText) {
-                        textContent = 'ফাইলটি অফলাইনে পড়ার জন্য পূর্বে লোড করা হয়নি।';
+                        textContent = 'ফাইলটি অফলাইনে পড়ার জন্য পূর্বে লোড করা হয়নি।';
                     }
                 }
 
@@ -535,7 +553,7 @@
                                 <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
                                     <span class="item-date">তারিখ: ${item.date || '—'}</span>
-                                    <span style="font-size: 13px; color: var(--gold-main);">পড়ুন ▼</span>
+                                    <span style="font-size: 13px; color: var(--gold-main);">পড়ুন ▼</span>
                                 </div>
                             </summary>
                             <div class="article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.8; color: var(--text-light); text-align: left; padding: 12px 16px 16px 16px; border-top: 1px dashed var(--border-gold);">${textContent}</div>
@@ -553,9 +571,12 @@
             if (!container) return;
 
             if (!notices || notices.length === 0) {
-                container.innerHTML = '<div class="status-box">বর্তমানে কোনো নতুন নোটিশ নেই।</div>';
+                container.className = 'status-box';
+                container.innerHTML = 'বর্তমানে কোনো নতুন নোটিশ নেই।';
                 return;
             }
+
+            container.className = '';
             container.innerHTML = notices.map(item => `
                 <div class="item-card">
                     <span class="notice-badge">🔔 ${item.priority || 'সাধারণ নোটিশ'}</span>
@@ -605,7 +626,7 @@
                 WAQTS.forEach(w => {
                     document.getElementById('input_' + w.id).value = '';
                 });
-                alert("হিসাব সংরক্ষিত হয়েছে!");
+                alert("হিসাব সংরক্ষিত হয়েছে!");
             }
         }
 
@@ -678,7 +699,7 @@
 
         function manualRefresh() {
             fetchContent();
-            if (navigator.onLine) {
+            if (currentActiveTab === 'audio' && navigator.onLine) {
                 isAudioLoaded = false;
                 fetchAudiosFromArchive();
             }
