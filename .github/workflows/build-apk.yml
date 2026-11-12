@@ -45,7 +45,7 @@ jobs:
             "appName": "দ্বীনি মেহনত",
             "webDir": "www",
             "server": {
-              "url": "https://আপনার-ইউজারনেম.github.io/রিপোজিটরি-নাম/",
+              "url": "https://fahimhasan68.github.io/my-audio-app/",
               "cleartext": true,
               "allowNavigation": ["*"]
             }
