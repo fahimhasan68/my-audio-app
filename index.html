@@ -17,6 +17,7 @@
             --text-dark: #163024;
             --text-muted: #526b5e;
             --border-subtle: #d5dfd9;
+            --player-black: #18181b;
         }
 
         * {
@@ -58,7 +59,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* মিনিমালিস্ট গোলাকার আপডেট আইকন বাটন */
+        /* উপরে কোণায় মিনিমালিস্ট গোলাকার আপডেট আইকন বাটন */
         .refresh-btn {
             width: 36px;
             height: 36px;
@@ -70,14 +71,14 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s;
+            transition: transform 0.25s ease, background-color 0.2s;
             padding: 0;
         }
 
         .refresh-btn:active {
             background-color: var(--gold-main);
             color: var(--green-dark);
-            transform: rotate(90deg) scale(0.92);
+            transform: rotate(180deg) scale(0.92);
         }
 
         main {
@@ -173,113 +174,113 @@
             color: #ffffff;
         }
 
-        /* কাস্টম অডিও প্লেয়ার ডিজাইন */
-        .custom-audio-box {
-            margin-top: 12px;
-            background: #f9fbf9;
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            padding: 10px 12px;
+        /* ছবির মতো সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
+        .minimal-player {
+            margin-top: 14px;
+            padding: 4px 2px 2px 2px;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 14px;
         }
 
-        .seek-bar-wrap {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        /* বড় ও আকর্ষণীয় সিক বার */
-        .audio-seek-slider {
+        /* চিকন কালো সিক বার ও কালো গোল থাম্ব */
+        .minimal-seek-slider {
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 8px;
-            border-radius: 8px;
-            background: linear-gradient(to right, var(--green-primary) 0%, #cbd5e1 0%);
+            height: 4px;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--player-black) 0%, #e4e4e7 0%);
             outline: none;
             cursor: pointer;
+            margin: 0;
         }
 
-        .audio-seek-slider::-webkit-slider-thumb {
+        .minimal-seek-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            background: var(--gold-main);
-            border: 2.5px solid var(--green-primary);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            background: var(--player-black);
+            border: none;
             cursor: pointer;
+            transition: transform 0.1s ease;
         }
 
-        .time-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11.5px;
-            font-weight: bold;
-            color: var(--text-muted);
-            padding: 0 2px;
+        .minimal-seek-slider::-webkit-slider-thumb:active {
+            transform: scale(1.25);
         }
 
-        .player-controls-row {
-            display: flex;
+        /* নিচের ৫-কলাম কন্ট্রোল রো (বাম, প্রিভিয়াস সিক, প্লে, নেক্সট সিক, ডান ডাউনলোড) */
+        .minimal-controls-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto 1fr;
             align-items: center;
-            justify-content: space-between;
-            padding-top: 2px;
+            column-gap: 24px;
+            width: 100%;
         }
 
-        .transport-group {
+        .minimal-left-slot {
+            justify-self: start;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #52525b;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+
+        .minimal-right-slot {
+            justify-self: end;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        /* প্লে/পজ বাটন */
-        .btn-play-main {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
-            color: var(--gold-text);
-            border: 1.5px solid var(--gold-main);
+        /* সাদার ওপর কালো আইকন বাটন (সিক, ডাউনলোড ও ডিলিট) */
+        .btn-minimal-icon {
+            background: transparent;
+            border: none;
+            color: var(--player-black);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(22, 68, 49, 0.2);
-            transition: transform 0.15s ease;
+            padding: 6px;
+            border-radius: 50%;
+            transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.2s;
+        }
+
+        .btn-minimal-icon:active {
+            transform: scale(0.86);
+            background-color: rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-minimal-icon:disabled {
+            opacity: 0.45;
+            cursor: wait;
+        }
+
+        /* মাঝখানের সলিড কালো গোল প্লে/পজ বাটন */
+        .btn-minimal-play {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--player-black);
+            color: #ffffff;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+            transition: transform 0.12s ease, opacity 0.2s;
             padding: 0;
         }
 
-        .btn-play-main:active {
-            transform: scale(0.92);
-        }
-
-        /* প্রিভিয়াস (-১০ সেকেন্ড) ও ফরোয়ার্ড (+১০ সেকেন্ড) টানার বাটন */
-        .btn-seek-step {
-            height: 32px;
-            padding: 0 9px;
-            border-radius: 16px;
-            background: var(--green-soft);
-            color: var(--green-primary);
-            border: 1px solid var(--border-subtle);
-            font-size: 11.5px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            cursor: pointer;
-            transition: background-color 0.15s, transform 0.1s;
-        }
-
-        .btn-seek-step:active {
-            background: var(--green-primary);
-            color: #ffffff;
-            transform: scale(0.94);
+        .btn-minimal-play:active {
+            transform: scale(0.91);
         }
 
         .btn-gold {
@@ -298,68 +299,6 @@
             box-shadow: 0 2px 5px rgba(22, 68, 49, 0.15);
         }
 
-        /* মিনিমালিস্ট গোলাকার ডাউনলোড আইকন বাটন */
-        .btn-icon-dl {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
-            color: var(--gold-text);
-            border: 1px solid var(--gold-main);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(22, 68, 49, 0.15);
-            transition: transform 0.15s ease, opacity 0.2s;
-            padding: 0;
-        }
-
-        .btn-icon-dl:active {
-            transform: scale(0.92);
-        }
-
-        .btn-icon-dl:disabled {
-            opacity: 0.6;
-            cursor: wait;
-        }
-
-        /* সেভ হওয়া অবস্থার ছোট্ট টিক ব্যাজ */
-        .badge-icon-saved {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--green-soft);
-            color: #15803d;
-            border: 1px solid #86efac;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        /* মিনিমালিস্ট ডিলিট আইকন বাটন */
-        .btn-icon-del {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: transform 0.15s ease;
-            padding: 0;
-        }
-
-        .btn-icon-del:active {
-            transform: scale(0.92);
-        }
-
         @keyframes spin {
             100% { transform: rotate(360deg); }
         }
@@ -371,27 +310,27 @@
         .dl-status-box {
             display: none;
             margin-top: 2px;
-            background: var(--green-soft);
-            border: 1px solid var(--green-primary);
-            border-radius: 8px;
-            padding: 8px 10px;
+            background: #f4f4f5;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            padding: 6px 10px;
             font-size: 11px;
-            color: var(--text-dark);
+            color: var(--player-black);
         }
 
         .dl-progress-track {
             width: 100%;
-            height: 6px;
-            background: #cbd5e1;
+            height: 4px;
+            background: #e4e4e7;
             border-radius: 10px;
             overflow: hidden;
-            margin: 5px 0;
+            margin: 4px 0;
         }
 
         .dl-progress-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, var(--green-primary), var(--gold-main));
+            background: var(--player-black);
             transition: width 0.3s ease;
         }
 
@@ -542,7 +481,7 @@
 
     <header>
         <div class="app-title">দ্বীনি মেহনত</div>
-        <button type="button" class="refresh-btn" title="আপডেট" onclick="manualRefresh()">
+        <button type="button" class="refresh-btn" id="top-refresh-btn" title="আপডেট" onclick="manualRefresh()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                 <path d="M3 3v5h5"/>
@@ -670,9 +609,11 @@
     </nav>
 
     <script>
+        const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v4";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         let isAudioLoaded = false;
@@ -680,15 +621,15 @@
 
         const activeBlobUrls = {};
 
-        // মিনিমালিস্ট SVG আইকনসমূহ
-        const SVG_PLAY = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>`;
-        const SVG_PAUSE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`;
-        const SVG_REWIND = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>`;
-        const SVG_FORWARD = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>`;
-        const SVG_DOWNLOAD = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
-        const SVG_SPINNER = `<svg class="spin-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-        const SVG_CHECK = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-        const SVG_TRASH = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+        // ছবির মতো সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
+        const SVG_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;"><path d="M8 5.14v14l11-7-11-7z"/></svg>`;
+        const SVG_PAUSE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
+        const SVG_SEEK_BACK = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>`;
+        const SVG_SEEK_FWD = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`;
+        const SVG_DOWNLOAD = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+        const SVG_SPINNER = `<svg class="spin-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+        const SVG_CHECK = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const SVG_TRASH = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
 
         const BD_DISTRICTS = [
             { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
@@ -774,7 +715,7 @@
 
         function fetchWithTimeout(resource, timeout = 4500) {
             return Promise.race([
-                fetch(resource),
+                fetch(resource, { cache: 'no-store' }),
                 new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Request Timeout')), timeout)
                 )
@@ -819,7 +760,7 @@
             return URL.createObjectURL(blob);
         }
 
-        // কাস্টম অডিও প্লেয়ার ফাংশনসমূহ
+        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ
         function formatAudioTime(seconds) {
             if (!seconds || isNaN(seconds) || !isFinite(seconds)) return "০:০০";
             const mins = Math.floor(seconds / 60);
@@ -833,7 +774,6 @@
             const btn = document.getElementById(`play-btn-${idx}`);
             if (!audio) return;
 
-            // অন্য কোনো অডিও চললে তা থামিয়ে দেওয়া
             document.querySelectorAll('audio').forEach((otherAudio, otherIdx) => {
                 if (otherAudio !== audio && !otherAudio.paused) {
                     otherAudio.pause();
@@ -845,7 +785,9 @@
             if (audio.paused) {
                 audio.play().then(() => {
                     if (btn) btn.innerHTML = SVG_PAUSE;
-                }).catch(() => {});
+                }).catch(() => {
+                    alert("অডিওটি চালাতে ইন্টারনেট চালু করুন অথবা ডানপাশের ডাউনলোড বাটনে চেপে অফলাইনে সেভ করে নিন।");
+                });
             } else {
                 audio.pause();
                 if (btn) btn.innerHTML = SVG_PLAY;
@@ -866,34 +808,38 @@
         function onSeekInput(idx, val) {
             const audio = document.getElementById(`audio-el-${idx}`);
             const slider = document.getElementById(`seek-${idx}`);
-            const curEl = document.getElementById(`cur-time-${idx}`);
+            const timeEl = document.getElementById(`time-label-${idx}`);
             if (!audio || !audio.duration) return;
 
             const newTime = (parseFloat(val) / 100) * audio.duration;
             audio.currentTime = newTime;
-            if (curEl) curEl.innerText = formatAudioTime(newTime);
+            if (timeEl) {
+                timeEl.innerText = `${formatAudioTime(newTime)} / ${formatAudioTime(audio.duration)}`;
+            }
             if (slider) {
-                slider.style.background = `linear-gradient(to right, var(--green-primary) ${val}%, #cbd5e1 ${val}%)`;
+                slider.style.background = `linear-gradient(to right, #18181b ${val}%, #e4e4e7 ${val}%)`;
             }
         }
 
         function onAudioTimeUpdate(idx) {
             const audio = document.getElementById(`audio-el-${idx}`);
             const slider = document.getElementById(`seek-${idx}`);
-            const curEl = document.getElementById(`cur-time-${idx}`);
-            const durEl = document.getElementById(`dur-time-${idx}`);
+            const timeEl = document.getElementById(`time-label-${idx}`);
             if (!audio) return;
 
             const current = audio.currentTime || 0;
             const duration = audio.duration || 0;
 
-            if (curEl) curEl.innerText = formatAudioTime(current);
-            if (durEl && duration > 0) durEl.innerText = formatAudioTime(duration);
+            if (timeEl) {
+                timeEl.innerText = duration > 0 
+                    ? `${formatAudioTime(current)} / ${formatAudioTime(duration)}`
+                    : `${formatAudioTime(current)}`;
+            }
 
             if (slider && duration > 0) {
                 const percent = Math.min(100, (current / duration) * 100);
                 slider.value = percent;
-                slider.style.background = `linear-gradient(to right, var(--green-primary) ${percent}%, #cbd5e1 ${percent}%)`;
+                slider.style.background = `linear-gradient(to right, #18181b ${percent}%, #e4e4e7 ${percent}%)`;
             }
         }
 
@@ -903,7 +849,7 @@
             if (btn) btn.innerHTML = SVG_PLAY;
             if (slider) {
                 slider.value = 0;
-                slider.style.background = `linear-gradient(to right, var(--green-primary) 0%, #cbd5e1 0%)`;
+                slider.style.background = `linear-gradient(to right, #18181b 0%, #e4e4e7 0%)`;
             }
         }
 
@@ -913,9 +859,14 @@
             if (!container) return;
 
             const savedList = getSavedAudioList();
+            let cachedAllFiles = [];
+            try {
+                cachedAllFiles = JSON.parse(localStorage.getItem('user_cached_archive_files')) || [];
+            } catch (e) {}
 
             if (!navigator.onLine) {
-                if (savedList.length === 0) {
+                const offlineFilesToShow = savedList.length > 0 ? savedList : cachedAllFiles;
+                if (offlineFilesToShow.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
                         📡 আপনি অফলাইনে আছেন।<br>
@@ -923,12 +874,14 @@
                     `;
                     return;
                 }
-                await renderAudioCards(savedList, true);
+                await renderAudioCards(offlineFilesToShow, true);
                 isAudioLoaded = true;
                 return;
             }
 
-            if (savedList.length > 0) {
+            if (cachedAllFiles.length > 0) {
+                await renderAudioCards(cachedAllFiles, false);
+            } else if (savedList.length > 0) {
                 await renderAudioCards(savedList, false);
             } else {
                 container.className = 'status-box';
@@ -952,7 +905,7 @@
             }
 
             if (!data || !data.result) {
-                if (savedList.length === 0) {
+                if (cachedAllFiles.length === 0 && savedList.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
                         অডিও লোড করতে সমস্যা হয়েছে।<br>
@@ -966,17 +919,18 @@
                 file.name && file.name.toLowerCase().endsWith('.opus')
             );
 
-            if (audioFiles.length === 0 && savedList.length === 0) {
+            if (audioFiles.length > 0) {
+                localStorage.setItem('user_cached_archive_files', JSON.stringify(audioFiles));
+                await renderAudioCards(audioFiles, false);
+            } else if (savedList.length === 0) {
                 container.className = 'status-box';
                 container.innerHTML = 'কোনো অডিও ফাইল পাওয়া যায়নি।';
-                return;
             }
 
-            await renderAudioCards(audioFiles, false);
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার (কাস্টম সিক বার, -১০s/+১০s বাটন এবং মিনিমালিস্ট ডাউনলোড আইকনসহ)
+        // ২. অডিও কার্ড রেন্ডার (ছবির মতো সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার লেআউট)
         async function renderAudioCards(files, isOfflineMode) {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -991,7 +945,7 @@
 
             container.className = '';
             let headerNotice = isOfflineMode 
-                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: অ্যাপের ভেতরে সেভ করা বয়ানসমূহ</div>` 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা অডিওসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
                 : '';
 
             const cardsHtml = await Promise.all(files.map(async (file, idx) => {
@@ -1035,47 +989,45 @@
                     }
                 }
 
-                const actionButtons = isSaved
-                    ? `<div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                            <span class="badge-icon-saved" title="অফলাইনে সেভ করা আছে">${SVG_CHECK}</span>
-                            <button type="button" class="btn-icon-del" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">${SVG_TRASH}</button>
-                       </div>`
-                    : `<button type="button" class="btn-icon-dl" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${file.name}', ${idx})">${SVG_DOWNLOAD}</button>`;
+                // ডান পাশের স্লট: সাদার ওপর কালো ডাউনলোড আইকন (অথবা সেভ থাকলে টিক ও ডিলিট আইকন)
+                const rightSlotControls = isSaved
+                    ? `<span class="btn-minimal-icon" title="অফলাইনে সেভ করা আছে" style="cursor: default;">${SVG_CHECK}</span>
+                       <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">${SVG_TRASH}</button>`
+                    : `<button type="button" class="btn-minimal-icon" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${file.name}', ${idx})">${SVG_DOWNLOAD}</button>`;
 
                 return `
                     <div class="item-card">
                         <div class="item-title">🎙️ ${displayTitle}</div>
                         
-                        <div class="custom-audio-box">
+                        <div class="minimal-player">
                             <audio id="audio-el-${idx}" preload="${preloadMode}" src="${audioSrc}"
                                 ontimeupdate="onAudioTimeUpdate(${idx})"
                                 onloadedmetadata="onAudioTimeUpdate(${idx})"
                                 onended="onAudioEnded(${idx})"></audio>
 
-                            <!-- বড় ও প্রশস্ত সিক বার -->
-                            <div class="seek-bar-wrap">
-                                <input type="range" id="seek-${idx}" class="audio-seek-slider" value="0" min="0" max="100" step="0.1"
-                                    oninput="onSeekInput(${idx}, this.value)">
-                                <div class="time-row">
-                                    <span id="cur-time-${idx}">০:০০</span>
-                                    <span id="dur-time-${idx}">০:০০</span>
-                                </div>
-                            </div>
+                            <!-- উপরের চিকন কালো সিক বার -->
+                            <input type="range" id="seek-${idx}" class="minimal-seek-slider" value="0" min="0" max="100" step="0.1"
+                                oninput="onSeekInput(${idx}, this.value)">
 
-                            <!-- প্লে, প্রিভিয়াস (-১০s), ফরোয়ার্ড (+১০s) এবং ডাউনলোড আইকন -->
-                            <div class="player-controls-row">
-                                <div class="transport-group">
-                                    <button type="button" class="btn-seek-step" title="১০ সেকেন্ড পেছনে" onclick="seekAudioStep(${idx}, -10)">
-                                        ${SVG_REWIND} ১০s
-                                    </button>
-                                    <button type="button" class="btn-play-main" id="play-btn-${idx}" title="প্লে / পজ" onclick="togglePlayAudio(${idx})">
-                                        ${SVG_PLAY}
-                                    </button>
-                                    <button type="button" class="btn-seek-step" title="১০ সেকেন্ড সামনে" onclick="seekAudioStep(${idx}, 10)">
-                                        ১০s ${SVG_FORWARD}
-                                    </button>
+                            <!-- নিচের কন্ট্রোল রো: বামে টাইম | প্রিভিয়াস সিক (-১০s) | মাঝখানে কালো প্লে বাটন | নেক্সট সিক (+১০s) | ডানে ডাউনলোড -->
+                            <div class="minimal-controls-row">
+                                <div class="minimal-left-slot" id="time-label-${idx}">০:০০</div>
+
+                                <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড পেছনে" onclick="seekAudioStep(${idx}, -10)">
+                                    ${SVG_SEEK_BACK}
+                                </button>
+
+                                <button type="button" class="btn-minimal-play" id="play-btn-${idx}" title="প্লে / পজ" onclick="togglePlayAudio(${idx})">
+                                    ${SVG_PLAY}
+                                </button>
+
+                                <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড সামনে" onclick="seekAudioStep(${idx}, 10)">
+                                    ${SVG_SEEK_FWD}
+                                </button>
+
+                                <div class="minimal-right-slot">
+                                    ${rightSlotControls}
                                 </div>
-                                ${actionButtons}
                             </div>
 
                             <div id="dl-box-${idx}" class="dl-status-box">
@@ -1109,7 +1061,7 @@
             btn.innerHTML = SVG_SPINNER;
             box.style.display = "block";
             fill.style.width = "10%";
-            text.style.color = "var(--text-dark)";
+            text.style.color = "var(--player-black)";
             text.innerText = "ডাউনলোড শুরু হচ্ছে... ১০%";
 
             let progressTimer = null;
@@ -1377,21 +1329,21 @@
             }
 
             if (navigator.onLine) {
-                try {
-                    const response = await fetchWithTimeout(DATA_URL, 3500);
-                    if (response.ok) {
-                        const data = await response.json();
-                        localStorage.setItem('user_cached_site_data', JSON.stringify(data));
-                        renderArticles(data.articles || []);
-                        renderNotices(data.notices || []);
-                    }
-                } catch (error) {
-                    if (!hasCache) {
-                        renderArticles([]);
-                        renderNotices([]);
-                    }
+                const urlsToTry = [`${REMOTE_BASE_URL}${DATA_URL}`, DATA_URL];
+                for (const targetUrl of urlsToTry) {
+                    try {
+                        const response = await fetchWithTimeout(targetUrl, 3500);
+                        if (response.ok) {
+                            const data = await response.json();
+                            localStorage.setItem('user_cached_site_data', JSON.stringify(data));
+                            renderArticles(data.articles || []);
+                            renderNotices(data.notices || []);
+                            return;
+                        }
+                    } catch (error) {}
                 }
-            } else if (!hasCache) {
+            }
+            if (!hasCache) {
                 renderArticles([]);
                 renderNotices([]);
             }
@@ -1420,15 +1372,18 @@
                     if (savedText) textContent = savedText;
 
                     if (navigator.onLine) {
-                        try {
-                            const response = await fetchWithTimeout(item.file, 3500);
-                            if (response.ok) {
-                                textContent = await response.text();
-                                localStorage.setItem(cacheKey, textContent);
-                            }
-                        } catch (err) {
-                            if (!savedText) textContent = 'ফাইলটি পড়তে একবার ইন্টারনেট চালু করে লোড করে নিন।';
+                        const fileUrls = [`${REMOTE_BASE_URL}${item.file}`, item.file];
+                        for (const fUrl of fileUrls) {
+                            try {
+                                const response = await fetchWithTimeout(fUrl, 3500);
+                                if (response.ok) {
+                                    textContent = await response.text();
+                                    localStorage.setItem(cacheKey, textContent);
+                                    break;
+                                }
+                            } catch (err) {}
                         }
+                        if (!textContent) textContent = 'ফাইলটি পড়তে একবার ইন্টারনেট চালু করে লোড করে নিন।';
                     } else if (!savedText) {
                         textContent = 'ফাইলটি অফলাইনে পড়ার জন্য পূর্বে লোড করা হয়নি।';
                     }
@@ -1586,29 +1541,41 @@
             if (totalEl) totalEl.innerText = totalCount;
         }
 
+        // ৭. অফলাইন-সেফ আপডেট ও সিঙ্ক
         async function manualRefresh() {
+            const btn = document.getElementById('top-refresh-btn');
+            if (btn) btn.classList.add('spin-icon');
+
             if (navigator.onLine) {
-                if ('serviceWorker' in navigator) {
-                    const regs = await navigator.serviceWorker.getRegistrations();
-                    for (const reg of regs) {
-                        await reg.unregister();
+                try {
+                    if ('caches' in window) {
+                        const shellCache = await caches.open(APP_SHELL_CACHE);
+                        await shellCache.addAll(['./', './index.html', './data.json']).catch(() => {});
                     }
-                }
-                if ('caches' in window) {
-                    const keys = await caches.keys();
-                    for (const key of keys) {
-                        if (key !== AUDIO_CACHE_NAME) {
-                            await caches.delete(key);
-                        }
+                    if ('serviceWorker' in navigator) {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        if (reg) await reg.update().catch(() => {});
                     }
-                }
-                window.location.href = window.location.pathname + '?v=' + Date.now();
+                } catch (e) {}
+
+                await Promise.all([
+                    fetchContent(),
+                    loadPrayerTimes(),
+                    (async () => {
+                        isAudioLoaded = false;
+                        await fetchAudiosFromArchive();
+                    })()
+                ]);
             } else {
                 fetchContent();
                 loadPrayerTimes();
                 isAudioLoaded = false;
                 fetchAudiosFromArchive();
             }
+
+            setTimeout(() => {
+                if (btn) btn.classList.remove('spin-icon');
+            }, 600);
         }
 
         // ইনিশিয়ালাইজেশন
@@ -1617,6 +1584,12 @@
         fetchContent();
         renderQazaCards();
         loadPrayerTimes();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>
