@@ -174,7 +174,7 @@
             color: #ffffff;
         }
 
-        /* ছবির মতো সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
+        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
         .minimal-player {
             margin-top: 14px;
             padding: 4px 2px 2px 2px;
@@ -213,7 +213,7 @@
             transform: scale(1.25);
         }
 
-        /* নিচের ৫-কলাম কন্ট্রোল রো (বাম, প্রিভিয়াস সিক, প্লে, নেক্সট সিক, ডান ডাউনলোড) */
+        /* নিচের ৫-কলাম কন্ট্রোল রো (বাম, প্রিভিয়াস সিক, প্লে, নেক্সট সিক, ডান ডাউনলোড) */
         .minimal-controls-row {
             display: grid;
             grid-template-columns: 1fr auto auto auto 1fr;
@@ -621,7 +621,7 @@
 
         const activeBlobUrls = {};
 
-        // ছবির মতো সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
+        // সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
         const SVG_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;"><path d="M8 5.14v14l11-7-11-7z"/></svg>`;
         const SVG_PAUSE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
         const SVG_SEEK_BACK = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>`;
@@ -760,7 +760,7 @@
             return URL.createObjectURL(blob);
         }
 
-        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ
+        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ
         function formatAudioTime(seconds) {
             if (!seconds || isNaN(seconds) || !isFinite(seconds)) return "০:০০";
             const mins = Math.floor(seconds / 60);
@@ -853,7 +853,7 @@
             }
         }
 
-        // ১. অনলাইন ও অফলাইন অডিও লোড
+        // ১. অনলাইন ও অফলাইন অডিও লোড (সর্বশেষ আপলোড করা ফাইল সবার উপরে দেখাবে)
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -865,7 +865,7 @@
             } catch (e) {}
 
             if (!navigator.onLine) {
-                const offlineFilesToShow = savedList.length > 0 ? savedList : cachedAllFiles;
+                const offlineFilesToShow = savedList.length > 0 ? [...savedList].reverse() : cachedAllFiles;
                 if (offlineFilesToShow.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
@@ -882,7 +882,7 @@
             if (cachedAllFiles.length > 0) {
                 await renderAudioCards(cachedAllFiles, false);
             } else if (savedList.length > 0) {
-                await renderAudioCards(savedList, false);
+                await renderAudioCards([...savedList].reverse(), false);
             } else {
                 container.className = 'status-box';
                 container.innerHTML = 'অডিও লোড হচ্ছে...';
@@ -915,9 +915,10 @@
                 return;
             }
 
-            const audioFiles = data.result.filter(file => 
-                file.name && file.name.toLowerCase().endsWith('.opus')
-            );
+            // সর্বশেষ আপলোড করা ফাইল (সর্বোচ্চ mtime) সবার উপরে সাজানো
+            const audioFiles = data.result
+                .filter(file => file.name && file.name.toLowerCase().endsWith('.opus'))
+                .sort((a, b) => Number(b.mtime || 0) - Number(a.mtime || 0));
 
             if (audioFiles.length > 0) {
                 localStorage.setItem('user_cached_archive_files', JSON.stringify(audioFiles));
@@ -930,7 +931,7 @@
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার (ছবির মতো সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার লেআউট)
+        // ২. অডিও কার্ড রেন্ডার (সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার লেআউট)
         async function renderAudioCards(files, isOfflineMode) {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -945,7 +946,7 @@
 
             container.className = '';
             let headerNotice = isOfflineMode 
-                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা অডিওসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা অডিওসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
                 : '';
 
             const cardsHtml = await Promise.all(files.map(async (file, idx) => {
@@ -1009,7 +1010,7 @@
                             <input type="range" id="seek-${idx}" class="minimal-seek-slider" value="0" min="0" max="100" step="0.1"
                                 oninput="onSeekInput(${idx}, this.value)">
 
-                            <!-- নিচের কন্ট্রোল রো: বামে টাইম | প্রিভিয়াস সিক (-১০s) | মাঝখানে কালো প্লে বাটন | নেক্সট সিক (+১০s) | ডানে ডাউনলোড -->
+                            <!-- নিচের কন্ট্রোল রো: বামে টাইম | প্রিভিয়াস সিক (-১০s) | মাঝখানে কালো প্লে বাটন | নেক্সট সিক (+১০s) | ডানে ডাউনলোড -->
                             <div class="minimal-controls-row">
                                 <div class="minimal-left-slot" id="time-label-${idx}">০:০০</div>
 
@@ -1109,7 +1110,7 @@
                     }
                 }
 
-                // ওয়েব ব্রাউজার ফোলব্যাক
+                // ওয়েব ব্রাউজার ফোলব্যাক
                 const response = await fetch(url, { mode: 'cors', redirect: 'follow' });
                 if (!response.ok) throw new Error("সার্ভার সংযোগ ব্যর্থ");
                 const blob = await response.blob();
