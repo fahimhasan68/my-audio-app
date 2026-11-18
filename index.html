@@ -675,7 +675,7 @@
     <main>
         <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
         <section id="tab-audio" class="tab-section active">
-            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো (ডানে-বামে সোয়াইপ ও প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড) -->
+            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো (ডানে-বামে সোয়াইপ ও প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড) -->
             <div id="top-notice-banner" class="notice-slider-wrapper" style="display: none;">
                 <div id="notice-slides-track" class="notice-slides-track"></div>
                 <div id="notice-slider-dots" class="slider-dots"></div>
@@ -834,7 +834,6 @@
     <script>
         const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
         const DATA_URL = "data.json";
-        const ARCHIVE_IDENTIFIER = "20261111_202611";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
         const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v6";
         
@@ -1083,7 +1082,7 @@
             }
         }
 
-        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো (প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড + আঙুলে ডানে-বামে সোয়াইপ)
+        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো (প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড + আঙুলে ডানে-বামে সোয়াইপ)
         function startNoticeAutoSlide() {
             if (sliderInterval) {
                 clearInterval(sliderInterval);
@@ -1122,13 +1121,10 @@
                 const diffX = startX - endX;
                 const diffY = startY - endY;
 
-                // অনুভূমিকভাবে ৩০ পিক্সেলের বেশি সোয়াইপ করলে স্লাইড পরিবর্তন হবে
                 if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY) && totalSlidesCount > 1) {
                     if (diffX > 0) {
-                        // ডান থেকে বামে টানলে পরের নোটিশ
                         currentSlideIdx = (currentSlideIdx + 1) % totalSlidesCount;
                     } else {
-                        // বাম থেকে ডানে টানলে আগের নোটিশ
                         currentSlideIdx = (currentSlideIdx - 1 + totalSlidesCount) % totalSlidesCount;
                     }
                     updateSliderPosition();
@@ -1221,7 +1217,7 @@
             }
         }
 
-        // ১. অনলাইন ও অফলাইন অডিও লোড
+        // ১. অনলাইন ও অফলাইন অডিও লোড (GitHub Releases + data.json থেকে)
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -1256,23 +1252,19 @@
                 container.innerHTML = 'বয়ান লোড হচ্ছে...';
             }
 
-            const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
-            const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
-
             let data = null;
-            try {
-                const response = await fetchWithTimeout(primaryUrl, 4500);
-                if (response.ok) data = await response.json();
-            } catch (err) {}
-
-            if (!data || !data.result) {
+            const urlsToTry = [`${REMOTE_BASE_URL}${DATA_URL}?t=${Date.now()}`, `${DATA_URL}?t=${Date.now()}`];
+            for (const targetUrl of urlsToTry) {
                 try {
-                    const fallbackResponse = await fetchWithTimeout(fallbackUrl, 5500);
-                    if (fallbackResponse.ok) data = await fallbackResponse.json();
-                } catch (fallbackErr) {}
+                    const response = await fetchWithTimeout(targetUrl, 4500);
+                    if (response.ok) {
+                        data = await response.json();
+                        break;
+                    }
+                } catch (err) {}
             }
 
-            if (!data || !data.result) {
+            if (!data || !data.audios) {
                 if (cachedAllFiles.length === 0 && savedList.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
@@ -1283,9 +1275,11 @@
                 return;
             }
 
-            const audioFiles = data.result
-                .filter(file => file.name && file.name.toLowerCase().endsWith('.opus'))
-                .sort((a, b) => Number(b.mtime || 0) - Number(a.mtime || 0));
+            const audioFiles = data.audios.map(item => ({
+                name: item.title,
+                fileName: item.fileName,
+                url: item.url
+            }));
 
             if (audioFiles.length > 0) {
                 localStorage.setItem('user_cached_archive_files', JSON.stringify(audioFiles));
@@ -1317,9 +1311,9 @@
                 : '';
 
             const cardsHtml = await Promise.all(files.map(async (file, idx) => {
-                const fileUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
                 const displayTitle = file.name.replace(/\.opus$/i, '');
                 const savedItem = savedList.find(item => item.name === file.name);
+                const fileUrl = file.url || (savedItem && savedItem.url) || '';
                 const isSaved = Boolean(savedItem);
 
                 let audioSrc = fileUrl;
@@ -1344,7 +1338,7 @@
                         } catch (readErr) {
                             console.warn("Read file error:", readErr);
                         }
-                    } else if (cache) {
+                    } else if (cache && fileUrl) {
                         try {
                             const cachedResponse = await cache.match(fileUrl);
                             if (cachedResponse) {
@@ -1357,10 +1351,11 @@
                     }
                 }
 
+                const safeTitleArg = file.name.replace(/'/g, "\\'");
                 const rightSlotControls = isSaved
                     ? `<span class="btn-minimal-icon" title="অফলাইনে সেভ করা আছে" style="cursor: default;">${SVG_CHECK}</span>
-                       <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">${SVG_TRASH}</button>`
-                    : `<button type="button" class="btn-minimal-icon" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${file.name}', ${idx})">${SVG_DOWNLOAD}</button>`;
+                       <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${safeTitleArg}')">${SVG_TRASH}</button>`
+                    : `<button type="button" class="btn-minimal-icon" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${safeTitleArg}', ${idx})">${SVG_DOWNLOAD}</button>`;
 
                 return `
                     <div class="item-card">
@@ -1458,6 +1453,7 @@
                     if (dlResult && dlResult.path) {
                         saveAudioMetadata({
                             name: fileName,
+                            url: url,
                             safeName: safeFileName,
                             localUri: dlResult.path
                         });
@@ -1483,7 +1479,7 @@
                     headers: { 'Content-Type': 'audio/ogg; codecs=opus' }
                 }));
 
-                saveAudioMetadata({ name: fileName });
+                saveAudioMetadata({ name: fileName, url: url });
                 fill.style.width = "100%";
                 text.style.color = "#15803d";
                 text.innerText = "✅ সেভ সম্পন্ন!";
@@ -1532,7 +1528,7 @@
             fetchAudiosFromArchive();
         }
 
-        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (কয়টা থেকে কয়টা পর্যন্ত ওয়াক্তসহ)
+        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ
         function initDistrictDropdown() {
             const selectEl = document.getElementById('district-select');
             if (!selectEl) return;
@@ -1633,7 +1629,6 @@
             const maghribStr = formatTo12HourBn(timings.Maghrib);
             const ishaStr = formatTo12HourBn(timings.Isha);
 
-            // প্রতিটি ওয়াক্ত কয়টা থেকে কয়টা পর্যন্ত তার পূর্ণ সময়সীমা
             const fardRows = [
                 { icon: '🌙', name: 'ফজর (সেহরির শেষ)', time: `${fajrStr} - ${sunriseStr}` },
                 { icon: '☀️', name: 'যোহর', time: `${dhuhrStr} - ${asrStr}` },
@@ -1700,7 +1695,7 @@
             }
 
             if (navigator.onLine) {
-                const urlsToTry = [`${REMOTE_BASE_URL}${DATA_URL}`, DATA_URL];
+                const urlsToTry = [`${REMOTE_BASE_URL}${DATA_URL}?t=${Date.now()}`, `${DATA_URL}?t=${Date.now()}`];
                 for (const targetUrl of urlsToTry) {
                     try {
                         const response = await fetchWithTimeout(targetUrl, 3500);
