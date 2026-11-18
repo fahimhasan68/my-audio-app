@@ -104,7 +104,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ব্যানার স্লাইডশো স্টাইল (বয়ান সেকশনের একদম উপরে) */
+        /* ব্যানার স্লাইডশো স্টাইল (বয়ান সেকশনের একদম উপরে) */
         .notice-slider-wrapper {
             position: relative;
             width: 100%;
@@ -114,18 +114,22 @@
             border: 1px solid var(--gold-main);
             background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
             box-shadow: 0 3px 10px rgba(22, 68, 49, 0.12);
+            touch-action: pan-y;
+            user-select: none;
         }
 
         .notice-slides-track {
             display: flex;
             transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
             width: 100%;
+            will-change: transform;
         }
 
         .notice-slide {
             min-width: 100%;
             box-sizing: border-box;
             position: relative;
+            cursor: pointer;
         }
 
         .notice-slide-img {
@@ -133,11 +137,12 @@
             height: 115px;
             object-fit: cover;
             display: block;
+            pointer-events: none;
         }
 
         .notice-slide-text-card {
-            padding: 12px 16px 22px 16px;
-            min-height: 82px;
+            padding: 12px 16px 24px 16px;
+            min-height: 84px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -272,7 +277,7 @@
             color: #ffffff;
         }
 
-        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার (ফিক্সড লেআউট) */
+        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
         .minimal-player {
             margin-top: 14px;
             padding: 4px 2px 2px 2px;
@@ -312,7 +317,6 @@
             transform: scale(1.25);
         }
 
-        /* টাইম বাড়লেও বাটন যেন ডানে সরে না যায় সেজন্য ফিক্সড গ্রিড কলাম */
         .minimal-controls-row {
             display: grid;
             grid-template-columns: 76px auto auto auto 1fr;
@@ -553,7 +557,8 @@
             align-items: center;
             padding: 11px 14px;
             border-bottom: 1px solid var(--border-subtle);
-            font-size: 15px;
+            font-size: 14.5px;
+            gap: 8px;
         }
 
         .prayer-row:last-child {
@@ -565,17 +570,18 @@
             color: var(--green-primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
         }
 
         .prayer-time {
             font-weight: bold;
             color: var(--text-dark);
             background: var(--green-soft);
-            padding: 4px 10px;
+            padding: 4px 9px;
             border-radius: 6px;
             border: 1px solid rgba(22, 68, 49, 0.15);
-            font-size: 14px;
+            font-size: 13px;
+            white-space: nowrap;
         }
 
         nav {
@@ -667,15 +673,15 @@
     </header>
 
     <main>
-        <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
+        <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
         <section id="tab-audio" class="tab-section active">
-            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো -->
+            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো (ডানে-বামে সোয়াইপ ও প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড) -->
             <div id="top-notice-banner" class="notice-slider-wrapper" style="display: none;">
                 <div id="notice-slides-track" class="notice-slides-track"></div>
                 <div id="notice-slider-dots" class="slider-dots"></div>
             </div>
 
-            <div id="audio-list" class="status-box">বয়ান তালিকা লোড হচ্ছে...</div>
+            <div id="audio-list" class="status-box">বয়ান তালিকা লোড হচ্ছে...</div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
@@ -711,12 +717,12 @@
             </div>
         </section>
 
-        <!-- ৪. নতুন মুহাসাবা সেকশন -->
+        <!-- ৪. মুহাসাবা সেকশন -->
         <section id="tab-muhasaba" class="tab-section">
             <!-- হযরত উমর (রা.)-এর হাদিস/উক্তি -->
             <div class="muhasaba-quote-card">
                 <div class="muhasaba-quote-text">
-                    “তোমাদের হিসাব নেওয়ার পূর্বেই তোমরা নিজেদের হিসাব নিয়ে নাও এবং তোমাদের আমল ওজন করার পূর্বেই তা ওজন করে নাও।”
+                    “তোমাদের হিসাব নেওয়ার পূর্বেই তোমরা নিজেদের হিসাব নিয়ে নাও এবং তোমাদের আমল ওজন করার পূর্বেই তা ওজন করে নাও।”
                 </div>
                 <div class="muhasaba-quote-ref">— হযরত উমর ইবনুল খাত্তাব (রা.) [তিরমিযী: ২৪৫৯]</div>
             </div>
@@ -730,10 +736,10 @@
 
                 <!-- আজকের আমল স্ট্যাটাস ব্যানার -->
                 <div id="muhasaba-status-banner" style="background: var(--green-soft); border: 1px solid var(--green-primary); border-radius: 8px; padding: 8px 12px; margin: 10px 0 12px 0; text-align: center; font-size: 13.5px; font-weight: bold; color: var(--green-primary);">
-                    আজকে আমল বাকি আছে: ৫টি
+                    আজকে আমল বাকি আছে: ৭টি
                 </div>
 
-                <!-- ৫টি দৈনন্দিন আমলের চেকলিস্ট -->
+                <!-- ৭টি দৈনন্দিন আমলের চেকলিস্ট -->
                 <div id="muhasaba-checklist"></div>
             </div>
 
@@ -805,7 +811,7 @@
     <nav>
         <button type="button" class="nav-item active" data-tab="audio" onclick="switchTab('audio', this)">
             <span class="nav-icon">🎧</span>
-            <span>বয়ান</span>
+            <span>বয়ান</span>
         </button>
         <button type="button" class="nav-item" data-tab="articles" onclick="switchTab('articles', this)">
             <span class="nav-icon">📖</span>
@@ -830,7 +836,7 @@
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v5";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v6";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -840,6 +846,7 @@
         const activeBlobUrls = {};
         let sliderInterval = null;
         let currentSlideIdx = 0;
+        let totalSlidesCount = 0;
 
         // সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
         const SVG_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;"><path d="M8 5.14v14l11-7-11-7z"/></svg>`;
@@ -1037,7 +1044,7 @@
             const newTime = (parseFloat(val) / 100) * audio.duration;
             audio.currentTime = newTime;
             if (timeEl) {
-                timeEl.innerText = `${formatAudioTime(newTime)} / ${formatAudioTime(audio.duration)}`;
+                timeEl.innerText = `${formatAudioTime(newTime)}/${formatAudioTime(audio.duration)}`;
             }
             if (slider) {
                 slider.style.background = `linear-gradient(to right, #18181b ${val}%, #e4e4e7 ${val}%)`;
@@ -1076,7 +1083,60 @@
             }
         }
 
-        // বয়ান সেকশনের উপরে নোটিশ ব্যানার/টেক্সট স্লাইডশো
+        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো (প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড + আঙুলে ডানে-বামে সোয়াইপ)
+        function startNoticeAutoSlide() {
+            if (sliderInterval) {
+                clearInterval(sliderInterval);
+                sliderInterval = null;
+            }
+            if (totalSlidesCount > 1) {
+                sliderInterval = setInterval(() => {
+                    currentSlideIdx = (currentSlideIdx + 1) % totalSlidesCount;
+                    updateSliderPosition();
+                }, 3000);
+            }
+        }
+
+        function initNoticeSwipeGesture() {
+            const wrapper = document.getElementById('top-notice-banner');
+            if (!wrapper || wrapper.dataset.swipeBound === '1') return;
+            wrapper.dataset.swipeBound = '1';
+
+            let startX = 0;
+            let startY = 0;
+            let isSwiping = false;
+
+            wrapper.addEventListener('touchstart', (e) => {
+                if (!e.touches || e.touches.length === 0) return;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isSwiping = true;
+                if (sliderInterval) clearInterval(sliderInterval);
+            }, { passive: true });
+
+            wrapper.addEventListener('touchend', (e) => {
+                if (!isSwiping || !e.changedTouches || e.changedTouches.length === 0) return;
+                isSwiping = false;
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+
+                // অনুভূমিকভাবে ৩০ পিক্সেলের বেশি সোয়াইপ করলে স্লাইড পরিবর্তন হবে
+                if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY) && totalSlidesCount > 1) {
+                    if (diffX > 0) {
+                        // ডান থেকে বামে টানলে পরের নোটিশ
+                        currentSlideIdx = (currentSlideIdx + 1) % totalSlidesCount;
+                    } else {
+                        // বাম থেকে ডানে টানলে আগের নোটিশ
+                        currentSlideIdx = (currentSlideIdx - 1 + totalSlidesCount) % totalSlidesCount;
+                    }
+                    updateSliderPosition();
+                }
+                startNoticeAutoSlide();
+            }, { passive: true });
+        }
+
         function renderNoticeBannerSlider(notices) {
             const wrapper = document.getElementById('top-notice-banner');
             const track = document.getElementById('notice-slides-track');
@@ -1090,11 +1150,13 @@
 
             if (!notices || notices.length === 0) {
                 wrapper.style.display = 'none';
+                totalSlidesCount = 0;
                 return;
             }
 
             wrapper.style.display = 'block';
             currentSlideIdx = 0;
+            totalSlidesCount = notices.length;
 
             track.innerHTML = notices.map((item, idx) => {
                 if (item.image) {
@@ -1108,7 +1170,7 @@
                     return `
                         <div class="notice-slide" onclick="showBannerDetail(${idx})">
                             <div class="notice-slide-text-card">
-                                <span class="notice-slide-badge">📌 ${item.priority || 'জরুরি নোটিশ'}</span>
+                                <span class="notice-slide-badge">📌 ${item.priority || 'জরুরি নোটিশ'} (${toBnDigits(idx + 1)}/${toBnDigits(notices.length)})</span>
                                 <div class="notice-slide-title">${item.title || ''}</div>
                                 ${item.content ? `<div class="notice-slide-desc">${item.content}</div>` : ''}
                             </div>
@@ -1117,26 +1179,26 @@
                 }
             }).join('');
 
+            updateSliderPosition();
+
             if (notices.length > 1) {
                 dotsContainer.style.display = 'flex';
                 dotsContainer.innerHTML = notices.map((_, i) => 
-                    `<span class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToNoticeSlide(${i})"></span>`
+                    `<span class="slider-dot ${i === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToNoticeSlide(${i});"></span>`
                 ).join('');
-
-                sliderInterval = setInterval(() => {
-                    currentSlideIdx = (currentSlideIdx + 1) % notices.length;
-                    updateSliderPosition();
-                }, 4000);
+                startNoticeAutoSlide();
             } else {
                 dotsContainer.style.display = 'none';
             }
 
+            initNoticeSwipeGesture();
             window._activeBannerNotices = notices;
         }
 
         function goToNoticeSlide(idx) {
             currentSlideIdx = idx;
             updateSliderPosition();
+            startNoticeAutoSlide();
         }
 
         function updateSliderPosition() {
@@ -1191,7 +1253,7 @@
                 await renderAudioCards([...savedList].reverse(), false);
             } else {
                 container.className = 'status-box';
-                container.innerHTML = 'বয়ান লোড হচ্ছে...';
+                container.innerHTML = 'বয়ান লোড হচ্ছে...';
             }
 
             const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
@@ -1214,7 +1276,7 @@
                 if (cachedAllFiles.length === 0 && savedList.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
-                        বয়ান লোড করতে সমস্যা হয়েছে।<br>
+                        বয়ান লোড করতে সমস্যা হয়েছে।<br>
                         <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
                     `;
                 }
@@ -1251,7 +1313,7 @@
 
             container.className = '';
             let headerNotice = isOfflineMode 
-                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা বয়ানসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা বয়ানসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
                 : '';
 
             const cardsHtml = await Promise.all(files.map(async (file, idx) => {
@@ -1470,7 +1532,7 @@
             fetchAudiosFromArchive();
         }
 
-        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ
+        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (কয়টা থেকে কয়টা পর্যন্ত ওয়াক্তসহ)
         function initDistrictDropdown() {
             const selectEl = document.getElementById('district-select');
             if (!selectEl) return;
@@ -1564,17 +1626,24 @@
                 dateInfoEl.innerText = `📅 তারিখ: ${dateReadable}`;
             }
 
+            const fajrStr = formatTo12HourBn(timings.Fajr);
+            const sunriseStr = formatTo12HourBn(timings.Sunrise);
+            const dhuhrStr = formatTo12HourBn(timings.Dhuhr);
+            const asrStr = formatTo12HourBn(timings.Asr);
+            const maghribStr = formatTo12HourBn(timings.Maghrib);
+            const ishaStr = formatTo12HourBn(timings.Isha);
+
+            // প্রতিটি ওয়াক্ত কয়টা থেকে কয়টা পর্যন্ত তার পূর্ণ সময়সীমা
             const fardRows = [
-                { icon: '🌙', name: 'সেহরির শেষ সময় (ফজর)', time: formatTo12HourBn(timings.Fajr) },
-                { icon: '🌅', name: 'সূর্যোদয়', time: formatTo12HourBn(timings.Sunrise) },
-                { icon: '☀️', name: 'যোহর', time: formatTo12HourBn(timings.Dhuhr) },
-                { icon: '🌤️', name: 'আসর (হানাফি)', time: formatTo12HourBn(timings.Asr) },
-                { icon: '🌇', name: 'মাগরিব / ইফতার', time: formatTo12HourBn(timings.Maghrib) },
-                { icon: '🌌', name: 'এশা', time: formatTo12HourBn(timings.Isha) }
+                { icon: '🌙', name: 'ফজর (সেহরির শেষ)', time: `${fajrStr} - ${sunriseStr}` },
+                { icon: '☀️', name: 'যোহর', time: `${dhuhrStr} - ${asrStr}` },
+                { icon: '🌤️', name: 'আসর (হানাফি)', time: `${asrStr} - ${maghribStr}` },
+                { icon: '🌇', name: 'মাগরিব (ইফতার)', time: `${maghribStr} - ${ishaStr}` },
+                { icon: '🌌', name: 'এশা', time: `${ishaStr} - ${fajrStr}` }
             ];
 
             container.innerHTML = `
-                <div class="prayer-section-header">🕌 পাঁচ ওয়াক্ত নামাজ ও সেহরি-ইফতার</div>
+                <div class="prayer-section-header">🕌 পাঁচ ওয়াক্ত নামাজের সময়সীমা</div>
                 ${fardRows.map(r => `
                     <div class="prayer-row">
                         <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
@@ -1600,7 +1669,7 @@
 
             const naflRows = [
                 { icon: '✨', name: 'ইশরাক', time: `${ishraqStart} - ${ishraqEnd}` },
-                { icon: '🌞', name: 'চাশত (সালাতুত দুহা)', time: `${chashtStart} - ${chashtEnd}` },
+                { icon: '🔆', name: 'চাশত (সালাতুত দুহা)', time: `${chashtStart} - ${chashtEnd}` },
                 { icon: '🤲', name: 'তাহাজ্জুদ (উত্তম সময়)', time: `${tahajjudStart} - ${tahajjudEnd}` }
             ];
 
@@ -1711,13 +1780,15 @@
             updateArticleFontSizeUI();
         }
 
-        // ৬. দৈনন্দিন ও মাসিক মুহাসাবা ট্র্যাকিং লজিক
+        // ৬. দৈনন্দিন ও মাসিক মুহাসাবা ট্র্যাকিং লজিক (৭টি আমলসহ)
         const MUHASABA_ITEMS = [
             { id: 'tilawat', label: '১. কোরআন তেলাওয়াত' },
-            { id: 'hifz', label: '২. কোরআন মুখস্ত করা' },
-            { id: 'quran_tafseer', label: '৩. কোরআন বোঝার চেষ্টা করা' },
-            { id: 'hadith_study', label: '৪. হাদিস বোঝার চেষ্টা করা' },
-            { id: 'akabir_sirat', label: '৫. আকাবির বড়দের জীবনী পড়া' }
+            { id: 'daily_zikr', label: '২. দৈনন্দিন জিকির' },
+            { id: 'durood_khatam', label: '৩. দুরুদ খতম করা' },
+            { id: 'hifz', label: '৪. কোরআন মুখস্ত করা' },
+            { id: 'quran_tafseer', label: '৫. কোরআন বোঝার চেষ্টা করা' },
+            { id: 'hadith_study', label: '৬. হাদিস বোঝার চেষ্টা করা' },
+            { id: 'akabir_sirat', label: '৭. আকাবির বড়দের জীবনী পড়া' }
         ];
 
         function getTodayDateKey() {
@@ -1729,7 +1800,7 @@
         }
 
         function formatBanglaDate(dateKey) {
-            const bnMonths = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+            const bnMonths = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
             const [y, m, d] = dateKey.split('-');
             return `${toBnDigits(parseInt(d))} ${bnMonths[parseInt(m) - 1]}, ${toBnDigits(y)}`;
         }
@@ -1775,7 +1846,7 @@
                     statusBanner.style.background = '#dcfce7';
                     statusBanner.style.color = '#15803d';
                     statusBanner.style.borderColor = '#15803d';
-                    statusBanner.innerHTML = '🎉 আলহামদুলিল্লাহ! আজকের সবগুলো আমল সম্পন্ন হয়েছে।';
+                    statusBanner.innerHTML = '🎉 আলহামদুলিল্লাহ! আজকের সবগুলো আমল সম্পন্ন হয়েছে।';
                 } else {
                     statusBanner.style.background = 'var(--green-soft)';
                     statusBanner.style.color = 'var(--green-primary)';
@@ -1825,7 +1896,7 @@
                 const missedList = [];
 
                 MUHASABA_ITEMS.forEach(item => {
-                    const cleanName = item.label.replace(/^[১-৫]\.\s*/, '');
+                    const cleanName = item.label.replace(/^[০-৯]+\.\s*/, '');
                     if (dayRecord[item.id]) {
                         doneList.push(cleanName);
                     } else {
@@ -1848,7 +1919,7 @@
                             </span>
                         </div>
                         ${missedList.length === 0 
-                            ? `<div style="color: #15803d; font-size: 12px;">✔ সবগুলো আমল আদায় করা হয়েছে</div>`
+                            ? `<div style="color: #15803d; font-size: 12px;">✔ সবগুলো আমল আদায় করা হয়েছে</div>`
                             : `<div style="color: #b91c1c; font-size: 12px; line-height: 1.5;">❌ বাকি ছিল: ${missedList.join(' • ')}</div>`
                         }
                     </div>
