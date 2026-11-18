@@ -59,7 +59,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* উপরে কোণায় মিনিমালিস্ট গোলাকার আপডেট আইকন বাটন */
         .refresh-btn {
             width: 36px;
             height: 36px;
@@ -103,6 +102,105 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ব্যানার স্লাইডশো স্টাইল (বয়ান সেকশনের একদম উপরে) */
+        .notice-slider-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 1px solid var(--gold-main);
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            box-shadow: 0 3px 10px rgba(22, 68, 49, 0.12);
+        }
+
+        .notice-slides-track {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 100%;
+        }
+
+        .notice-slide {
+            min-width: 100%;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .notice-slide-img {
+            width: 100%;
+            height: 115px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .notice-slide-text-card {
+            padding: 12px 16px 22px 16px;
+            min-height: 82px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .notice-slide-badge {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--gold-text);
+            border: 1px solid var(--gold-main);
+            font-size: 10.5px;
+            font-weight: bold;
+            padding: 1px 7px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            width: fit-content;
+        }
+
+        .notice-slide-title {
+            font-size: 14.5px;
+            font-weight: bold;
+            color: var(--gold-text);
+            line-height: 1.35;
+        }
+
+        .notice-slide-desc {
+            font-size: 12.5px;
+            color: #e7efe9;
+            margin-top: 2px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.28);
+            padding: 3px 7px;
+            border-radius: 10px;
+        }
+
+        .slider-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .slider-dot.active {
+            background: var(--gold-main);
+            width: 14px;
+            border-radius: 4px;
         }
 
         .item-card {
@@ -174,7 +272,7 @@
             color: #ffffff;
         }
 
-        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
+        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার (ফিক্সড লেআউট) */
         .minimal-player {
             margin-top: 14px;
             padding: 4px 2px 2px 2px;
@@ -182,9 +280,10 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
+            width: 100%;
+            overflow: hidden;
         }
 
-        /* চিকন কালো সিক বার ও কালো গোল থাম্ব */
         .minimal-seek-slider {
             -webkit-appearance: none;
             appearance: none;
@@ -213,32 +312,34 @@
             transform: scale(1.25);
         }
 
-        /* নিচের ৫-কলাম কন্ট্রোল রো (বাম, প্রিভিয়াস সিক, প্লে, নেক্সট সিক, ডান ডাউনলোড) */
+        /* টাইম বাড়লেও বাটন যেন ডানে সরে না যায় সেজন্য ফিক্সড গ্রিড কলাম */
         .minimal-controls-row {
             display: grid;
-            grid-template-columns: 1fr auto auto auto 1fr;
+            grid-template-columns: 76px auto auto auto 1fr;
             align-items: center;
-            column-gap: 24px;
+            column-gap: 12px;
             width: 100%;
         }
 
         .minimal-left-slot {
             justify-self: start;
-            font-size: 11.5px;
+            width: 76px;
+            font-size: 11px;
             font-weight: 600;
             color: #52525b;
-            letter-spacing: 0.2px;
+            font-variant-numeric: tabular-nums;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .minimal-right-slot {
             justify-self: end;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
-        /* সাদার ওপর কালো আইকন বাটন (সিক, ডাউনলোড ও ডিলিট) */
         .btn-minimal-icon {
             background: transparent;
             border: none;
@@ -262,10 +363,9 @@
             cursor: wait;
         }
 
-        /* মাঝখানের সলিড কালো গোল প্লে/পজ বাটন */
         .btn-minimal-play {
-            width: 46px;
-            height: 46px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: var(--player-black);
             color: #ffffff;
@@ -277,6 +377,7 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
             transition: transform 0.12s ease, opacity 0.2s;
             padding: 0;
+            flex-shrink: 0;
         }
 
         .btn-minimal-play:active {
@@ -334,16 +435,90 @@
             transition: width 0.3s ease;
         }
 
-        .notice-badge {
-            display: inline-block;
-            background-color: var(--green-soft);
-            color: var(--green-primary);
-            border: 1px solid var(--green-primary);
-            font-size: 12px;
+        /* মুহাসাবা সেকশন স্টাইল */
+        .muhasaba-quote-card {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            color: #ffffff;
+            border: 1px solid var(--gold-main);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 10px rgba(22, 68, 49, 0.15);
+        }
+
+        .muhasaba-quote-text {
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: var(--gold-text);
             font-weight: bold;
-            padding: 2px 8px;
-            border-radius: 4px;
+            font-style: italic;
+        }
+
+        .muhasaba-quote-ref {
+            font-size: 12px;
+            color: #d5dfd9;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .muhasaba-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--card-white);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
             margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .muhasaba-item.checked {
+            background: var(--green-soft);
+            border-color: var(--green-primary);
+        }
+
+        .muhasaba-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--green-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .muhasaba-item.checked .muhasaba-checkbox {
+            background: var(--green-primary);
+        }
+
+        .muhasaba-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .muhasaba-item.checked .muhasaba-label {
+            color: var(--green-primary);
+        }
+
+        .month-day-row {
+            padding: 10px 12px;
+            border-bottom: 1px dashed var(--border-subtle);
+            font-size: 13px;
+        }
+
+        .month-day-row:last-child {
+            border-bottom: none;
         }
 
         .form-input {
@@ -492,9 +667,15 @@
     </header>
 
     <main>
-        <!-- ১. অডিও সেকশন -->
+        <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
         <section id="tab-audio" class="tab-section active">
-            <div id="audio-list" class="status-box">অডিও তালিকা লোড হচ্ছে...</div>
+            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো -->
+            <div id="top-notice-banner" class="notice-slider-wrapper" style="display: none;">
+                <div id="notice-slides-track" class="notice-slides-track"></div>
+                <div id="notice-slider-dots" class="slider-dots"></div>
+            </div>
+
+            <div id="audio-list" class="status-box">বয়ান তালিকা লোড হচ্ছে...</div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
@@ -530,9 +711,45 @@
             </div>
         </section>
 
-        <!-- ৪. নোটিশবোর্ড সেকশন -->
-        <section id="tab-notices" class="tab-section">
-            <div id="notice-list" class="status-box">ডাটা লোড হচ্ছে...</div>
+        <!-- ৪. নতুন মুহাসাবা সেকশন -->
+        <section id="tab-muhasaba" class="tab-section">
+            <!-- হযরত উমর (রা.)-এর হাদিস/উক্তি -->
+            <div class="muhasaba-quote-card">
+                <div class="muhasaba-quote-text">
+                    “তোমাদের হিসাব নেওয়ার পূর্বেই তোমরা নিজেদের হিসাব নিয়ে নাও এবং তোমাদের আমল ওজন করার পূর্বেই তা ওজন করে নাও।”
+                </div>
+                <div class="muhasaba-quote-ref">— হযরত উমর ইবনুল খাত্তাব (রা.) [তিরমিযী: ২৪৫৯]</div>
+            </div>
+
+            <!-- দৈনন্দিন মুহাসাবা ড্যাশবোর্ড -->
+            <div class="item-card" style="border-top: 3px solid var(--gold-main);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div class="item-title" style="font-size: 17px; width: auto;">📋 দৈনন্দিন মুহাসাবা</div>
+                    <span id="muhasaba-today-date" style="font-size: 12px; color: var(--text-muted); font-weight: bold;"></span>
+                </div>
+
+                <!-- আজকের আমল স্ট্যাটাস ব্যানার -->
+                <div id="muhasaba-status-banner" style="background: var(--green-soft); border: 1px solid var(--green-primary); border-radius: 8px; padding: 8px 12px; margin: 10px 0 12px 0; text-align: center; font-size: 13.5px; font-weight: bold; color: var(--green-primary);">
+                    আজকে আমল বাকি আছে: ৫টি
+                </div>
+
+                <!-- ৫টি দৈনন্দিন আমলের চেকলিস্ট -->
+                <div id="muhasaba-checklist"></div>
+            </div>
+
+            <!-- মিনিমাইজড পুরো মাসের ড্যাশবোর্ড -->
+            <div class="item-card" style="padding: 0; overflow: hidden; border-left: 4px solid var(--gold-main);">
+                <details id="monthly-muhasaba-details">
+                    <summary style="padding: 14px 16px; list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                        <div>
+                            <div style="font-size: 15.5px; font-weight: bold; color: var(--green-primary);">📅 পুরো মাসের মুহাসাবা ড্যাশবোর্ড</div>
+                            <div id="monthly-summary-subtitle" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">কোন দিন কোন আমল বাকি আছে দেখতে ট্যাপ করুন</div>
+                        </div>
+                        <span style="font-size: 13px; font-weight: bold; color: var(--green-primary);">দেখুন ▼</span>
+                    </summary>
+                    <div id="monthly-muhasaba-report" style="border-top: 1px dashed var(--border-subtle); background: #fcfcf9; max-height: 360px; overflow-y: auto;"></div>
+                </details>
+            </div>
         </section>
 
         <!-- ৫. উমরি কাজা সেকশন -->
@@ -588,7 +805,7 @@
     <nav>
         <button type="button" class="nav-item active" data-tab="audio" onclick="switchTab('audio', this)">
             <span class="nav-icon">🎧</span>
-            <span>অডিও</span>
+            <span>বয়ান</span>
         </button>
         <button type="button" class="nav-item" data-tab="articles" onclick="switchTab('articles', this)">
             <span class="nav-icon">📖</span>
@@ -598,9 +815,9 @@
             <span class="nav-icon">🕌</span>
             <span>নামাজ</span>
         </button>
-        <button type="button" class="nav-item" data-tab="notices" onclick="switchTab('notices', this)">
-            <span class="nav-icon">📌</span>
-            <span>নোটিশ</span>
+        <button type="button" class="nav-item" data-tab="muhasaba" onclick="switchTab('muhasaba', this)">
+            <span class="nav-icon">📊</span>
+            <span>মুহাসাবা</span>
         </button>
         <button type="button" class="nav-item" data-tab="qaza" onclick="switchTab('qaza', this)">
             <span class="nav-icon">📿</span>
@@ -613,20 +830,23 @@
         const DATA_URL = "data.json";
         const ARCHIVE_IDENTIFIER = "20261111_202611";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v4";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v5";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
+        if (currentActiveTab === 'notices') currentActiveTab = 'audio';
         let isAudioLoaded = false;
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
 
         const activeBlobUrls = {};
+        let sliderInterval = null;
+        let currentSlideIdx = 0;
 
         // সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
         const SVG_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;"><path d="M8 5.14v14l11-7-11-7z"/></svg>`;
         const SVG_PAUSE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
-        const SVG_SEEK_BACK = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>`;
-        const SVG_SEEK_FWD = `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`;
-        const SVG_DOWNLOAD = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+        const SVG_SEEK_BACK = `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>`;
+        const SVG_SEEK_FWD = `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`;
+        const SVG_DOWNLOAD = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
         const SVG_SPINNER = `<svg class="spin-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
         const SVG_CHECK = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
         const SVG_TRASH = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
@@ -710,6 +930,9 @@
             }
             if (tabName === 'prayer') {
                 loadPrayerTimes();
+            }
+            if (tabName === 'muhasaba') {
+                renderMuhasabaUI();
             }
         }
 
@@ -832,7 +1055,7 @@
 
             if (timeEl) {
                 timeEl.innerText = duration > 0 
-                    ? `${formatAudioTime(current)} / ${formatAudioTime(duration)}`
+                    ? `${formatAudioTime(current)}/${formatAudioTime(duration)}`
                     : `${formatAudioTime(current)}`;
             }
 
@@ -853,7 +1076,90 @@
             }
         }
 
-        // ১. অনলাইন ও অফলাইন অডিও লোড (সর্বশেষ আপলোড করা ফাইল সবার উপরে দেখাবে)
+        // বয়ান সেকশনের উপরে নোটিশ ব্যানার/টেক্সট স্লাইডশো
+        function renderNoticeBannerSlider(notices) {
+            const wrapper = document.getElementById('top-notice-banner');
+            const track = document.getElementById('notice-slides-track');
+            const dotsContainer = document.getElementById('notice-slider-dots');
+            if (!wrapper || !track || !dotsContainer) return;
+
+            if (sliderInterval) {
+                clearInterval(sliderInterval);
+                sliderInterval = null;
+            }
+
+            if (!notices || notices.length === 0) {
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            wrapper.style.display = 'block';
+            currentSlideIdx = 0;
+
+            track.innerHTML = notices.map((item, idx) => {
+                if (item.image) {
+                    const imgUrl = item.image.startsWith('http') ? item.image : `${REMOTE_BASE_URL}${item.image}`;
+                    return `
+                        <div class="notice-slide" onclick="showBannerDetail(${idx})">
+                            <img src="${imgUrl}" alt="${item.title || 'নোটিশ ব্যানার'}" class="notice-slide-img">
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="notice-slide" onclick="showBannerDetail(${idx})">
+                            <div class="notice-slide-text-card">
+                                <span class="notice-slide-badge">📌 ${item.priority || 'জরুরি নোটিশ'}</span>
+                                <div class="notice-slide-title">${item.title || ''}</div>
+                                ${item.content ? `<div class="notice-slide-desc">${item.content}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            if (notices.length > 1) {
+                dotsContainer.style.display = 'flex';
+                dotsContainer.innerHTML = notices.map((_, i) => 
+                    `<span class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToNoticeSlide(${i})"></span>`
+                ).join('');
+
+                sliderInterval = setInterval(() => {
+                    currentSlideIdx = (currentSlideIdx + 1) % notices.length;
+                    updateSliderPosition();
+                }, 4000);
+            } else {
+                dotsContainer.style.display = 'none';
+            }
+
+            window._activeBannerNotices = notices;
+        }
+
+        function goToNoticeSlide(idx) {
+            currentSlideIdx = idx;
+            updateSliderPosition();
+        }
+
+        function updateSliderPosition() {
+            const track = document.getElementById('notice-slides-track');
+            const dots = document.querySelectorAll('#notice-slider-dots .slider-dot');
+            if (track) {
+                track.style.transform = `translateX(-${currentSlideIdx * 100}%)`;
+            }
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlideIdx);
+            });
+        }
+
+        function showBannerDetail(idx) {
+            const list = window._activeBannerNotices || [];
+            const item = list[idx];
+            if (!item) return;
+            if (item.title || item.content) {
+                alert(`📌 ${item.title || 'নোটিশ'}\n\n${item.content || ''}`);
+            }
+        }
+
+        // ১. অনলাইন ও অফলাইন অডিও লোড
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -885,7 +1191,7 @@
                 await renderAudioCards([...savedList].reverse(), false);
             } else {
                 container.className = 'status-box';
-                container.innerHTML = 'অডিও লোড হচ্ছে...';
+                container.innerHTML = 'বয়ান লোড হচ্ছে...';
             }
 
             const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}/files`;
@@ -908,14 +1214,13 @@
                 if (cachedAllFiles.length === 0 && savedList.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
-                        অডিও লোড করতে সমস্যা হয়েছে।<br>
+                        বয়ান লোড করতে সমস্যা হয়েছে।<br>
                         <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
                     `;
                 }
                 return;
             }
 
-            // সর্বশেষ আপলোড করা ফাইল (সর্বোচ্চ mtime) সবার উপরে সাজানো
             const audioFiles = data.result
                 .filter(file => file.name && file.name.toLowerCase().endsWith('.opus'))
                 .sort((a, b) => Number(b.mtime || 0) - Number(a.mtime || 0));
@@ -931,7 +1236,7 @@
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার (সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার লেআউট)
+        // ২. অডিও কার্ড রেন্ডার
         async function renderAudioCards(files, isOfflineMode) {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -946,7 +1251,7 @@
 
             container.className = '';
             let headerNotice = isOfflineMode 
-                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা অডিওসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা বয়ানসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
                 : '';
 
             const cardsHtml = await Promise.all(files.map(async (file, idx) => {
@@ -990,7 +1295,6 @@
                     }
                 }
 
-                // ডান পাশের স্লট: সাদার ওপর কালো ডাউনলোড আইকন (অথবা সেভ থাকলে টিক ও ডিলিট আইকন)
                 const rightSlotControls = isSaved
                     ? `<span class="btn-minimal-icon" title="অফলাইনে সেভ করা আছে" style="cursor: default;">${SVG_CHECK}</span>
                        <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${file.name}')">${SVG_TRASH}</button>`
@@ -1006,11 +1310,9 @@
                                 onloadedmetadata="onAudioTimeUpdate(${idx})"
                                 onended="onAudioEnded(${idx})"></audio>
 
-                            <!-- উপরের চিকন কালো সিক বার -->
                             <input type="range" id="seek-${idx}" class="minimal-seek-slider" value="0" min="0" max="100" step="0.1"
                                 oninput="onSeekInput(${idx}, this.value)">
 
-                            <!-- নিচের কন্ট্রোল রো: বামে টাইম | প্রিভিয়াস সিক (-১০s) | মাঝখানে কালো প্লে বাটন | নেক্সট সিক (+১০s) | ডানে ডাউনলোড -->
                             <div class="minimal-controls-row">
                                 <div class="minimal-left-slot" id="time-label-${idx}">০:০০</div>
 
@@ -1110,7 +1412,6 @@
                     }
                 }
 
-                // ওয়েব ব্রাউজার ফোলব্যাক
                 const response = await fetch(url, { mode: 'cors', redirect: 'follow' });
                 if (!response.ok) throw new Error("সার্ভার সংযোগ ব্যর্থ");
                 const blob = await response.blob();
@@ -1316,7 +1617,7 @@
             }
         }
 
-        // ৫. প্রবন্ধ ও নোটিশ লোড
+        // ৫. প্রবন্ধ ও টপ ব্যানার নোটিশ লোড
         async function fetchContent() {
             const cachedSiteData = localStorage.getItem('user_cached_site_data');
             let hasCache = false;
@@ -1324,7 +1625,7 @@
                 try {
                     const parsed = JSON.parse(cachedSiteData);
                     renderArticles(parsed.articles || []);
-                    renderNotices(parsed.notices || []);
+                    renderNoticeBannerSlider(parsed.notices || []);
                     hasCache = true;
                 } catch(e) {}
             }
@@ -1338,7 +1639,7 @@
                             const data = await response.json();
                             localStorage.setItem('user_cached_site_data', JSON.stringify(data));
                             renderArticles(data.articles || []);
-                            renderNotices(data.notices || []);
+                            renderNoticeBannerSlider(data.notices || []);
                             return;
                         }
                     } catch (error) {}
@@ -1346,7 +1647,7 @@
             }
             if (!hasCache) {
                 renderArticles([]);
-                renderNotices([]);
+                renderNoticeBannerSlider([]);
             }
         }
 
@@ -1410,28 +1711,158 @@
             updateArticleFontSizeUI();
         }
 
-        function renderNotices(notices) {
-            const container = document.getElementById('notice-list');
-            if (!container) return;
+        // ৬. দৈনন্দিন ও মাসিক মুহাসাবা ট্র্যাকিং লজিক
+        const MUHASABA_ITEMS = [
+            { id: 'tilawat', label: '১. কোরআন তেলাওয়াত' },
+            { id: 'hifz', label: '২. কোরআন মুখস্ত করা' },
+            { id: 'quran_tafseer', label: '৩. কোরআন বোঝার চেষ্টা করা' },
+            { id: 'hadith_study', label: '৪. হাদিস বোঝার চেষ্টা করা' },
+            { id: 'akabir_sirat', label: '৫. আকাবির বড়দের জীবনী পড়া' }
+        ];
 
-            if (!notices || notices.length === 0) {
-                container.className = 'status-box';
-                container.innerHTML = 'বর্তমানে কোনো নতুন নোটিশ নেই।';
-                return;
-            }
-
-            container.className = '';
-            container.innerHTML = notices.map(item => `
-                <div class="item-card">
-                    <span class="notice-badge">🔔 ${item.priority || 'সাধারণ নোটিশ'}</span>
-                    <div class="item-title">${item.title}</div>
-                    <span class="item-date">তারিখ: ${item.date || '—'}</span>
-                    <div class="item-desc">${item.content}</div>
-                </div>
-            `).join('');
+        function getTodayDateKey() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
-        // ৬. উমরি কাজা ট্র্যাকিং লজিক
+        function formatBanglaDate(dateKey) {
+            const bnMonths = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+            const [y, m, d] = dateKey.split('-');
+            return `${toBnDigits(parseInt(d))} ${bnMonths[parseInt(m) - 1]}, ${toBnDigits(y)}`;
+        }
+
+        function loadMuhasabaLogs() {
+            try {
+                return JSON.parse(localStorage.getItem('user_daily_muhasaba_logs')) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveMuhasabaLogs(logs) {
+            localStorage.setItem('user_daily_muhasaba_logs', JSON.stringify(logs));
+        }
+
+        function toggleMuhasabaItem(itemId) {
+            const todayKey = getTodayDateKey();
+            const logs = loadMuhasabaLogs();
+            if (!logs[todayKey]) logs[todayKey] = {};
+            logs[todayKey][itemId] = !logs[todayKey][itemId];
+            saveMuhasabaLogs(logs);
+            renderMuhasabaUI();
+        }
+
+        function renderMuhasabaUI() {
+            const todayKey = getTodayDateKey();
+            const logs = loadMuhasabaLogs();
+            const todayData = logs[todayKey] || {};
+
+            const dateEl = document.getElementById('muhasaba-today-date');
+            if (dateEl) dateEl.innerText = formatBanglaDate(todayKey);
+
+            let completedCount = 0;
+            MUHASABA_ITEMS.forEach(item => {
+                if (todayData[item.id]) completedCount++;
+            });
+            const remainingCount = MUHASABA_ITEMS.length - completedCount;
+
+            const statusBanner = document.getElementById('muhasaba-status-banner');
+            if (statusBanner) {
+                if (remainingCount === 0) {
+                    statusBanner.style.background = '#dcfce7';
+                    statusBanner.style.color = '#15803d';
+                    statusBanner.style.borderColor = '#15803d';
+                    statusBanner.innerHTML = '🎉 আলহামদুলিল্লাহ! আজকের সবগুলো আমল সম্পন্ন হয়েছে।';
+                } else {
+                    statusBanner.style.background = 'var(--green-soft)';
+                    statusBanner.style.color = 'var(--green-primary)';
+                    statusBanner.style.borderColor = 'var(--green-primary)';
+                    statusBanner.innerHTML = `⏳ আজকে আমল বাকি আছে: <span style="font-size: 16px; color: #b45309;">${toBnDigits(remainingCount)}</span> টি (সম্পন্ন: ${toBnDigits(completedCount)}/${toBnDigits(MUHASABA_ITEMS.length)})`;
+                }
+            }
+
+            const checklistEl = document.getElementById('muhasaba-checklist');
+            if (checklistEl) {
+                checklistEl.innerHTML = MUHASABA_ITEMS.map(item => {
+                    const isChecked = Boolean(todayData[item.id]);
+                    return `
+                        <div class="muhasaba-item ${isChecked ? 'checked' : ''}" onclick="toggleMuhasabaItem('${item.id}')">
+                            <div class="muhasaba-checkbox">${isChecked ? '✔' : ''}</div>
+                            <div class="muhasaba-label">${item.label}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderMonthlyMuhasabaReport(logs);
+        }
+
+        function renderMonthlyMuhasabaReport(logs) {
+            const reportEl = document.getElementById('monthly-muhasaba-report');
+            const subTitleEl = document.getElementById('monthly-summary-subtitle');
+            if (!reportEl) return;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const todayDate = now.getDate();
+            const monthStr = String(month + 1).padStart(2, '0');
+
+            let totalDaysChecked = 0;
+            let totalAmalDone = 0;
+            const totalPossible = todayDate * MUHASABA_ITEMS.length;
+
+            let rowsHtml = '';
+            for (let day = todayDate; day >= 1; day--) {
+                const dayStr = String(day).padStart(2, '0');
+                const dateKey = `${year}-${monthStr}-${dayStr}`;
+                const dayRecord = logs[dateKey] || {};
+
+                const doneList = [];
+                const missedList = [];
+
+                MUHASABA_ITEMS.forEach(item => {
+                    const cleanName = item.label.replace(/^[১-৫]\.\s*/, '');
+                    if (dayRecord[item.id]) {
+                        doneList.push(cleanName);
+                    } else {
+                        missedList.push(cleanName);
+                    }
+                });
+
+                totalAmalDone += doneList.length;
+                if (doneList.length === MUHASABA_ITEMS.length) totalDaysChecked++;
+
+                const badgeColor = missedList.length === 0 ? '#15803d' : (doneList.length > 0 ? '#b45309' : '#dc2626');
+                const badgeBg = missedList.length === 0 ? '#dcfce7' : (doneList.length > 0 ? '#fef3c7' : '#fee2e2');
+
+                rowsHtml += `
+                    <div class="month-day-row">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <strong style="color: var(--green-primary);">${formatBanglaDate(dateKey)} ${day === todayDate ? '(আজ)' : ''}</strong>
+                            <span style="background: ${badgeBg}; color: ${badgeColor}; font-weight: bold; font-size: 11.5px; padding: 2px 8px; border-radius: 6px;">
+                                সম্পন্ন: ${toBnDigits(doneList.length)}/${toBnDigits(MUHASABA_ITEMS.length)}
+                            </span>
+                        </div>
+                        ${missedList.length === 0 
+                            ? `<div style="color: #15803d; font-size: 12px;">✔ সবগুলো আমল আদায় করা হয়েছে</div>`
+                            : `<div style="color: #b91c1c; font-size: 12px; line-height: 1.5;">❌ বাকি ছিল: ${missedList.join(' • ')}</div>`
+                        }
+                    </div>
+                `;
+            }
+
+            if (subTitleEl) {
+                subTitleEl.innerText = `চলতি মাসে সম্পন্ন: ${toBnDigits(totalAmalDone)}/${toBnDigits(totalPossible)} টি আমল (পূর্ণ দিন: ${toBnDigits(totalDaysChecked)} দিন)`;
+            }
+
+            reportEl.innerHTML = rowsHtml;
+        }
+
+        // ৭. উমরি কাজা ট্র্যাকিং লজিক
         const WAQTS = [
             { id: 'fajr', name: 'ফজর' },
             { id: 'dhuhr', name: 'যোহর' },
@@ -1542,7 +1973,7 @@
             if (totalEl) totalEl.innerText = totalCount;
         }
 
-        // ৭. অফলাইন-সেফ আপডেট ও সিঙ্ক
+        // ৮. অফলাইন-সেফ আপডেট ও সিঙ্ক
         async function manualRefresh() {
             const btn = document.getElementById('top-refresh-btn');
             if (btn) btn.classList.add('spin-icon');
@@ -1583,6 +2014,7 @@
         initDistrictDropdown();
         switchTab(currentActiveTab);
         fetchContent();
+        renderMuhasabaUI();
         renderQazaCards();
         loadPrayerTimes();
 
