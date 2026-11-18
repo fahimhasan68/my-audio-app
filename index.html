@@ -675,7 +675,7 @@
     <main>
         <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
         <section id="tab-audio" class="tab-section active">
-            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো (ডানে-বামে সোয়াইপ ও প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড) -->
+            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো (ডানে-বামে সোয়াইপ ও প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড) -->
             <div id="top-notice-banner" class="notice-slider-wrapper" style="display: none;">
                 <div id="notice-slides-track" class="notice-slides-track"></div>
                 <div id="notice-slider-dots" class="slider-dots"></div>
@@ -1083,7 +1083,7 @@
             }
         }
 
-        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো (প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড + আঙুলে ডানে-বামে সোয়াইপ)
+        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো (প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড + আঙুলে ডানে-বামে সোয়াইপ)
         function startNoticeAutoSlide() {
             if (sliderInterval) {
                 clearInterval(sliderInterval);
@@ -1122,7 +1122,7 @@
                 const diffX = startX - endX;
                 const diffY = startY - endY;
 
-                // অনুভূমিকভাবে ৩০ পিক্সেলের বেশি সোয়াইপ করলে স্লাইড পরিবর্তন হবে
+                // অনুভূমিকভাবে ৩০ পিক্সেলের বেশি সোয়াইপ করলে স্লাইড পরিবর্তন হবে
                 if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY) && totalSlidesCount > 1) {
                     if (diffX > 0) {
                         // ডান থেকে বামে টানলে পরের নোটিশ
@@ -1298,7 +1298,7 @@
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার
+        // ২. অডিও কার্ড রেন্ডার (সব অডিওর জন্য preload="auto" নিশ্চিত করা হয়েছে)
         async function renderAudioCards(files, isOfflineMode) {
             const container = document.getElementById('audio-list');
             if (!container) return;
@@ -1323,12 +1323,11 @@
                 const isSaved = Boolean(savedItem);
 
                 let audioSrc = fileUrl;
-                let preloadMode = "none";
+                let preloadMode = "auto";
 
                 if (isSaved) {
                     if (activeBlobUrls[file.name]) {
                         audioSrc = activeBlobUrls[file.name];
-                        preloadMode = "metadata";
                     } else if (savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
                         try {
                             const { Filesystem } = window.Capacitor.Plugins;
@@ -1339,7 +1338,6 @@
                             if (readRes && readRes.data) {
                                 audioSrc = base64ToPlayableUrl(readRes.data);
                                 activeBlobUrls[file.name] = audioSrc;
-                                preloadMode = "metadata";
                             }
                         } catch (readErr) {
                             console.warn("Read file error:", readErr);
@@ -1351,7 +1349,6 @@
                                 const blob = await cachedResponse.blob();
                                 audioSrc = URL.createObjectURL(blob);
                                 activeBlobUrls[file.name] = audioSrc;
-                                preloadMode = "metadata";
                             }
                         } catch (e) {}
                     }
@@ -1407,6 +1404,15 @@
             }));
 
             container.innerHTML = headerNotice + cardsHtml.join('');
+
+            // রেন্ডার হওয়ার পর সব অডিও এলিমেন্টের প্রিলোড নিশ্চিতভাবে ট্রিগার করা
+            files.forEach((_, idx) => {
+                const audioEl = document.getElementById(`audio-el-${idx}`);
+                if (audioEl) {
+                    audioEl.preload = "auto";
+                    audioEl.load();
+                }
+            });
         }
 
         // ৩. সরাসরি রুট DATA ডিরেক্টরিতে সেভ
@@ -1532,7 +1538,7 @@
             fetchAudiosFromArchive();
         }
 
-        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (কয়টা থেকে কয়টা পর্যন্ত ওয়াক্তসহ)
+        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ (কয়টা থেকে কয়টা পর্যন্ত ওয়াক্তসহ)
         function initDistrictDropdown() {
             const selectEl = document.getElementById('district-select');
             if (!selectEl) return;
@@ -1633,7 +1639,7 @@
             const maghribStr = formatTo12HourBn(timings.Maghrib);
             const ishaStr = formatTo12HourBn(timings.Isha);
 
-            // প্রতিটি ওয়াক্ত কয়টা থেকে কয়টা পর্যন্ত তার পূর্ণ সময়সীমা
+            // প্রতিটি ওয়াক্ত কয়টা থেকে কয়টা পর্যন্ত তার পূর্ণ সময়সীমা
             const fardRows = [
                 { icon: '🌙', name: 'ফজর (সেহরির শেষ)', time: `${fajrStr} - ${sunriseStr}` },
                 { icon: '☀️', name: 'যোহর', time: `${dhuhrStr} - ${asrStr}` },
