@@ -55,6 +55,7 @@
         }
         .status-msg {
             margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold; display: none;
+            word-break: break-word;
         }
         .audio-row {
             display: flex; justify-content: space-between; align-items: center;
@@ -67,7 +68,7 @@
 
 <header>
     <div><strong>🛠️ দ্বীনি মেহনত - অডিও অ্যাডমিন</strong></div>
-    <span style="font-size: 12px;">GitHub Releases Sync</span>
+    <span style="font-size: 12px;">GitHub Direct Sync</span>
 </header>
 
 <div class="container">
@@ -76,9 +77,7 @@
         <h2>🔑 ১. গিটহাব কানেকশন সেটিংস</h2>
         <label>GitHub Personal Access Token (PAT):</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-        <label>Release Tag নাম (যে রিলিজে ফাইল জমা হবে):</label>
-        <input type="text" id="release-tag" value="v1.0" placeholder="যেমন: v1.0">
-        <button class="btn" onclick="saveSettings()">💾 সেটিংস সেভ করুন</button>
+        <button class="btn" onclick="saveSettings()">💾 টোকেন সেভ করুন</button>
         <div id="settings-status" class="status-msg" style="background: #dcfce7; color: #15803d;"></div>
     </div>
 
@@ -86,12 +85,12 @@
     <div class="card" style="border-top: 3px solid var(--gold-main);">
         <h2>🎙️ ২. নতুন বয়ান আপলোড করুন</h2>
         <label>বয়ানের বাংলা শিরোনাম (যা ইউজার অ্যাপে দেখাবে):</label>
-        <input type="text" id="bn-title" placeholder="যেমন: লেকচার ০১ - তাওহীদের গুরুত্ব ও ফজিলত">
+        <input type="text" id="bn-title" placeholder="যেমন: ২য় দিন; মাসনা শায়খ; জিকিরের তালকিন">
 
         <label>অডিও ফাইল নির্বাচন করুন (.opus / .mp3 / .m4a):</label>
         <input type="file" id="audio-file" accept="audio/*,.opus">
 
-        <button class="btn" id="upload-btn" onclick="uploadBayan()">🚀 গিটহাব রিলিজে আপলোড ও পাবলিশ করুন</button>
+        <button class="btn" id="upload-btn" onclick="uploadBayan()">🚀 আপলোড ও পাবলিশ করুন</button>
         <div id="upload-status" class="status-msg"></div>
     </div>
 
@@ -112,20 +111,16 @@
 
     window.onload = () => {
         const savedToken = localStorage.getItem("dm_gh_token") || "";
-        const savedTag = localStorage.getItem("dm_gh_tag") || "v1.0";
         document.getElementById("gh-token").value = savedToken;
-        document.getElementById("release-tag").value = savedTag;
         if (savedToken) loadExistingAudios();
     };
 
     function saveSettings() {
         const token = document.getElementById("gh-token").value.trim();
-        const tag = document.getElementById("release-tag").value.trim() || "v1.0";
         localStorage.setItem("dm_gh_token", token);
-        localStorage.setItem("dm_gh_tag", tag);
         const st = document.getElementById("settings-status");
         st.style.display = "block";
-        st.innerText = "✅ সেটিংস ব্রাউজারে সংরক্ষিত হয়েছে!";
+        st.innerText = "✅ টোকেন ব্রাউজারে সংরক্ষিত হয়েছে!";
         loadExistingAudios();
     }
 
@@ -137,7 +132,6 @@
         el.innerText = msg;
     }
 
-    // বাংলা টেক্সট সমর্থিত Base64 এনকোড/ডিকোড
     function utf8ToBase64(str) {
         return btoa(unescape(encodeURIComponent(str)));
     }
@@ -145,28 +139,25 @@
         return decodeURIComponent(escape(atob(str.replace(/\s/g, ''))));
     }
 
-    async function getOrCreateRelease(token, tag) {
-        const headers = { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" };
-        let res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${encodeURIComponent(tag)}`, { headers });
-        if (res.ok) return await res.json();
-
-        // রিলিজ না থাকলে নতুন রিলিজ তৈরি করবে
-        res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases`, {
-            method: "POST",
-            headers: { ...headers, "Content-Type": "application/json" },
-            body: JSON.stringify({ tag_name: tag, name: `Audio Releases (${tag})`, draft: false, prerelease: false })
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
         });
-        if (!res.ok) throw new Error("রিলিজ তৈরি করা যায়নি। টোকেন চেক করুন।");
-        return await res.json();
     }
 
     async function getDataJson(token) {
-        const headers = { "Authorization": `token ${token}`, "Accept": "application/vnd.github.v3+json" };
+        const headers = { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" };
         const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${DATA_FILE}?t=${Date.now()}`, { headers });
         if (res.status === 404) {
             return { sha: null, content: { notices: [], articles: [], audios: [] } };
         }
-        if (!res.ok) throw new Error("data.json পড়া সম্ভব হয়নি।");
+        if (!res.ok) throw new Error(`data.json পড়া সম্ভব হয়নি (Status: ${res.status})`);
         const fileData = await res.json();
         const parsed = JSON.parse(base64ToUtf8(fileData.content));
         if (!parsed.audios) parsed.audios = [];
@@ -175,7 +166,7 @@
 
     async function updateDataJson(token, sha, newContentObj, commitMsg) {
         const headers = {
-            "Authorization": `token ${token}`,
+            "Authorization": `Bearer ${token}`,
             "Accept": "application/vnd.github.v3+json",
             "Content-Type": "application/json"
         };
@@ -190,12 +181,11 @@
             headers,
             body: JSON.stringify(body)
         });
-        if (!res.ok) throw new Error("data.json আপডেট ব্যর্থ হয়েছে।");
+        if (!res.ok) throw new Error(`data.json আপডেট ব্যর্থ হয়েছে (Status: ${res.status})`);
     }
 
     async function uploadBayan() {
         const token = document.getElementById("gh-token").value.trim();
-        const tag = document.getElementById("release-tag").value.trim() || "v1.0";
         const bnTitle = document.getElementById("bn-title").value.trim();
         const fileInput = document.getElementById("audio-file");
         const btn = document.getElementById("upload-btn");
@@ -205,47 +195,55 @@
         if (!fileInput.files || fileInput.files.length === 0) return alert("একটি অডিও ফাইল সিলেক্ট করুন!");
 
         const file = fileInput.files[0];
+        if (file.size > 45 * 1024 * 1024) {
+            return alert("ফাইলের সাইজ ৪৫ MB-এর বেশি! অনুগ্রহ করে ৪৫ MB-এর নিচের ফাইল আপলোড করুন।");
+        }
+
         const ext = file.name.split('.').pop().toLowerCase() || 'opus';
         const safeEnglishFileName = `bayan_${Date.now()}.${ext}`;
+        const repoPath = `audios/${safeEnglishFileName}`;
 
         btn.disabled = true;
-        showStatus("⏳ ১/৩: গিটহাব রিলিজ প্রস্তুত করা হচ্ছে...");
+        showStatus("⏳ ১/৩: অডিও ফাইল প্রস্তুত করা হচ্ছে...");
 
         try {
-            const release = await getOrCreateRelease(token, tag);
-            const uploadBaseUrl = release.upload_url.split('{')[0];
+            const base64Audio = await fileToBase64(file);
 
-            showStatus("⏳ ২/৩: অডিও ফাইল গিটহাব রিলিজে আপলোড হচ্ছে (অপেক্ষা করুন)...");
-            const uploadRes = await fetch(`${uploadBaseUrl}?name=${encodeURIComponent(safeEnglishFileName)}`, {
-                method: "POST",
+            showStatus("⏳ ২/৩: অডিও ফাইল গিটহাবে আপলোড হচ্ছে (অপেক্ষা করুন)...");
+            const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${repoPath}`, {
+                method: "PUT",
                 headers: {
-                    "Authorization": `token ${token}`,
-                    "Content-Type": file.type || "application/octet-stream"
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/vnd.github.v3+json",
+                    "Content-Type": "application/json"
                 },
-                body: file
+                body: JSON.stringify({
+                    message: `Upload audio: ${safeEnglishFileName}`,
+                    content: base64Audio
+                })
             });
 
             if (!uploadRes.ok) {
-                const errText = await uploadRes.text();
-                throw new Error("রিলিজ আপলোড ব্যর্থ: " + errText);
+                const errData = await uploadRes.json().catch(() => ({}));
+                throw new Error(errData.message || `আপলোড ব্যর্থ (Status: ${uploadRes.status})`);
             }
 
-            const assetData = await uploadRes.json();
-            const downloadUrl = assetData.browser_download_url;
+            // GitHub Pages বা Raw লিংক (সবার জন্য সরাসরি স্ট্রিমিং ও ডাউনলোডযোগ্য)
+            const downloadUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${repoPath}`;
 
             showStatus("⏳ ৩/৩: ইউজার অ্যাপের data.json আপডেট হচ্ছে...");
             const { sha, content } = await getDataJson(token);
 
-            // নতুন অডিও সবার উপরে যোগ করা হচ্ছে
             content.audios.unshift({
                 id: Date.now(),
                 title: bnTitle,
                 fileName: safeEnglishFileName,
+                repoPath: repoPath,
                 url: downloadUrl,
                 date: new Date().toLocaleDateString('bn-BD')
             });
 
-            await updateDataJson(token, sha, content, `Add audio: ${safeEnglishFileName}`);
+            await updateDataJson(token, sha, content, `Publish: ${safeEnglishFileName}`);
 
             showStatus(`🎉 সফলভাবে পাবলিশ হয়েছে! "${bnTitle}" এখন ইউজার অ্যাপে দেখা যাবে।`);
             document.getElementById("bn-title").value = "";
@@ -291,8 +289,8 @@
         const token = document.getElementById("gh-token").value.trim();
         try {
             const { sha, content } = await getDataJson(token);
-            const removed = content.audios.splice(idx, 1);
-            await updateDataJson(token, sha, content, `Remove audio: ${removed[0]?.fileName || idx}`);
+            const removed = content.audios.splice(idx, 1)[0];
+            await updateDataJson(token, sha, content, `Remove audio: ${removed?.fileName || idx}`);
             loadExistingAudios();
         } catch (e) {
             alert("মুছতে ব্যর্থ: " + e.message);
