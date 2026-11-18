@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অ্যাডমিন প্যানেল - দ্বীনি মেহনত</title>
+    <title>ব্যাচ অ্যাডমিন প্যানেল - দ্বীনি মেহনত</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root {
             --green-primary: #164431;
@@ -16,7 +17,7 @@
             --border-subtle: #d5dfd9;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SolaimanLipi', 'Kalpurush', 'Segoe UI', sans-serif; }
-        body { background: var(--cream-bg); color: var(--text-dark); padding-bottom: 40px; }
+        body { background: var(--cream-bg); color: var(--text-dark); padding-bottom: 50px; }
         header {
             background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
             padding: 15px 20px;
@@ -26,7 +27,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .container { max-width: 600px; margin: 16px auto; padding: 0 14px; }
+        .container { max-width: 680px; margin: 16px auto; padding: 0 14px; }
         .card {
             background: #fff;
             border: 1px solid var(--border-subtle);
@@ -36,9 +37,9 @@
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
-        h2 { font-size: 17px; color: var(--green-primary); margin-bottom: 12px; }
+        h2 { font-size: 17px; color: var(--green-primary); margin-bottom: 10px; }
         label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--green-primary); }
-        input[type="text"], input[type="password"], input[type="file"], input[type="url"] {
+        input[type="text"], input[type="password"], input[type="file"] {
             width: 100%; padding: 10px; border: 1px solid var(--border-subtle);
             border-radius: 8px; margin-bottom: 12px; font-size: 14px; background: #fafaf7;
         }
@@ -49,69 +50,98 @@
             cursor: pointer; width: 100%; display: inline-flex; justify-content: center; align-items: center; gap: 6px;
         }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-secondary {
+            background: var(--green-soft); color: var(--green-primary); border: 1px solid var(--green-primary);
+            padding: 10px 14px; border-radius: 8px; font-weight: bold; font-size: 13.5px; cursor: pointer; width: 100%;
+        }
         .btn-danger {
             background: #fee2e2; color: #b91c1c; border: 1px solid #f87171;
             padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;
         }
         .status-msg {
             margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold; display: none;
-            word-break: break-word;
+            word-break: break-word; line-height: 1.5;
         }
+        .batch-item-box {
+            background: #f9fbf9; border: 1px solid var(--border-subtle);
+            border-radius: 8px; padding: 10px; margin-bottom: 10px;
+        }
+        .batch-item-box input { margin-bottom: 6px; background: #fff; }
         .audio-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px dashed var(--border-subtle); gap: 10px;
         }
         .audio-row:last-child { border-bottom: none; }
-        .hint { font-size: 12px; color: #526b5e; margin-bottom: 10px; line-height: 1.5; }
+        .step-badge {
+            display: inline-block; background: var(--gold-main); color: var(--green-dark);
+            font-weight: bold; font-size: 11.5px; padding: 2px 8px; border-radius: 5px; margin-bottom: 6px;
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div><strong>🛠️ দ্বীনি মেহনত - অডিও অ্যাডমিন</strong></div>
-    <span style="font-size: 12px;">GitHub Sync</span>
+    <div><strong>🛠️ দ্বীনি মেহনত - ব্যাচ অডিও অ্যাডমিন</strong></div>
+    <span style="font-size: 12px;">Bulk Release Sync</span>
 </header>
 
 <div class="container">
-    <!-- গিটহাব টোকেন সেটিংস -->
+    <!-- ১. গিটহাব টোকেন ও রিলিজ ট্যাগ সেটিংস -->
     <div class="card">
         <h2>🔑 ১. গিটহাব কানেকশন সেটিংস</h2>
         <label>GitHub Personal Access Token (PAT):</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-        <button class="btn" onclick="saveSettings()">💾 টোকেন সেভ করুন</button>
+        
+        <label>GitHub Release Tag নাম (যে রিলিজে ফাইলগুলো রাখবেন):</label>
+        <input type="text" id="release-tag" value="v1.0" placeholder="যেমন: v1.0">
+        
+        <button class="btn" onclick="saveSettings()">💾 সেটিংস সেভ করুন</button>
         <div id="settings-status" class="status-msg" style="background: #dcfce7; color: #15803d;"></div>
     </div>
 
-    <!-- সাধারণ আপলোড (২৫ MB পর্যন্ত) -->
+    <!-- ২. ব্যাচ প্রসেসিং কার্ড -->
     <div class="card" style="border-top: 3px solid var(--gold-main);">
-        <h2>🎙️ ২. নতুন বয়ান আপলোড (২৫ MB পর্যন্ত)</h2>
-        <label>বয়ানের বাংলা শিরোনাম (যা ইউজার অ্যাপে দেখাবে):</label>
-        <input type="text" id="bn-title" placeholder="যেমন: ২য় দিন; মাসনা শায়খ; জিকিরের তালকিন">
-
-        <label>অডিও ফাইল নির্বাচন করুন (.opus / .mp3 / .m4a):</label>
-        <input type="file" id="audio-file" accept="audio/*,.opus">
-
-        <button class="btn" id="upload-btn" onclick="uploadBayan()">🚀 আপলোড ও পাবলিশ করুন</button>
-        <div id="upload-status" class="status-msg"></div>
-    </div>
-
-    <!-- বড় ফাইলের জন্য (২৫ MB-এর বেশি হলে) -->
-    <div class="card" style="border-left: 4px solid var(--gold-main);">
-        <h2>📦 ৩. বড় ফাইল পাবলিশ (২৫ MB-এর বেশি হলে)</h2>
-        <p class="hint">
-            ২৫ MB-এর বড় ফাইল সরাসরি GitHub <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold;">Releases</a>-এ আপলোড করে তার ডাউনলোড লিংক ও বাংলা নাম এখানে দিন:
+        <h2>📦 ২. একসাথে অনেকগুলো বয়ান ব্যাচ আপলোড ও পাবলিশ</h2>
+        
+        <span class="step-badge">ধাপ ক: ফাইল সিলেক্ট ও অটো-রিনেম ZIP তৈরি</span>
+        <p style="font-size: 12.5px; color: #526b5e; margin-bottom: 8px; line-height: 1.5;">
+            আপনার পিসি থেকে একসাথে যত খুশি বাংলা নামের অডিও ফাইল সিলেক্ট করুন। অ্যাপটি অটোমেটিক ইংরেজি নামের ZIP বানিয়ে দেবে এবং নিচে বাংলা শিরোনামের তালিকা তৈরি করবে:
         </p>
-        <label>বয়ানের বাংলা শিরোনাম:</label>
-        <input type="text" id="link-bn-title" placeholder="যেমন: ২য় দিন; মাসনা শায়খ; ছাত্র শিক্ষক মজমা">
+        <input type="file" id="batch-files" accept="audio/*,.opus" multiple onchange="prepareBatchFiles()">
+        
+        <div id="batch-preview-area" style="display: none; margin-top: 10px;">
+            <div id="batch-list-container"></div>
+            
+            <button type="button" class="btn-secondary" id="zip-btn" onclick="downloadRenamedZip()" style="margin-bottom: 14px;">
+                📥 ইংরেজি নামে রিনেম করা ZIP ডাউনলোড করুন
+            </button>
 
-        <label>GitHub Release ডাউনলোড লিংক:</label>
-        <input type="url" id="link-url" placeholder="https://github.com/fahimhasan68/my-audio-app/releases/download/...">
+            <div style="background: #fefce8; border: 1px solid #facc15; padding: 10px; border-radius: 8px; font-size: 12.5px; margin-bottom: 12px; line-height: 1.55;">
+                <strong>ধাপ খ:</strong> ডাউনলোড হওয়া ZIP ফাইলটি Extract/Unzip করে ভেতরের সব ইংরেজি ফাইল একসাথে 
+                <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold; text-decoration: underline;">GitHub Releases (<span id="tag-preview">v1.0</span>)</a> 
+                পেজে ড্র্যাগ করে আপলোড ও Save করুন। তারপর নিচের বাটনে চাপুন:
+            </div>
 
-        <button class="btn" id="link-btn" onclick="publishExternalLink()">🔗 লিংকসহ পাবলিশ করুন</button>
-        <div id="link-status" class="status-msg"></div>
+            <button type="button" class="btn" id="batch-publish-btn" onclick="publishAllBatch()">
+                🚀 সবগুলো বয়ান একসাথে বাংলা নামে পাবলিশ করুন
+            </button>
+        </div>
+
+        <div id="batch-status" class="status-msg"></div>
     </div>
 
-    <!-- প্রকাশিত বয়ান তালিকা -->
+    <!-- ৩. ছোট ফাইল (২৫ MB-এর নিচে) ডিরেক্ট এক ক্লিক আপলোড -->
+    <div class="card">
+        <h2>⚡ ৩. ছোট ফাইল ডিরেক্ট আপলোড (২৫ MB-এর কম হলে)</h2>
+        <label>বয়ানের বাংলা শিরোনাম:</label>
+        <input type="text" id="single-bn-title" placeholder="যেমন: ২য় দিন; জিকিরের তালকিন">
+        <label>অডিও ফাইল সিলেক্ট করুন:</label>
+        <input type="file" id="single-audio-file" accept="audio/*,.opus">
+        <button class="btn" id="single-upload-btn" onclick="uploadSingleDirect()">⬆️ ডিরেক্ট আপলোড ও পাবলিশ</button>
+        <div id="single-status" class="status-msg"></div>
+    </div>
+
+    <!-- ৪. প্রকাশিত বয়ান তালিকা -->
     <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h2 style="margin: 0;">📋 প্রকাশিত বয়ানের তালিকা</h2>
@@ -125,20 +155,28 @@
     const OWNER = "fahimhasan68";
     const REPO = "my-audio-app";
     const DATA_FILE = "data.json";
+    let preparedBatch = [];
 
     window.onload = () => {
         const savedToken = localStorage.getItem("dm_gh_token") || "";
+        const savedTag = localStorage.getItem("dm_gh_tag") || "v1.0";
         document.getElementById("gh-token").value = savedToken;
+        document.getElementById("release-tag").value = savedTag;
+        document.getElementById("tag-preview").innerText = savedTag;
         if (savedToken) loadExistingAudios();
     };
 
     function saveSettings() {
         const token = document.getElementById("gh-token").value.trim();
+        const tag = document.getElementById("release-tag").value.trim() || "v1.0";
         localStorage.setItem("dm_gh_token", token);
+        localStorage.setItem("dm_gh_tag", tag);
+        document.getElementById("tag-preview").innerText = tag;
         const st = document.getElementById("settings-status");
         st.style.display = "block";
-        st.innerText = "✅ টোকেন ব্রাউজারে সংরক্ষিত হয়েছে!";
+        st.innerText = "✅ সেটিংস সংরক্ষিত হয়েছে!";
         loadExistingAudios();
+        if (preparedBatch.length > 0) prepareBatchFiles();
     }
 
     function showMsg(elId, msg, isError = false) {
@@ -156,13 +194,79 @@
         return decodeURIComponent(escape(atob(str.replace(/\s/g, ''))));
     }
 
-    function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(file);
+    // ধাপ ক: অনেকগুলো ফাইল সিলেক্ট করলে অটোমেটিক ইংরেজি নাম ও বাংলা টাইটেল জেনারেট
+    function prepareBatchFiles() {
+        const fileInput = document.getElementById("batch-files");
+        const tag = document.getElementById("release-tag").value.trim() || "v1.0";
+        const previewArea = document.getElementById("batch-preview-area");
+        const listContainer = document.getElementById("batch-list-container");
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            previewArea.style.display = "none";
+            return;
+        }
+
+        const baseTimestamp = Date.now();
+        preparedBatch = Array.from(fileInput.files).map((file, index) => {
+            // ফাইলের আসল বাংলা নাম থেকে এক্সটেনশন বাদ দিয়ে বাংলা শিরোনাম নেওয়া
+            const bnTitle = file.name.replace(/\.[^/.]+$/, "").trim();
+            const ext = file.name.split('.').pop().toLowerCase() || 'opus';
+            const enFileName = `bayan_${baseTimestamp}_${String(index + 1).padStart(2, '0')}.${ext}`;
+            const releaseUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${encodeURIComponent(tag)}/${enFileName}`;
+
+            return {
+                file: file,
+                bnTitle: bnTitle,
+                enFileName: enFileName,
+                url: releaseUrl
+            };
         });
+
+        listContainer.innerHTML = preparedBatch.map((item, idx) => `
+            <div class="batch-item-box">
+                <div style="font-size: 11.5px; color: #526b5e; margin-bottom: 4px;">
+                    <strong>#${idx + 1}</strong> | রিনেম ফাইল: <code style="background:#e7efe9; padding:1px 5px; border-radius:4px;">${item.enFileName}</code>
+                </div>
+                <input type="text" value="${item.bnTitle}" onchange="updateBatchTitle(${idx}, this.value)" placeholder="বাংলা শিরোনাম">
+            </div>
+        `).join('');
+
+        previewArea.style.display = "block";
+    }
+
+    function updateBatchTitle(idx, newTitle) {
+        if (preparedBatch[idx]) {
+            preparedBatch[idx].bnTitle = newTitle.trim();
+        }
+    }
+
+    // সব ফাইল ইংরেজি নামে রিনেম করে একটি ZIP ডাউনলোড করানো
+    async function downloadRenamedZip() {
+        if (preparedBatch.length === 0) return;
+        const zipBtn = document.getElementById("zip-btn");
+        zipBtn.disabled = true;
+        zipBtn.innerText = "⏳ ZIP তৈরি হচ্ছে, অপেক্ষা করুন...";
+
+        try {
+            const zip = new JSZip();
+            preparedBatch.forEach(item => {
+                zip.file(item.enFileName, item.file);
+            });
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(content);
+            a.download = `github_release_audios_${Date.now()}.zip`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+
+            showMsg("batch-status", "✅ ZIP ডাউনলোড হয়েছে! এখন ZIP-টি Unzip করে সব ফাইল GitHub Releases-এ আপলোড করুন, তারপর নিচের পাবলিশ বাটনে চাপুন।");
+        } catch (err) {
+            showMsg("batch-status", "❌ ZIP তৈরি করতে সমস্যা হয়েছে: " + err.message, true);
+        } finally {
+            zipBtn.disabled = false;
+            zipBtn.innerText = "📥 ইংরেজি নামে রিনেম করা ZIP ডাউনলোড করুন";
+        }
     }
 
     async function getDataJson(token) {
@@ -198,11 +302,60 @@
         if (!res.ok) throw new Error(`data.json আপডেট ব্যর্থ হয়েছে (Status: ${res.status})`);
     }
 
-    async function uploadBayan() {
+    // এক ক্লিকে সবগুলো ব্যাচ ফাইল data.json-এ পাবলিশ
+    async function publishAllBatch() {
         const token = document.getElementById("gh-token").value.trim();
-        const bnTitle = document.getElementById("bn-title").value.trim();
-        const fileInput = document.getElementById("audio-file");
-        const btn = document.getElementById("upload-btn");
+        if (!token) return alert("প্রথমে ১ নম্বর সেকশনে GitHub টোকেন দিয়ে সেভ করুন!");
+        if (preparedBatch.length === 0) return alert("কোনো ফাইল সিলেক্ট করা হয়নি!");
+
+        const btn = document.getElementById("batch-publish-btn");
+        btn.disabled = true;
+        showMsg("batch-status", `⏳ ${preparedBatch.length}টি বয়ান একসাথে data.json-এ যুক্ত হচ্ছে...`);
+
+        try {
+            const { sha, content } = await getDataJson(token);
+            const todayStr = new Date().toLocaleDateString('bn-BD');
+
+            // উল্টো দিক থেকে unshift করলে লিস্টের সিরিয়াল ঠিক থাকে
+            [...preparedBatch].reverse().forEach((item, i) => {
+                content.audios.unshift({
+                    id: Date.now() + i,
+                    title: item.bnTitle || item.enFileName,
+                    fileName: item.enFileName,
+                    url: item.url,
+                    date: todayStr
+                });
+            });
+
+            await updateDataJson(token, sha, content, `Batch publish ${preparedBatch.length} audios`);
+
+            showMsg("batch-status", `🎉 আলহামদুলিল্লাহ! একসাথে ${preparedBatch.length}টি বয়ান বাংলা শিরোনামসহ সফলভাবে পাবলিশ হয়েছে!`);
+            document.getElementById("batch-files").value = "";
+            document.getElementById("batch-preview-area").style.display = "none";
+            preparedBatch = [];
+            loadExistingAudios();
+        } catch (err) {
+            showMsg("batch-status", "❌ ত্রুটি: " + err.message, true);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // ছোট ফাইলের জন্য ডিরেক্ট আপলোড
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function uploadSingleDirect() {
+        const token = document.getElementById("gh-token").value.trim();
+        const bnTitle = document.getElementById("single-bn-title").value.trim();
+        const fileInput = document.getElementById("single-audio-file");
+        const btn = document.getElementById("single-upload-btn");
 
         if (!token) return alert("প্রথমে GitHub টোকেন দিয়ে সেভ করুন!");
         if (!bnTitle) return alert("বয়ানের বাংলা শিরোনাম লিখুন!");
@@ -210,8 +363,7 @@
 
         const file = fileInput.files[0];
         if (file.size > 24.5 * 1024 * 1024) {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-            return alert(`এই ফাইলটির সাইজ ${sizeMB} MB, যা ২৫ MB সীমার বেশি! অনুগ্রহ করে নিচের "৩. বড় ফাইল পাবলিশ" সেকশনটি ব্যবহার করুন।`);
+            return alert("ফাইলটি ২৫ MB-এর বড়! অনুগ্রহ করে উপরের ২ নম্বর ব্যাচ সেকশনটি ব্যবহার করুন।");
         }
 
         const ext = file.name.split('.').pop().toLowerCase() || 'opus';
@@ -219,12 +371,10 @@
         const repoPath = `audios/${safeEnglishFileName}`;
 
         btn.disabled = true;
-        showMsg("upload-status", "⏳ ১/৩: অডিও ফাইল প্রস্তুত করা হচ্ছে...");
+        showMsg("single-status", "⏳ আপলোড হচ্ছে...");
 
         try {
             const base64Audio = await fileToBase64(file);
-
-            showMsg("upload-status", "⏳ ২/৩: অডিও ফাইল গিটহাবে আপলোড হচ্ছে (অপেক্ষা করুন)...");
             const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${repoPath}`, {
                 method: "PUT",
                 headers: {
@@ -238,73 +388,27 @@
                 })
             });
 
-            if (!uploadRes.ok) {
-                const errData = await uploadRes.json().catch(() => ({}));
-                throw new Error(errData.message || `আপলোড ব্যর্থ (Status: ${uploadRes.status})`);
-            }
+            if (!uploadRes.ok) throw new Error("আপলোড ব্যর্থ হয়েছে।");
 
             const downloadUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${repoPath}`;
-
-            showMsg("upload-status", "⏳ ৩/৩: ইউজার অ্যাপের data.json আপডেট হচ্ছে...");
             const { sha, content } = await getDataJson(token);
 
             content.audios.unshift({
                 id: Date.now(),
                 title: bnTitle,
                 fileName: safeEnglishFileName,
-                repoPath: repoPath,
                 url: downloadUrl,
                 date: new Date().toLocaleDateString('bn-BD')
             });
 
             await updateDataJson(token, sha, content, `Publish: ${safeEnglishFileName}`);
 
-            showMsg("upload-status", `🎉 সফলভাবে পাবলিশ হয়েছে! "${bnTitle}" এখন ইউজার অ্যাপে দেখা যাবে।`);
-            document.getElementById("bn-title").value = "";
+            showMsg("single-status", `🎉 সফলভাবে পাবলিশ হয়েছে!`);
+            document.getElementById("single-bn-title").value = "";
             fileInput.value = "";
             loadExistingAudios();
-
         } catch (err) {
-            console.error(err);
-            showMsg("upload-status", "❌ ত্রুটি: " + err.message, true);
-        } finally {
-            btn.disabled = false;
-        }
-    }
-
-    async function publishExternalLink() {
-        const token = document.getElementById("gh-token").value.trim();
-        const bnTitle = document.getElementById("link-bn-title").value.trim();
-        const url = document.getElementById("link-url").value.trim();
-        const btn = document.getElementById("link-btn");
-
-        if (!token) return alert("প্রথমে GitHub টোকেন দিয়ে সেভ করুন!");
-        if (!bnTitle) return alert("বয়ানের বাংলা শিরোনাম লিখুন!");
-        if (!url) return alert("GitHub Release লিংকটি দিন!");
-
-        btn.disabled = true;
-        showMsg("link-status", "⏳ data.json আপডেট হচ্ছে...");
-
-        try {
-            const { sha, content } = await getDataJson(token);
-            const urlFileName = decodeURIComponent(url.split('/').pop() || 'release_audio.opus');
-
-            content.audios.unshift({
-                id: Date.now(),
-                title: bnTitle,
-                fileName: urlFileName,
-                url: url,
-                date: new Date().toLocaleDateString('bn-BD')
-            });
-
-            await updateDataJson(token, sha, content, `Publish release link: ${bnTitle}`);
-
-            showMsg("link-status", `🎉 সফলভাবে পাবলিশ হয়েছে! "${bnTitle}" এখন ইউজার অ্যাপে দেখা যাবে।`);
-            document.getElementById("link-bn-title").value = "";
-            document.getElementById("link-url").value = "";
-            loadExistingAudios();
-        } catch (err) {
-            showMsg("link-status", "❌ ত্রুটি: " + err.message, true);
+            showMsg("single-status", "❌ ত্রুটি: " + err.message, true);
         } finally {
             btn.disabled = false;
         }
