@@ -38,7 +38,7 @@
         }
         h2 { font-size: 17px; color: var(--green-primary); margin-bottom: 12px; }
         label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--green-primary); }
-        input[type="text"], input[type="password"], input[type="file"] {
+        input[type="text"], input[type="password"], input[type="file"], input[type="url"] {
             width: 100%; padding: 10px; border: 1px solid var(--border-subtle);
             border-radius: 8px; margin-bottom: 12px; font-size: 14px; background: #fafaf7;
         }
@@ -62,13 +62,14 @@
             padding: 10px 0; border-bottom: 1px dashed var(--border-subtle); gap: 10px;
         }
         .audio-row:last-child { border-bottom: none; }
+        .hint { font-size: 12px; color: #526b5e; margin-bottom: 10px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
 <header>
     <div><strong>🛠️ দ্বীনি মেহনত - অডিও অ্যাডমিন</strong></div>
-    <span style="font-size: 12px;">GitHub Direct Sync</span>
+    <span style="font-size: 12px;">GitHub Sync</span>
 </header>
 
 <div class="container">
@@ -81,9 +82,9 @@
         <div id="settings-status" class="status-msg" style="background: #dcfce7; color: #15803d;"></div>
     </div>
 
-    <!-- নতুন বয়ান আপলোড ফর্ম -->
+    <!-- সাধারণ আপলোড (২৫ MB পর্যন্ত) -->
     <div class="card" style="border-top: 3px solid var(--gold-main);">
-        <h2>🎙️ ২. নতুন বয়ান আপলোড করুন</h2>
+        <h2>🎙️ ২. নতুন বয়ান আপলোড (২৫ MB পর্যন্ত)</h2>
         <label>বয়ানের বাংলা শিরোনাম (যা ইউজার অ্যাপে দেখাবে):</label>
         <input type="text" id="bn-title" placeholder="যেমন: ২য় দিন; মাসনা শায়খ; জিকিরের তালকিন">
 
@@ -92,6 +93,22 @@
 
         <button class="btn" id="upload-btn" onclick="uploadBayan()">🚀 আপলোড ও পাবলিশ করুন</button>
         <div id="upload-status" class="status-msg"></div>
+    </div>
+
+    <!-- বড় ফাইলের জন্য (২৫ MB-এর বেশি হলে) -->
+    <div class="card" style="border-left: 4px solid var(--gold-main);">
+        <h2>📦 ৩. বড় ফাইল পাবলিশ (২৫ MB-এর বেশি হলে)</h2>
+        <p class="hint">
+            ২৫ MB-এর বড় ফাইল সরাসরি GitHub <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold;">Releases</a>-এ আপলোড করে তার ডাউনলোড লিংক ও বাংলা নাম এখানে দিন:
+        </p>
+        <label>বয়ানের বাংলা শিরোনাম:</label>
+        <input type="text" id="link-bn-title" placeholder="যেমন: ২য় দিন; মাসনা শায়খ; ছাত্র শিক্ষক মজমা">
+
+        <label>GitHub Release ডাউনলোড লিংক:</label>
+        <input type="url" id="link-url" placeholder="https://github.com/fahimhasan68/my-audio-app/releases/download/...">
+
+        <button class="btn" id="link-btn" onclick="publishExternalLink()">🔗 লিংকসহ পাবলিশ করুন</button>
+        <div id="link-status" class="status-msg"></div>
     </div>
 
     <!-- প্রকাশিত বয়ান তালিকা -->
@@ -124,8 +141,8 @@
         loadExistingAudios();
     }
 
-    function showStatus(msg, isError = false) {
-        const el = document.getElementById("upload-status");
+    function showMsg(elId, msg, isError = false) {
+        const el = document.getElementById(elId);
         el.style.display = "block";
         el.style.background = isError ? "#fee2e2" : "#dcfce7";
         el.style.color = isError ? "#b91c1c" : "#15803d";
@@ -142,10 +159,7 @@
     function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => {
-                const base64 = reader.result.split(',')[1];
-                resolve(base64);
-            };
+            reader.onload = () => resolve(reader.result.split(',')[1]);
             reader.onerror = error => reject(error);
             reader.readAsDataURL(file);
         });
@@ -195,8 +209,9 @@
         if (!fileInput.files || fileInput.files.length === 0) return alert("একটি অডিও ফাইল সিলেক্ট করুন!");
 
         const file = fileInput.files[0];
-        if (file.size > 45 * 1024 * 1024) {
-            return alert("ফাইলের সাইজ ৪৫ MB-এর বেশি! অনুগ্রহ করে ৪৫ MB-এর নিচের ফাইল আপলোড করুন।");
+        if (file.size > 24.5 * 1024 * 1024) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            return alert(`এই ফাইলটির সাইজ ${sizeMB} MB, যা ২৫ MB সীমার বেশি! অনুগ্রহ করে নিচের "৩. বড় ফাইল পাবলিশ" সেকশনটি ব্যবহার করুন।`);
         }
 
         const ext = file.name.split('.').pop().toLowerCase() || 'opus';
@@ -204,12 +219,12 @@
         const repoPath = `audios/${safeEnglishFileName}`;
 
         btn.disabled = true;
-        showStatus("⏳ ১/৩: অডিও ফাইল প্রস্তুত করা হচ্ছে...");
+        showMsg("upload-status", "⏳ ১/৩: অডিও ফাইল প্রস্তুত করা হচ্ছে...");
 
         try {
             const base64Audio = await fileToBase64(file);
 
-            showStatus("⏳ ২/৩: অডিও ফাইল গিটহাবে আপলোড হচ্ছে (অপেক্ষা করুন)...");
+            showMsg("upload-status", "⏳ ২/৩: অডিও ফাইল গিটহাবে আপলোড হচ্ছে (অপেক্ষা করুন)...");
             const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${repoPath}`, {
                 method: "PUT",
                 headers: {
@@ -228,10 +243,9 @@
                 throw new Error(errData.message || `আপলোড ব্যর্থ (Status: ${uploadRes.status})`);
             }
 
-            // GitHub Pages বা Raw লিংক (সবার জন্য সরাসরি স্ট্রিমিং ও ডাউনলোডযোগ্য)
             const downloadUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${repoPath}`;
 
-            showStatus("⏳ ৩/৩: ইউজার অ্যাপের data.json আপডেট হচ্ছে...");
+            showMsg("upload-status", "⏳ ৩/৩: ইউজার অ্যাপের data.json আপডেট হচ্ছে...");
             const { sha, content } = await getDataJson(token);
 
             content.audios.unshift({
@@ -245,14 +259,52 @@
 
             await updateDataJson(token, sha, content, `Publish: ${safeEnglishFileName}`);
 
-            showStatus(`🎉 সফলভাবে পাবলিশ হয়েছে! "${bnTitle}" এখন ইউজার অ্যাপে দেখা যাবে।`);
+            showMsg("upload-status", `🎉 সফলভাবে পাবলিশ হয়েছে! "${bnTitle}" এখন ইউজার অ্যাপে দেখা যাবে।`);
             document.getElementById("bn-title").value = "";
             fileInput.value = "";
             loadExistingAudios();
 
         } catch (err) {
             console.error(err);
-            showStatus("❌ ত্রুটি: " + err.message, true);
+            showMsg("upload-status", "❌ ত্রুটি: " + err.message, true);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function publishExternalLink() {
+        const token = document.getElementById("gh-token").value.trim();
+        const bnTitle = document.getElementById("link-bn-title").value.trim();
+        const url = document.getElementById("link-url").value.trim();
+        const btn = document.getElementById("link-btn");
+
+        if (!token) return alert("প্রথমে GitHub টোকেন দিয়ে সেভ করুন!");
+        if (!bnTitle) return alert("বয়ানের বাংলা শিরোনাম লিখুন!");
+        if (!url) return alert("GitHub Release লিংকটি দিন!");
+
+        btn.disabled = true;
+        showMsg("link-status", "⏳ data.json আপডেট হচ্ছে...");
+
+        try {
+            const { sha, content } = await getDataJson(token);
+            const urlFileName = decodeURIComponent(url.split('/').pop() || 'release_audio.opus');
+
+            content.audios.unshift({
+                id: Date.now(),
+                title: bnTitle,
+                fileName: urlFileName,
+                url: url,
+                date: new Date().toLocaleDateString('bn-BD')
+            });
+
+            await updateDataJson(token, sha, content, `Publish release link: ${bnTitle}`);
+
+            showMsg("link-status", `🎉 সফলভাবে পাবলিশ হয়েছে! "${bnTitle}" এখন ইউজার অ্যাপে দেখা যাবে।`);
+            document.getElementById("link-bn-title").value = "";
+            document.getElementById("link-url").value = "";
+            loadExistingAudios();
+        } catch (err) {
+            showMsg("link-status", "❌ ত্রুটি: " + err.message, true);
         } finally {
             btn.disabled = false;
         }
