@@ -2097,3 +2097,2203 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>দ্বীনি মেহনত</title>
+    <meta name="theme-color" content="#164431">
+    <style>
+        :root {
+            --green-primary: #164431;
+            --green-dark: #0f3022;
+            --green-soft: #e7efe9;
+            --cream-bg: #f6f5ee;
+            --card-white: #ffffff;
+            --gold-main: #d4af37;
+            --gold-text: #f0d77b;
+            --text-dark: #163024;
+            --text-muted: #526b5e;
+            --border-subtle: #d5dfd9;
+            --player-black: #18181b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'SolaimanLipi', 'Kalpurush', 'Segoe UI', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            background-color: var(--cream-bg);
+            background-image: radial-gradient(rgba(22, 68, 49, 0.06) 1px, transparent 1px);
+            background-size: 16px 16px;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            overscroll-behavior-y: contain;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            padding: 12px 18px;
+            border-bottom: 3px solid var(--gold-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--gold-text);
+            letter-spacing: 0.5px;
+        }
+
+        .refresh-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--gold-main);
+            color: var(--gold-text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.25s ease, background-color 0.2s;
+            padding: 0;
+        }
+
+        .refresh-btn:active {
+            background-color: var(--gold-main);
+            color: var(--green-dark);
+            transform: rotate(180deg) scale(0.92);
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            padding: 12px;
+            padding-bottom: 90px;
+            width: 100%;
+        }
+
+        .tab-section {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .tab-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ব্যানার স্লাইডশো স্টাইল (বয়ান সেকশনের একদম উপরে) */
+        .notice-slider-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 1px solid var(--gold-main);
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            box-shadow: 0 3px 10px rgba(22, 68, 49, 0.12);
+            touch-action: pan-y;
+            user-select: none;
+        }
+
+        .notice-slides-track {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 100%;
+            will-change: transform;
+        }
+
+        .notice-slide {
+            min-width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notice-slide-img {
+            width: 100%;
+            height: 115px;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        .notice-slide-text-card {
+            padding: 12px 16px 24px 16px;
+            min-height: 84px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .notice-slide-badge {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            color: var(--gold-text);
+            border: 1px solid var(--gold-main);
+            font-size: 10.5px;
+            font-weight: bold;
+            padding: 1px 7px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            width: fit-content;
+        }
+
+        .notice-slide-title {
+            font-size: 14.5px;
+            font-weight: bold;
+            color: var(--gold-text);
+            line-height: 1.35;
+        }
+
+        .notice-slide-desc {
+            font-size: 12.5px;
+            color: #e7efe9;
+            margin-top: 2px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.28);
+            padding: 3px 7px;
+            border-radius: 10px;
+        }
+
+        .slider-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .slider-dot.active {
+            background: var(--gold-main);
+            width: 14px;
+            border-radius: 4px;
+        }
+
+        .item-card {
+            background-color: var(--card-white);
+            border: 1px solid var(--border-subtle);
+            border-left: 4px solid var(--green-primary);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(22, 68, 49, 0.06);
+            width: 100%;
+            text-align: left;
+        }
+
+        .item-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: var(--green-primary);
+            line-height: 1.5;
+            width: 100%;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .item-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .item-desc {
+            font-size: 15px;
+            color: var(--text-dark);
+            line-height: 1.75;
+            margin-top: 10px;
+            white-space: pre-line;
+            border-top: 1px dashed var(--border-subtle);
+            padding-top: 10px;
+            text-align: left;
+        }
+
+        .font-control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-white);
+            border: 1px solid var(--gold-main);
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            width: 100%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .font-btn {
+            background: var(--green-soft);
+            border: 1px solid var(--green-primary);
+            color: var(--green-primary);
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .font-btn:active {
+            background-color: var(--green-primary);
+            color: #ffffff;
+        }
+
+        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
+        .minimal-player {
+            margin-top: 14px;
+            padding: 4px 2px 2px 2px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .minimal-seek-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 4px;
+            background: linear-gradient(to right, var(--player-black) 0%, #e4e4e7 0%);
+            outline: none;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .minimal-seek-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--player-black);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .minimal-seek-slider::-webkit-slider-thumb:active {
+            transform: scale(1.25);
+        }
+
+        .minimal-controls-row {
+            display: grid;
+            grid-template-columns: 76px auto auto auto 1fr;
+            align-items: center;
+            column-gap: 12px;
+            width: 100%;
+        }
+
+        .minimal-left-slot {
+            justify-self: start;
+            width: 76px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #52525b;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .minimal-right-slot {
+            justify-self: end;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-minimal-icon {
+            background: transparent;
+            border: none;
+            color: var(--player-black);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.2s;
+        }
+
+        .btn-minimal-icon:active {
+            transform: scale(0.86);
+            background-color: rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-minimal-icon:disabled {
+            opacity: 0.45;
+            cursor: wait;
+        }
+
+        .btn-minimal-play {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--player-black);
+            color: #ffffff;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+            transition: transform 0.12s ease, opacity 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .btn-minimal-play:active {
+            transform: scale(0.91);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+            color: var(--gold-text);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--gold-main);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 5px rgba(22, 68, 49, 0.15);
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .spin-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        .dl-status-box {
+            display: none;
+            margin-top: 2px;
+            background: #f4f4f5;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: var(--player-black);
+        }
+
+        .dl-progress-track {
+            width: 100%;
+            height: 4px;
+            background: #e4e4e7;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 4px 0;
+        }
+
+        .dl-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--player-black);
+            transition: width 0.3s ease;
+        }
+
+        /* মুহাসাবা সেকশন স্টাইল */
+        .muhasaba-quote-card {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            color: #ffffff;
+            border: 1px solid var(--gold-main);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 10px rgba(22, 68, 49, 0.15);
+        }
+
+        .muhasaba-quote-text {
+            font-size: 14.5px;
+            line-height: 1.65;
+            color: var(--gold-text);
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .muhasaba-quote-ref {
+            font-size: 12px;
+            color: #d5dfd9;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .muhasaba-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--card-white);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .muhasaba-item.checked {
+            background: var(--green-soft);
+            border-color: var(--green-primary);
+        }
+
+        .muhasaba-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--green-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .muhasaba-item.checked .muhasaba-checkbox {
+            background: var(--green-primary);
+        }
+
+        .muhasaba-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .muhasaba-item.checked .muhasaba-label {
+            color: var(--green-primary);
+        }
+
+        .month-day-row {
+            padding: 10px 12px;
+            border-bottom: 1px dashed var(--border-subtle);
+            font-size: 13px;
+        }
+
+        .month-day-row:last-child {
+            border-bottom: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 9px 10px;
+            margin-top: 4px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: #fafaf7;
+            color: var(--text-dark);
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            border-color: var(--green-primary);
+            background: #ffffff;
+        }
+
+        .prayer-section-header {
+            background-color: var(--green-primary);
+            color: var(--gold-text);
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+
+        .prayer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 14.5px;
+            gap: 8px;
+        }
+
+        .prayer-row:last-child {
+            border-bottom: none;
+        }
+
+        .prayer-name {
+            font-weight: bold;
+            color: var(--green-primary);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .prayer-time {
+            font-weight: bold;
+            color: var(--text-dark);
+            background: var(--green-soft);
+            padding: 4px 9px;
+            border-radius: 6px;
+            border: 1px solid rgba(22, 68, 49, 0.15);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--green-dark);
+            border-top: 2px solid var(--gold-main);
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 2px;
+            z-index: 100;
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: #b7cfc3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 6px 4px;
+            border-radius: 8px;
+            transition: 0.2s;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--gold-text);
+            font-weight: bold;
+            background-color: rgba(212, 175, 55, 0.18);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        .status-box {
+            text-align: center;
+            padding: 30px 15px;
+            color: var(--text-muted);
+            width: 100%;
+            line-height: 1.6;
+        }
+
+        .article-content-body .ar-box {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
+            font-size: 1.55em !important;
+            line-height: 1.85 !important;
+            text-align: right;
+            color: var(--green-dark);
+            margin: -14px 0 !important;
+        }
+
+        .article-content-body .hadith-num {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
+            font-size: 1.15em !important;
+            font-weight: bold;
+            color: #9c7813;
+            text-align: right;
+            margin: -10px 0 -16px 0 !important;
+        }
+
+        .article-content-body .ref-box {
+            font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
+            font-size: 0.92em !important;
+            color: var(--text-muted);
+            text-align: left;
+            margin: -16px 0 -8px 0 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="app-title">দ্বীনি মেহনত</div>
+        <button type="button" class="refresh-btn" id="top-refresh-btn" title="আপডেট" onclick="manualRefresh()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                <path d="M16 16h5v5"/>
+            </svg>
+        </button>
+    </header>
+
+    <main>
+        <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
+        <section id="tab-audio" class="tab-section active">
+            <div id="top-notice-banner" class="notice-slider-wrapper" style="display: none;">
+                <div id="notice-slides-track" class="notice-slides-track"></div>
+                <div id="notice-slider-dots" class="slider-dots"></div>
+            </div>
+
+            <div id="audio-list" class="status-box">বয়ান তালিকা লোড হচ্ছে...</div>
+        </section>
+
+        <!-- ২. প্রবন্ধ সেকশন -->
+        <section id="tab-articles" class="tab-section">
+            <div class="font-control-bar">
+                <span style="font-size: 13px; color: var(--green-primary); font-weight: bold;">🔍 লেখার আকার: <b id="font-size-display">16px</b></span>
+                <div style="display: flex; gap: 6px;">
+                    <button type="button" class="font-btn" onclick="changeArticleFontSize(-1)">A-</button>
+                    <button type="button" class="font-btn" onclick="resetArticleFontSize()">ডিফল্ট</button>
+                    <button type="button" class="font-btn" onclick="changeArticleFontSize(1)">A+</button>
+                </div>
+            </div>
+            <div id="article-list" class="status-box">ডাটা লোড হচ্ছে...</div>
+        </section>
+
+        <!-- ৩. নামাজের সময়সূচি সেকশন -->
+        <section id="tab-prayer" class="tab-section">
+            <div class="item-card" style="border-top: 3px solid var(--gold-main);">
+                <div class="item-title" style="font-size: 16px; margin-bottom: 6px;">🕌 জেলাভিত্তিক নামাজের সময়সূচি</div>
+                <label for="district-select" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">
+                    আপনার জেলা নির্বাচন করুন (হানাফি মাজহাব অনুযায়ী):
+                </label>
+                <select id="district-select" class="form-input" onchange="onDistrictChange()" style="font-weight: bold; color: var(--green-primary);"></select>
+                <div id="prayer-date-info" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"></div>
+            </div>
+
+            <div id="prayer-times-container" class="item-card" style="padding: 0; overflow: hidden; margin-bottom: 14px;">
+                <div class="status-box">ফরজ ওয়াক্তের সময় লোড হচ্ছে...</div>
+            </div>
+
+            <div id="nafl-times-container" class="item-card" style="padding: 0; overflow: hidden;">
+                <div class="status-box">নফল নামাজের সময় লোড হচ্ছে...</div>
+            </div>
+        </section>
+
+        <!-- ৪. মুহাসাবা সেকশন -->
+        <section id="tab-muhasaba" class="tab-section">
+            <div class="muhasaba-quote-card">
+                <div class="muhasaba-quote-text">
+                    “তোমাদের হিসাব নেওয়ার পূর্বেই তোমরা নিজেদের হিসাব নিয়ে নাও এবং তোমাদের আমল ওজন করার পূর্বেই তা ওজন করে নাও।”
+                </div>
+                <div class="muhasaba-quote-ref">— হযরত উমর ইবনুল খাত্তাব (রা.) [তিরমিযী: ২৪৫৯]</div>
+            </div>
+
+            <div class="item-card" style="border-top: 3px solid var(--gold-main);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div class="item-title" style="font-size: 17px; width: auto;">📋 দৈনন্দিন মুহাসাবা</div>
+                    <span id="muhasaba-today-date" style="font-size: 12px; color: var(--text-muted); font-weight: bold;"></span>
+                </div>
+
+                <div id="muhasaba-status-banner" style="background: var(--green-soft); border: 1px solid var(--green-primary); border-radius: 8px; padding: 8px 12px; margin: 10px 0 12px 0; text-align: center; font-size: 13.5px; font-weight: bold; color: var(--green-primary);">
+                    আজকে আমল বাকি আছে: ৭টি
+                </div>
+
+                <div id="muhasaba-checklist"></div>
+            </div>
+
+            <div class="item-card" style="padding: 0; overflow: hidden; border-left: 4px solid var(--gold-main);">
+                <details id="monthly-muhasaba-details">
+                    <summary style="padding: 14px 16px; list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                        <div>
+                            <div style="font-size: 15.5px; font-weight: bold; color: var(--green-primary);">📅 পুরো মাসের মুহাসাবা ড্যাশবোর্ড</div>
+                            <div id="monthly-summary-subtitle" style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">কোন দিন কোন আমল বাকি আছে দেখতে ট্যাপ করুন</div>
+                        </div>
+                        <span style="font-size: 13px; font-weight: bold; color: var(--green-primary);">দেখুন ▼</span>
+                    </summary>
+                    <div id="monthly-muhasaba-report" style="border-top: 1px dashed var(--border-subtle); background: #fcfcf9; max-height: 360px; overflow-y: auto;"></div>
+                </details>
+            </div>
+        </section>
+
+        <!-- ৫. উমরি কাজা সেকশন -->
+        <section id="tab-qaza" class="tab-section">
+            <div class="item-card" style="border-top: 3px solid var(--gold-main); margin-bottom: 14px;">
+                <div class="item-title" style="font-size: 16px; margin-bottom: 4px;">⚙️ ওয়াক্ত অনুযায়ী কাজা নির্ধারণ</div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+                    যে ওয়াক্ত যত দিন কাজা হয়েছে লিখে সংরক্ষণ করুন।
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">ফজর:</label>
+                        <input type="number" id="input_fajr" placeholder="০" min="0" class="form-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">যোহর:</label>
+                        <input type="number" id="input_dhuhr" placeholder="০" min="0" class="form-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">আসর:</label>
+                        <input type="number" id="input_asr" placeholder="০" min="0" class="form-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">মাগরিব:</label>
+                        <input type="number" id="input_maghrib" placeholder="০" min="0" class="form-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">এশা:</label>
+                        <input type="number" id="input_isha" placeholder="০" min="0" class="form-input">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--green-primary); font-weight: bold;">বিতর:</label>
+                        <input type="number" id="input_witr" placeholder="০" min="0" class="form-input">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-gold" onclick="saveCustomQaza()" style="width: 100%; justify-content: center; padding: 10px;">
+                    💾 নতুন হিসাব সংরক্ষণ করুন
+                </button>
+            </div>
+
+            <div id="qaza-summary" class="item-card" style="text-align: center; background-color: var(--green-soft); border-color: var(--green-primary); padding: 10px; margin-bottom: 12px;">
+                <span style="font-size: 13px; color: var(--text-dark); font-weight: bold;">সর্বমোট অবশিষ্ট কাজা: </span>
+                <span id="total-qaza-count" style="font-size: 20px; font-weight: bold; color: var(--green-primary);">০</span>
+                <span style="font-size: 13px; color: var(--text-dark); font-weight: bold;"> ওয়াক্ত</span>
+            </div>
+
+            <div id="qaza-grid" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </section>
+    </main>
+
+    <nav>
+        <button type="button" class="nav-item active" data-tab="audio" onclick="switchTab('audio', this)">
+            <span class="nav-icon">🎧</span>
+            <span>বয়ান</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="articles" onclick="switchTab('articles', this)">
+            <span class="nav-icon">📖</span>
+            <span>প্রবন্ধ</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="prayer" onclick="switchTab('prayer', this)">
+            <span class="nav-icon">🕌</span>
+            <span>নামাজ</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="muhasaba" onclick="switchTab('muhasaba', this)">
+            <span class="nav-icon">📊</span>
+            <span>মুহাসাবা</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="qaza" onclick="switchTab('qaza', this)">
+            <span class="nav-icon">📿</span>
+            <span>উমরি কাজা</span>
+        </button>
+    </nav>
+
+    <script>
+        const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
+        const DATA_URL = "data.json";
+        const ARCHIVE_IDENTIFIER = "20261111_202611";
+        const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v8";
+        
+        let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
+        if (currentActiveTab === 'notices') currentActiveTab = 'audio';
+        let isAudioLoaded = false;
+        let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
+
+        const activeBlobUrls = {};
+        const prebufferingSet = new Set();
+        let sliderInterval = null;
+        let currentSlideIdx = 0;
+        let totalSlidesCount = 0;
+
+        // সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
+        const SVG_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;"><path d="M8 5.14v14l11-7-11-7z"/></svg>`;
+        const SVG_PAUSE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
+        const SVG_SEEK_BACK = `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>`;
+        const SVG_SEEK_FWD = `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>`;
+        const SVG_DOWNLOAD = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+        const SVG_SPINNER = `<svg class="spin-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+        const SVG_CHECK = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const SVG_TRASH = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+
+        const BD_DISTRICTS = [
+            { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
+            { bn: "বাগেরহাট", en: "Bagerhat" }, { bn: "যশোর", en: "Jessore" },
+            { bn: "সাতক্ষীরা", en: "Satkhira" }, { bn: "কুষ্টিয়া", en: "Kushtia" },
+            { bn: "ঝিনাইদহ", en: "Jhenaidah" }, { bn: "মাগুরা", en: "Magura" },
+            { bn: "মেহেরপুর", en: "Meherpur" }, { bn: "নড়াইল", en: "Narail" },
+            { bn: "চুয়াডাঙ্গা", en: "Chuadanga" }, { bn: "চট্টগ্রাম", en: "Chittagong" },
+            { bn: "কক্সবাজার", en: "Cox's Bazar" }, { bn: "কুমিল্লা", en: "Comilla" },
+            { bn: "ব্রাহ্মণবাড়িয়া", en: "Brahmanbaria" }, { bn: "চাঁদপুর", en: "Chandpur" },
+            { bn: "নোয়াখালী", en: "Noakhali" }, { bn: "ফেনী", en: "Feni" },
+            { bn: "লক্ষ্মীপুর", en: "Lakshmipur" }, { bn: "রাঙ্গামাটি", en: "Rangamati" },
+            { bn: "খাগড়াছড়ি", en: "Khagrachhari" }, { bn: "বান্দরবান", en: "Bandarban" },
+            { bn: "সিলেট", en: "Sylhet" }, { bn: "মৌলভীবাজার", en: "Moulvibazar" },
+            { bn: "হবিগঞ্জ", en: "Habiganj" }, { bn: "সুনামগঞ্জ", en: "Sunamganj" },
+            { bn: "রাজশাহী", en: "Rajshahi" }, { bn: "বগুড়া", en: "Bogra" },
+            { bn: "পাবনা", en: "Pabna" }, { bn: "সিরাজগঞ্জ", en: "Sirajganj" },
+            { bn: "নাটোর", en: "Natore" }, { bn: "নওগাঁ", en: "Naogaon" },
+            { bn: "চাঁপাইনবাবগঞ্জ", en: "Chapainawabganj" }, { bn: "জয়পুরহাট", en: "Joypurhat" },
+            { bn: "রংপুর", en: "Rangpur" }, { bn: "দিনাজপুর", en: "Dinajpur" },
+            { bn: "গাইবান্ধা", en: "Gaibandha" }, { bn: "কুড়িগ্রাম", en: "Kurigram" },
+            { bn: "লালমনিরহাট", en: "Lalmonirhat" }, { bn: "নীলফামারী", en: "Nilphamari" },
+            { bn: "পঞ্চগড়", en: "Panchagarh" }, { bn: "ঠাকুরগাঁও", en: "Thakurgaon" },
+            { bn: "বরিশাল", en: "Barisal" }, { bn: "পটুয়াখালী", en: "Patuakhali" },
+            { bn: "ভোলা", en: "Bhola" }, { bn: "পিরোজপুর", en: "Pirojpur" },
+            { bn: "বরগুনা", en: "Barguna" }, { bn: "ঝালকাঠি", en: "Jhalokati" },
+            { bn: "ময়মনসিংহ", en: "Mymensingh" }, { bn: "জামালপুর", en: "Jamalpur" },
+            { bn: "নেত্রকোনা", en: "Netrokona" }, { bn: "শেরপুর", en: "Sherpur" },
+            { bn: "গাজীপুর", en: "Gazipur" }, { bn: "নারায়ণগঞ্জ", en: "Narayanganj" },
+            { bn: "টাঙ্গাইল", en: "Tangail" }, { bn: "কিশোরগঞ্জ", en: "Kishoreganj" },
+            { bn: "মানিকগঞ্জ", en: "Manikganj" }, { bn: "মুন্সিগঞ্জ", en: "Munshiganj" },
+            { bn: "নরসিংদী", en: "Narsingdi" }, { bn: "ফরিদপুর", en: "Faridpur" },
+            { bn: "গোপালগঞ্জ", en: "Gopalganj" }, { bn: "মাদারীপুর", en: "Madaripur" },
+            { bn: "রাজবাড়ী", en: "Rajbari" }, { bn: "শরীয়তপুর", en: "Shariatpur" }
+        ];
+
+        function updateArticleFontSizeUI() {
+            const displayEl = document.getElementById('font-size-display');
+            if (displayEl) displayEl.innerText = currentArticleFontSize + 'px';
+            document.querySelectorAll('.article-content-body').forEach(el => {
+                el.style.fontSize = currentArticleFontSize + 'px';
+            });
+        }
+
+        function changeArticleFontSize(delta) {
+            currentArticleFontSize += delta;
+            if (currentArticleFontSize < 12) currentArticleFontSize = 12;
+            if (currentArticleFontSize > 28) currentArticleFontSize = 28;
+            localStorage.setItem('user_article_font_size', currentArticleFontSize);
+            updateArticleFontSizeUI();
+        }
+
+        function resetArticleFontSize() {
+            currentArticleFontSize = 16;
+            localStorage.setItem('user_article_font_size', currentArticleFontSize);
+            updateArticleFontSizeUI();
+        }
+
+        function switchTab(tabName, btnElement) {
+            currentActiveTab = tabName;
+            sessionStorage.setItem('active_app_tab', tabName);
+
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+
+            const targetSection = document.getElementById('tab-' + tabName);
+            if (targetSection) targetSection.classList.add('active');
+            
+            if (btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                const savedBtn = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
+                if (savedBtn) savedBtn.classList.add('active');
+            }
+
+            if (tabName === 'audio' && !isAudioLoaded) {
+                fetchAudiosFromArchive();
+            }
+            if (tabName === 'prayer') {
+                loadPrayerTimes();
+            }
+            if (tabName === 'muhasaba') {
+                renderMuhasabaUI();
+            }
+        }
+
+        function fetchWithTimeout(resource, timeout = 4500) {
+            return Promise.race([
+                fetch(resource, { cache: 'no-store' }),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request Timeout')), timeout)
+                )
+            ]);
+        }
+
+        function getSavedAudioList() {
+            try {
+                return JSON.parse(localStorage.getItem('user_offline_audio_list_v3')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveAudioMetadata(fileObj) {
+            const list = getSavedAudioList().filter(item => item.name !== fileObj.name);
+            list.push(fileObj);
+            localStorage.setItem('user_offline_audio_list_v3', JSON.stringify(list));
+        }
+
+        function removeAudioMetadata(fileName) {
+            const list = getSavedAudioList().filter(item => item.name !== fileName);
+            localStorage.setItem('user_offline_audio_list_v3', JSON.stringify(list));
+        }
+
+        function base64ToPlayableUrl(base64Str) {
+            let clean = String(base64Str).replace(/\s/g, '');
+            if (clean.startsWith('data:')) {
+                clean = clean.split(',')[1] || '';
+            }
+            const byteCharacters = atob(clean);
+            const byteArrays = [];
+            for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+                const slice = byteCharacters.slice(offset, offset + 1024);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) {
+                    byteNumbers[i] = slice.charCodeAt(i);
+                }
+                byteArrays.push(new Uint8Array(byteNumbers));
+            }
+            const blob = new Blob(byteArrays, { type: 'audio/ogg; codecs=opus' });
+            return URL.createObjectURL(blob);
+        }
+
+        // স্মার্ট ব্যাকগ্রাউন্ড প্রি-বাফারিং: একবার প্লে বা প্রিলোড হলে পুরো অডিও র‍্যামে এনে রাখা যাতে টানলে ০ সেকেন্ডে চলে
+        async function prebufferAudioToRam(fileName, directUrl, fallbackUrl, idx) {
+            if (!navigator.onLine || activeBlobUrls[fileName] || prebufferingSet.has(fileName)) return;
+            prebufferingSet.add(fileName);
+
+            try {
+                let res = null;
+                try {
+                    res = await fetch(directUrl, { mode: 'cors' });
+                } catch (e) {}
+
+                if (!res || !res.ok) {
+                    res = await fetch(fallbackUrl, { mode: 'cors' });
+                }
+
+                if (res && res.ok) {
+                    const blob = await res.blob();
+                    if (blob && blob.size > 2000) {
+                        const blobUrl = URL.createObjectURL(blob);
+                        activeBlobUrls[fileName] = blobUrl;
+
+                        const audioEl = document.getElementById(`audio-el-${idx}`);
+                        if (audioEl) {
+                            const wasPlaying = !audioEl.paused;
+                            const savedTime = audioEl.currentTime || 0;
+                            audioEl.src = blobUrl;
+                            audioEl.currentTime = savedTime;
+                            if (wasPlaying) {
+                                audioEl.play().catch(() => {});
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                // ব্যাকগ্রাউন্ড ফেচ ব্যর্থ হলে সাধারণ স্ট্রিমিং চালু থাকবে
+            } finally {
+                prebufferingSet.delete(fileName);
+            }
+        }
+
+        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ
+        function formatAudioTime(seconds) {
+            if (!seconds || isNaN(seconds) || !isFinite(seconds)) return "০:০০";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const formatted = `${mins}:${secs < 10 ? '0' + secs : secs}`;
+            return toBnDigits(formatted);
+        }
+
+        function togglePlayAudio(idx) {
+            const audio = document.getElementById(`audio-el-${idx}`);
+            const btn = document.getElementById(`play-btn-${idx}`);
+            if (!audio) return;
+
+            document.querySelectorAll('audio').forEach((otherAudio, otherIdx) => {
+                if (otherAudio !== audio && !otherAudio.paused) {
+                    otherAudio.pause();
+                    const otherBtn = document.getElementById(`play-btn-${otherIdx}`);
+                    if (otherBtn) otherBtn.innerHTML = SVG_PLAY;
+                }
+            });
+
+            if (audio.paused) {
+                if (btn) btn.innerHTML = SVG_SPINNER;
+
+                // প্লে হওয়ার সাথে সাথে ব্যাকগ্রাউন্ডে পুরো ফাইল র‍্যামে প্রি-বাফার শুরু করা
+                const fName = audio.dataset.filename;
+                const dUrl = audio.dataset.directurl;
+                const fUrl = audio.dataset.fallbackurl;
+                if (fName && dUrl) {
+                    prebufferAudioToRam(fName, dUrl, fUrl, idx);
+                }
+
+                audio.play().then(() => {
+                    if (btn) btn.innerHTML = SVG_PAUSE;
+                }).catch(() => {
+                    if (btn) btn.innerHTML = SVG_PLAY;
+                    alert("অডিওটি চালাতে ইন্টারনেট চালু করুন অথবা ডানপাশের ডাউনলোড বাটনে চেপে অফলাইনে সেভ করে নিন।");
+                });
+            } else {
+                audio.pause();
+                if (btn) btn.innerHTML = SVG_PLAY;
+            }
+        }
+
+        function seekAudioStep(idx, deltaSeconds) {
+            const audio = document.getElementById(`audio-el-${idx}`);
+            if (!audio) return;
+            const duration = audio.duration || 0;
+            let target = (audio.currentTime || 0) + deltaSeconds;
+            if (target < 0) target = 0;
+            if (duration > 0 && target > duration) target = duration;
+            audio.currentTime = target;
+            onAudioTimeUpdate(idx);
+        }
+
+        function onSeekInput(idx, val) {
+            const audio = document.getElementById(`audio-el-${idx}`);
+            const slider = document.getElementById(`seek-${idx}`);
+            const timeEl = document.getElementById(`time-label-${idx}`);
+            if (!audio || !audio.duration) return;
+
+            const newTime = (parseFloat(val) / 100) * audio.duration;
+            audio.currentTime = newTime;
+            if (timeEl) {
+                timeEl.innerText = `${formatAudioTime(newTime)}/${formatAudioTime(audio.duration)}`;
+            }
+            if (slider) {
+                slider.style.background = `linear-gradient(to right, #18181b ${val}%, #e4e4e7 ${val}%)`;
+            }
+        }
+
+        function onAudioTimeUpdate(idx) {
+            const audio = document.getElementById(`audio-el-${idx}`);
+            const slider = document.getElementById(`seek-${idx}`);
+            const timeEl = document.getElementById(`time-label-${idx}`);
+            if (!audio) return;
+
+            const current = audio.currentTime || 0;
+            const duration = audio.duration || 0;
+
+            if (timeEl) {
+                timeEl.innerText = duration > 0 
+                    ? `${formatAudioTime(current)}/${formatAudioTime(duration)}`
+                    : `${formatAudioTime(current)}`;
+            }
+
+            if (slider && duration > 0) {
+                const percent = Math.min(100, (current / duration) * 100);
+                slider.value = percent;
+                slider.style.background = `linear-gradient(to right, #18181b ${percent}%, #e4e4e7 ${percent}%)`;
+            }
+        }
+
+        function onAudioWaiting(idx) {
+            const audio = document.getElementById(`audio-el-${idx}`);
+            const btn = document.getElementById(`play-btn-${idx}`);
+            if (audio && !audio.paused && btn) btn.innerHTML = SVG_SPINNER;
+        }
+
+        function onAudioPlaying(idx) {
+            const btn = document.getElementById(`play-btn-${idx}`);
+            if (btn) btn.innerHTML = SVG_PAUSE;
+        }
+
+        function onAudioEnded(idx) {
+            const btn = document.getElementById(`play-btn-${idx}`);
+            const slider = document.getElementById(`seek-${idx}`);
+            if (btn) btn.innerHTML = SVG_PLAY;
+            if (slider) {
+                slider.value = 0;
+                slider.style.background = `linear-gradient(to right, #18181b 0%, #e4e4e7 0%)`;
+            }
+        }
+
+        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো
+        function startNoticeAutoSlide() {
+            if (sliderInterval) {
+                clearInterval(sliderInterval);
+                sliderInterval = null;
+            }
+            if (totalSlidesCount > 1) {
+                sliderInterval = setInterval(() => {
+                    currentSlideIdx = (currentSlideIdx + 1) % totalSlidesCount;
+                    updateSliderPosition();
+                }, 3000);
+            }
+        }
+
+        function initNoticeSwipeGesture() {
+            const wrapper = document.getElementById('top-notice-banner');
+            if (!wrapper || wrapper.dataset.swipeBound === '1') return;
+            wrapper.dataset.swipeBound = '1';
+
+            let startX = 0;
+            let startY = 0;
+            let isSwiping = false;
+
+            wrapper.addEventListener('touchstart', (e) => {
+                if (!e.touches || e.touches.length === 0) return;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isSwiping = true;
+                if (sliderInterval) clearInterval(sliderInterval);
+            }, { passive: true });
+
+            wrapper.addEventListener('touchend', (e) => {
+                if (!isSwiping || !e.changedTouches || e.changedTouches.length === 0) return;
+                isSwiping = false;
+                const endX = e.changedTouches[0].clientX;
+                const endY = e.changedTouches[0].clientY;
+                const diffX = startX - endX;
+                const diffY = startY - endY;
+
+                if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY) && totalSlidesCount > 1) {
+                    if (diffX > 0) {
+                        currentSlideIdx = (currentSlideIdx + 1) % totalSlidesCount;
+                    } else {
+                        currentSlideIdx = (currentSlideIdx - 1 + totalSlidesCount) % totalSlidesCount;
+                    }
+                    updateSliderPosition();
+                }
+                startNoticeAutoSlide();
+            }, { passive: true });
+        }
+
+        function renderNoticeBannerSlider(notices) {
+            const wrapper = document.getElementById('top-notice-banner');
+            const track = document.getElementById('notice-slides-track');
+            const dotsContainer = document.getElementById('notice-slider-dots');
+            if (!wrapper || !track || !dotsContainer) return;
+
+            if (sliderInterval) {
+                clearInterval(sliderInterval);
+                sliderInterval = null;
+            }
+
+            if (!notices || notices.length === 0) {
+                wrapper.style.display = 'none';
+                totalSlidesCount = 0;
+                return;
+            }
+
+            wrapper.style.display = 'block';
+            currentSlideIdx = 0;
+            totalSlidesCount = notices.length;
+
+            track.innerHTML = notices.map((item, idx) => {
+                if (item.image) {
+                    const imgUrl = item.image.startsWith('http') ? item.image : `${REMOTE_BASE_URL}${item.image}`;
+                    return `
+                        <div class="notice-slide" onclick="showBannerDetail(${idx})">
+                            <img src="${imgUrl}" alt="${item.title || 'নোটিশ ব্যানার'}" class="notice-slide-img">
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="notice-slide" onclick="showBannerDetail(${idx})">
+                            <div class="notice-slide-text-card">
+                                <span class="notice-slide-badge">📌 ${item.priority || 'জরুরি নোটিশ'} (${toBnDigits(idx + 1)}/${toBnDigits(notices.length)})</span>
+                                <div class="notice-slide-title">${item.title || ''}</div>
+                                ${item.content ? `<div class="notice-slide-desc">${item.content}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            updateSliderPosition();
+
+            if (notices.length > 1) {
+                dotsContainer.style.display = 'flex';
+                dotsContainer.innerHTML = notices.map((_, i) => 
+                    `<span class="slider-dot ${i === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToNoticeSlide(${i});"></span>`
+                ).join('');
+                startNoticeAutoSlide();
+            } else {
+                dotsContainer.style.display = 'none';
+            }
+
+            initNoticeSwipeGesture();
+            window._activeBannerNotices = notices;
+        }
+
+        function goToNoticeSlide(idx) {
+            currentSlideIdx = idx;
+            updateSliderPosition();
+            startNoticeAutoSlide();
+        }
+
+        function updateSliderPosition() {
+            const track = document.getElementById('notice-slides-track');
+            const dots = document.querySelectorAll('#notice-slider-dots .slider-dot');
+            if (track) {
+                track.style.transform = `translateX(-${currentSlideIdx * 100}%)`;
+            }
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlideIdx);
+            });
+        }
+
+        function showBannerDetail(idx) {
+            const list = window._activeBannerNotices || [];
+            const item = list[idx];
+            if (!item) return;
+            if (item.title || item.content) {
+                alert(`📌 ${item.title || 'নোটিশ'}\n\n${item.content || ''}`);
+            }
+        }
+
+        // ১. অনলাইন ও অফলাইন অডিও লোড (আর্কাইভের ডিরেক্ট সার্ভার হোস্ট বের করে রিডাইরেক্ট এড়ানো)
+        async function fetchAudiosFromArchive() {
+            const container = document.getElementById('audio-list');
+            if (!container) return;
+
+            const savedList = getSavedAudioList();
+            let cachedAllFiles = [];
+            try {
+                cachedAllFiles = JSON.parse(localStorage.getItem('user_cached_archive_files')) || [];
+            } catch (e) {}
+
+            if (!navigator.onLine) {
+                const offlineFilesToShow = savedList.length > 0 ? [...savedList].reverse() : cachedAllFiles;
+                if (offlineFilesToShow.length === 0) {
+                    container.className = 'status-box';
+                    container.innerHTML = `
+                        📡 আপনি অফলাইনে আছেন।<br>
+                        অ্যাপের ভেতরে কোনো অডিও এখনো সেভ করা হয়নি। ইন্টারনেট চালু করে অডিও সেভ করে রাখুন।
+                    `;
+                    return;
+                }
+                await renderAudioCards(offlineFilesToShow, true);
+                isAudioLoaded = true;
+                return;
+            }
+
+            if (cachedAllFiles.length > 0) {
+                await renderAudioCards(cachedAllFiles, false);
+            } else if (savedList.length > 0) {
+                await renderAudioCards([...savedList].reverse(), false);
+            } else {
+                container.className = 'status-box';
+                container.innerHTML = 'বয়ান লোড হচ্ছে...';
+            }
+
+            // সম্পূর্ণ মেটাডেটা URL (যাতে d1 এবং dir পাওয়া যায় ও রিডাইরেক্ট ছাড়াই ডিরেক্ট লিংক তৈরি করা যায়)
+            const primaryUrl = `https://archive.org/metadata/${ARCHIVE_IDENTIFIER}`;
+            const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(primaryUrl)}`;
+
+            let data = null;
+            try {
+                const response = await fetchWithTimeout(primaryUrl, 4500);
+                if (response.ok) data = await response.json();
+            } catch (err) {}
+
+            if (!data || !data.files) {
+                try {
+                    const fallbackResponse = await fetchWithTimeout(fallbackUrl, 5500);
+                    if (fallbackResponse.ok) data = await fallbackResponse.json();
+                } catch (fallbackErr) {}
+            }
+
+            if (!data || !data.files) {
+                if (cachedAllFiles.length === 0 && savedList.length === 0) {
+                    container.className = 'status-box';
+                    container.innerHTML = `
+                        বয়ান লোড করতে সমস্যা হয়েছে।<br>
+                        <button type="button" class="btn-gold" style="margin-top: 15px;" onclick="fetchAudiosFromArchive()">🔄 আবার চেষ্টা করুন</button>
+                    `;
+                }
+                return;
+            }
+
+            // আর্কাইভের আসল সার্ভার নাম (d1) ও ফোল্ডার পাথ (dir)
+            const directHost = data.d1 || (Array.isArray(data.workable_servers) && data.workable_servers[0]) || '';
+            const itemDir = data.dir || '';
+
+            const audioFiles = data.files
+                .filter(file => file.name && file.name.toLowerCase().endsWith('.opus'))
+                .sort((a, b) => Number(b.mtime || 0) - Number(a.mtime || 0))
+                .map(file => {
+                    const fallbackDownloadUrl = `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
+                    const directStreamUrl = (directHost && itemDir)
+                        ? `https://${directHost}${itemDir}/${encodeURIComponent(file.name)}`
+                        : fallbackDownloadUrl;
+                    return {
+                        name: file.name,
+                        mtime: file.mtime,
+                        directUrl: directStreamUrl,
+                        fallbackUrl: fallbackDownloadUrl
+                    };
+                });
+
+            if (audioFiles.length > 0) {
+                localStorage.setItem('user_cached_archive_files', JSON.stringify(audioFiles));
+                await renderAudioCards(audioFiles, false);
+
+                // প্রথম ২টি অডিও ব্যাকগ্রাউন্ডে আগে থেকেই প্রি-বাফার করে রাখা যাতে প্লে চাপলেই সাথে সাথে বাজে
+                setTimeout(() => {
+                    audioFiles.slice(0, 2).forEach((f, i) => {
+                        prebufferAudioToRam(f.name, f.directUrl, f.fallbackUrl, i);
+                    });
+                }, 400);
+            } else if (savedList.length === 0) {
+                container.className = 'status-box';
+                container.innerHTML = 'কোনো অডিও ফাইল পাওয়া যায়নি।';
+            }
+
+            isAudioLoaded = true;
+        }
+
+        // ২. অডিও কার্ড রেন্ডার
+        async function renderAudioCards(files, isOfflineMode) {
+            const container = document.getElementById('audio-list');
+            if (!container) return;
+
+            const savedList = getSavedAudioList();
+            let cache = null;
+            if ('caches' in window) {
+                try {
+                    cache = await caches.open(AUDIO_CACHE_NAME);
+                } catch (e) {}
+            }
+
+            container.className = '';
+            let headerNotice = isOfflineMode 
+                ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা বয়ানসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
+                : '';
+
+            const cardsHtml = await Promise.all(files.map(async (file, idx) => {
+                const fallbackUrl = file.fallbackUrl || `https://archive.org/download/${ARCHIVE_IDENTIFIER}/${encodeURIComponent(file.name)}`;
+                const directUrl = file.directUrl || fallbackUrl;
+                const displayTitle = file.name.replace(/\.opus$/i, '');
+                const savedItem = savedList.find(item => item.name === file.name);
+                const isSaved = Boolean(savedItem);
+
+                let audioSrc = directUrl;
+                // প্রথম ৩টি অডিওর জন্য preload="auto" যাতে পেজ খুলতেই বাফার হয়ে থাকে
+                let preloadMode = idx < 3 ? "auto" : "metadata";
+
+                if (isSaved) {
+                    if (activeBlobUrls[file.name]) {
+                        audioSrc = activeBlobUrls[file.name];
+                        preloadMode = "metadata";
+                    } else if (savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+                        try {
+                            const { Filesystem } = window.Capacitor.Plugins;
+                            const readRes = await Filesystem.readFile({
+                                path: savedItem.safeName,
+                                directory: 'DATA'
+                            });
+                            if (readRes && readRes.data) {
+                                audioSrc = base64ToPlayableUrl(readRes.data);
+                                activeBlobUrls[file.name] = audioSrc;
+                                preloadMode = "metadata";
+                            }
+                        } catch (readErr) {
+                            console.warn("Read file error:", readErr);
+                        }
+                    } else if (cache) {
+                        try {
+                            const cachedResponse = await cache.match(fallbackUrl);
+                            if (cachedResponse) {
+                                const blob = await cachedResponse.blob();
+                                audioSrc = URL.createObjectURL(blob);
+                                activeBlobUrls[file.name] = audioSrc;
+                                preloadMode = "metadata";
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                const rightSlotControls = isSaved
+                    ? `<span class="btn-minimal-icon" title="অফলাইনে সেভ করা আছে" style="cursor: default;">${SVG_CHECK}</span>
+                       <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fallbackUrl}', '${file.name}')">${SVG_TRASH}</button>`
+                    : `<button type="button" class="btn-minimal-icon" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${directUrl}', '${fallbackUrl}', '${file.name}', ${idx})">${SVG_DOWNLOAD}</button>`;
+
+                return `
+                    <div class="item-card">
+                        <div class="item-title">🎙️ ${displayTitle}</div>
+                        
+                        <div class="minimal-player">
+                            <audio id="audio-el-${idx}" preload="${preloadMode}" src="${audioSrc}"
+                                data-filename="${file.name}"
+                                data-directurl="${directUrl}"
+                                data-fallbackurl="${fallbackUrl}"
+                                ontimeupdate="onAudioTimeUpdate(${idx})"
+                                onloadedmetadata="onAudioTimeUpdate(${idx})"
+                                onwaiting="onAudioWaiting(${idx})"
+                                onplaying="onAudioPlaying(${idx})"
+                                onerror="if(this.src !== this.dataset.fallbackurl && !this.src.startsWith('blob:')){ this.src = this.dataset.fallbackurl; }"
+                                onended="onAudioEnded(${idx})"></audio>
+
+                            <input type="range" id="seek-${idx}" class="minimal-seek-slider" value="0" min="0" max="100" step="0.1"
+                                oninput="onSeekInput(${idx}, this.value)">
+
+                            <div class="minimal-controls-row">
+                                <div class="minimal-left-slot" id="time-label-${idx}">০:০০</div>
+
+                                <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড পেছনে" onclick="seekAudioStep(${idx}, -10)">
+                                    ${SVG_SEEK_BACK}
+                                </button>
+
+                                <button type="button" class="btn-minimal-play" id="play-btn-${idx}" title="প্লে / পজ" onclick="togglePlayAudio(${idx})">
+                                    ${SVG_PLAY}
+                                </button>
+
+                                <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড সামনে" onclick="seekAudioStep(${idx}, 10)">
+                                    ${SVG_SEEK_FWD}
+                                </button>
+
+                                <div class="minimal-right-slot">
+                                    ${rightSlotControls}
+                                </div>
+                            </div>
+
+                            <div id="dl-box-${idx}" class="dl-status-box">
+                                <div class="dl-progress-track">
+                                    <div id="dl-fill-${idx}" class="dl-progress-fill"></div>
+                                </div>
+                                <div id="dl-text-${idx}" style="font-weight: bold;">ডাউনলোড হচ্ছে... ০%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }));
+
+            container.innerHTML = headerNotice + cardsHtml.join('');
+        }
+
+        // ৩. সরাসরি রুট DATA ডিরেক্টরিতে সেভ (ডিরেক্ট লিংক ব্যবহার করে দ্রুত ডাউনলোড)
+        async function saveAudioInApp(directUrl, fallbackUrl, fileName, idx) {
+            if (!navigator.onLine) {
+                alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
+                return;
+            }
+
+            const btn = document.getElementById(`dl-btn-${idx}`);
+            const box = document.getElementById(`dl-box-${idx}`);
+            const fill = document.getElementById(`dl-fill-${idx}`);
+            const text = document.getElementById(`dl-text-${idx}`);
+
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            btn.innerHTML = SVG_SPINNER;
+            box.style.display = "block";
+            fill.style.width = "10%";
+            text.style.color = "var(--player-black)";
+            text.innerText = "ডাউনলোড শুরু হচ্ছে... ১০%";
+
+            let progressTimer = null;
+
+            try {
+                const safeFileName = `deeni_audio_${idx}_${Date.now()}.opus`;
+
+                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+                    const { Filesystem } = window.Capacitor.Plugins;
+
+                    let fakeProgress = 14;
+                    progressTimer = setInterval(() => {
+                        if (fakeProgress < 92) {
+                            fakeProgress += 5;
+                            fill.style.width = fakeProgress + "%";
+                            text.innerText = `ডাউনলোড হচ্ছে... ${fakeProgress}%`;
+                        }
+                    }, 350);
+
+                    let dlResult = null;
+                    try {
+                        dlResult = await Filesystem.downloadFile({
+                            url: directUrl,
+                            path: safeFileName,
+                            directory: 'DATA'
+                        });
+                    } catch (e) {
+                        dlResult = await Filesystem.downloadFile({
+                            url: fallbackUrl,
+                            path: safeFileName,
+                            directory: 'DATA'
+                        });
+                    }
+
+                    clearInterval(progressTimer);
+                    progressTimer = null;
+
+                    if (dlResult && dlResult.path) {
+                        saveAudioMetadata({
+                            name: fileName,
+                            safeName: safeFileName,
+                            localUri: dlResult.path
+                        });
+
+                        fill.style.width = "100%";
+                        text.style.color = "#15803d";
+                        text.innerText = "✅ সেভ সম্পন্ন!";
+
+                        setTimeout(() => {
+                            isAudioLoaded = false;
+                            fetchAudiosFromArchive();
+                        }, 600);
+                        return;
+                    }
+                }
+
+                // ওয়েব ব্রাউজার ফোলব্যাক
+                let response = null;
+                try {
+                    response = await fetch(directUrl, { mode: 'cors' });
+                } catch (e) {}
+                if (!response || !response.ok) {
+                    response = await fetch(fallbackUrl, { mode: 'cors', redirect: 'follow' });
+                }
+                if (!response.ok) throw new Error("সার্ভার সংযোগ ব্যর্থ");
+                const blob = await response.blob();
+
+                const cache = await caches.open(AUDIO_CACHE_NAME);
+                await cache.put(fallbackUrl, new Response(blob, {
+                    headers: { 'Content-Type': 'audio/ogg; codecs=opus' }
+                }));
+
+                saveAudioMetadata({ name: fileName });
+                fill.style.width = "100%";
+                text.style.color = "#15803d";
+                text.innerText = "✅ সেভ সম্পন্ন!";
+
+                setTimeout(() => {
+                    isAudioLoaded = false;
+                    fetchAudiosFromArchive();
+                }, 600);
+
+            } catch (error) {
+                if (progressTimer) clearInterval(progressTimer);
+                console.error("Save failed:", error);
+                fill.style.width = "0%";
+                text.style.color = "#dc2626";
+                text.innerText = "❌ ব্যর্থ হয়েছে, আবার চেষ্টা করুন।";
+                btn.innerHTML = SVG_DOWNLOAD;
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteOfflineAudio(url, fileName) {
+            if (!confirm("অফলাইন মেমোরি থেকে এই অডিওটি মুছে ফেলতে চান?")) return;
+            const savedItem = getSavedAudioList().find(item => item.name === fileName);
+
+            if (activeBlobUrls[fileName]) {
+                URL.revokeObjectURL(activeBlobUrls[fileName]);
+                delete activeBlobUrls[fileName];
+            }
+
+            if (savedItem && savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+                try {
+                    await window.Capacitor.Plugins.Filesystem.deleteFile({
+                        path: savedItem.safeName,
+                        directory: 'DATA'
+                    });
+                } catch (e) {}
+            }
+
+            try {
+                const cache = await caches.open(AUDIO_CACHE_NAME);
+                await cache.delete(url);
+            } catch (e) {}
+
+            removeAudioMetadata(fileName);
+            isAudioLoaded = false;
+            fetchAudiosFromArchive();
+        }
+
+        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ
+        function initDistrictDropdown() {
+            const selectEl = document.getElementById('district-select');
+            if (!selectEl) return;
+
+            const savedDistrict = localStorage.getItem('user_selected_district') || 'Khulna';
+            selectEl.innerHTML = BD_DISTRICTS.map(d => 
+                `<option value="${d.en}" ${d.en === savedDistrict ? 'selected' : ''}>${d.bn} (${d.en})</option>`
+            ).join('');
+        }
+
+        function onDistrictChange() {
+            const selectEl = document.getElementById('district-select');
+            if (!selectEl) return;
+            localStorage.setItem('user_selected_district', selectEl.value);
+            loadPrayerTimes();
+        }
+
+        function toBnDigits(str) {
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return String(str).replace(/\d/g, d => bnDigits[d]);
+        }
+
+        function parseMinutes(time24) {
+            const clean = time24.split(' ')[0];
+            const [h, m] = clean.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function minutesTo12HourBn(totalMins) {
+            totalMins = ((totalMins % 1440) + 1440) % 1440;
+            let h = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            const period = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            const formatted = `${h < 10 ? '0' + h : h}:${m < 10 ? '0' + m : m} ${period}`;
+            return toBnDigits(formatted);
+        }
+
+        function formatTo12HourBn(time24) {
+            if (!time24) return '--:--';
+            return minutesTo12HourBn(parseMinutes(time24));
+        }
+
+        async function loadPrayerTimes() {
+            const container = document.getElementById('prayer-times-container');
+            const naflContainer = document.getElementById('nafl-times-container');
+            const city = localStorage.getItem('user_selected_district') || 'Khulna';
+            const cacheKey = 'prayer_cache_' + city;
+
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    renderPrayerUI(parsed.timings, parsed.dateReadable);
+                } catch(e) {}
+            } else {
+                container.innerHTML = '<div class="status-box">নামাজের সময়সূচি লোড হচ্ছে...</div>';
+                naflContainer.innerHTML = '';
+            }
+
+            if (navigator.onLine) {
+                try {
+                    const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Bangladesh&method=1&school=1`;
+                    const response = await fetchWithTimeout(apiUrl, 4500);
+                    if (response.ok) {
+                        const json = await response.json();
+                        if (json && json.data && json.data.timings) {
+                            const timings = json.data.timings;
+                            const dateReadable = json.data.date ? json.data.date.readable : '';
+                            localStorage.setItem(cacheKey, JSON.stringify({ timings, dateReadable }));
+                            renderPrayerUI(timings, dateReadable);
+                        }
+                    }
+                } catch (err) {
+                    if (!cached) {
+                        container.innerHTML = '<div class="status-box">সময়সূচি লোড করতে ইন্টারনেট সংযোগ প্রয়োজন।</div>';
+                    }
+                }
+            } else if (!cached) {
+                container.innerHTML = '<div class="status-box">📡 অফলাইনে আছেন। প্রথমবার সময়সূচি ডাউনলোড করতে ইন্টারনেট চালু করুন।</div>';
+            }
+        }
+
+        function renderPrayerUI(timings, dateReadable) {
+            const container = document.getElementById('prayer-times-container');
+            const naflContainer = document.getElementById('nafl-times-container');
+            const dateInfoEl = document.getElementById('prayer-date-info');
+            if (!container) return;
+
+            if (dateInfoEl && dateReadable) {
+                dateInfoEl.innerText = `📅 তারিখ: ${dateReadable}`;
+            }
+
+            const fajrStr = formatTo12HourBn(timings.Fajr);
+            const sunriseStr = formatTo12HourBn(timings.Sunrise);
+            const dhuhrStr = formatTo12HourBn(timings.Dhuhr);
+            const asrStr = formatTo12HourBn(timings.Asr);
+            const maghribStr = formatTo12HourBn(timings.Maghrib);
+            const ishaStr = formatTo12HourBn(timings.Isha);
+
+            const fardRows = [
+                { icon: '🌙', name: 'ফজর (সেহরির শেষ)', time: `${fajrStr} - ${sunriseStr}` },
+                { icon: '☀️', name: 'যোহর', time: `${dhuhrStr} - ${asrStr}` },
+                { icon: '🌤️', name: 'আসর (হানাফি)', time: `${asrStr} - ${maghribStr}` },
+                { icon: '🌇', name: 'মাগরিব (ইফতার)', time: `${maghribStr} - ${ishaStr}` },
+                { icon: '🌌', name: 'এশা', time: `${ishaStr} - ${fajrStr}` }
+            ];
+
+            container.innerHTML = `
+                <div class="prayer-section-header">🕌 পাঁচ ওয়াক্ত নামাজের সময়সীমা</div>
+                ${fardRows.map(r => `
+                    <div class="prayer-row">
+                        <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
+                        <div class="prayer-time">${r.time}</div>
+                    </div>
+                `).join('')}
+            `;
+
+            const sunriseMins = parseMinutes(timings.Sunrise);
+            const dhuhrMins = parseMinutes(timings.Dhuhr);
+            const fajrMins = parseMinutes(timings.Fajr);
+
+            const ishraqStart = minutesTo12HourBn(sunriseMins + 15);
+            const ishraqEnd = minutesTo12HourBn(sunriseMins + 90);
+
+            const chashtStart = minutesTo12HourBn(Math.floor((sunriseMins + dhuhrMins) / 2));
+            const chashtEnd = minutesTo12HourBn(dhuhrMins - 10);
+
+            const nightDuration = (1440 - parseMinutes(timings.Maghrib)) + fajrMins;
+            const lastThirdStart = fajrMins - Math.floor(nightDuration / 3);
+            const tahajjudStart = minutesTo12HourBn(lastThirdStart);
+            const tahajjudEnd = minutesTo12HourBn(fajrMins - 2);
+
+            const naflRows = [
+                { icon: '✨', name: 'ইশরাক', time: `${ishraqStart} - ${ishraqEnd}` },
+                { icon: '🔆', name: 'চাশত (সালাতুত দুহা)', time: `${chashtStart} - ${chashtEnd}` },
+                { icon: '🤲', name: 'তাহাজ্জুদ (উত্তম সময়)', time: `${tahajjudStart} - ${tahajjudEnd}` }
+            ];
+
+            if (naflContainer) {
+                naflContainer.innerHTML = `
+                    <div class="prayer-section-header">📿 নফল নামাজের সময়সূচি</div>
+                    ${naflRows.map(r => `
+                        <div class="prayer-row">
+                            <div class="prayer-name"><span>${r.icon}</span><span>${r.name}</span></div>
+                            <div class="prayer-time">${r.time}</div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+        }
+
+        // ৫. প্রবন্ধ ও টপ ব্যানার নোটিশ লোড
+        async function fetchContent() {
+            const cachedSiteData = localStorage.getItem('user_cached_site_data');
+            let hasCache = false;
+            if (cachedSiteData) {
+                try {
+                    const parsed = JSON.parse(cachedSiteData);
+                    renderArticles(parsed.articles || []);
+                    renderNoticeBannerSlider(parsed.notices || []);
+                    hasCache = true;
+                } catch(e) {}
+            }
+
+            if (navigator.onLine) {
+                const urlsToTry = [`${REMOTE_BASE_URL}${DATA_URL}`, DATA_URL];
+                for (const targetUrl of urlsToTry) {
+                    try {
+                        const response = await fetchWithTimeout(targetUrl, 3500);
+                        if (response.ok) {
+                            const data = await response.json();
+                            localStorage.setItem('user_cached_site_data', JSON.stringify(data));
+                            renderArticles(data.articles || []);
+                            renderNoticeBannerSlider(data.notices || []);
+                            return;
+                        }
+                    } catch (error) {}
+                }
+            }
+            if (!hasCache) {
+                renderArticles([]);
+                renderNoticeBannerSlider([]);
+            }
+        }
+
+        async function renderArticles(articles) {
+            const container = document.getElementById('article-list');
+            if (!container) return;
+
+            if (!articles || articles.length === 0) {
+                container.className = 'status-box';
+                container.innerHTML = 'কোনো প্রবন্ধ পাওয়া যায়নি।';
+                return;
+            }
+
+            container.className = '';
+
+            let html = '';
+            for (const item of articles) {
+                let textContent = item.content || '';
+
+                if (item.file) {
+                    const cacheKey = 'text_cache_' + item.file;
+                    const savedText = localStorage.getItem(cacheKey);
+
+                    if (savedText) textContent = savedText;
+
+                    if (navigator.onLine) {
+                        const fileUrls = [`${REMOTE_BASE_URL}${item.file}`, item.file];
+                        for (const fUrl of fileUrls) {
+                            try {
+                                const response = await fetchWithTimeout(fUrl, 3500);
+                                if (response.ok) {
+                                    textContent = await response.text();
+                                    localStorage.setItem(cacheKey, textContent);
+                                    break;
+                                }
+                            } catch (err) {}
+                        }
+                        if (!textContent) textContent = 'ফাইলটি পড়তে একবার ইন্টারনেট চালু করে লোড করে নিন।';
+                    } else if (!savedText) {
+                        textContent = 'ফাইলটি অফলাইনে পড়ার জন্য পূর্বে লোড করা হয়নি।';
+                    }
+                }
+
+                html += `
+                    <div class="item-card" style="padding: 0; overflow: hidden;">
+                        <details style="cursor: pointer;">
+                            <summary style="padding: 14px 16px; list-style: none; outline: none; user-select: none;">
+                                <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                                    <span class="item-date">তারিখ: ${item.date || '—'}</span>
+                                    <span style="font-size: 13px; font-weight: bold; color: var(--green-primary);">পড়ুন ▼</span>
+                                </div>
+                            </summary>
+                            <div class="article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.85; color: var(--text-dark); text-align: left; padding: 14px 16px 18px 16px; background-color: #fcfcf9; border-top: 1px dashed var(--border-subtle);">${textContent}</div>
+                        </details>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            updateArticleFontSizeUI();
+        }
+
+        // ৬. দৈনন্দিন ও মাসিক মুহাসাবা ট্র্যাকিং লজিক (৭টি আমলসহ)
+        const MUHASABA_ITEMS = [
+            { id: 'tilawat', label: '১. কোরআন তেলাওয়াত' },
+            { id: 'daily_zikr', label: '২. দৈনন্দিন জিকির' },
+            { id: 'durood_khatam', label: '৩. দুরুদ খতম করা' },
+            { id: 'hifz', label: '৪. কোরআন মুখস্ত করা' },
+            { id: 'quran_tafseer', label: '৫. কোরআন বোঝার চেষ্টা করা' },
+            { id: 'hadith_study', label: '৬. হাদিস বোঝার চেষ্টা করা' },
+            { id: 'akabir_sirat', label: '৭. আকাবির বড়দের জীবনী পড়া' }
+        ];
+
+        function getTodayDateKey() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatBanglaDate(dateKey) {
+            const bnMonths = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+            const [y, m, d] = dateKey.split('-');
+            return `${toBnDigits(parseInt(d))} ${bnMonths[parseInt(m) - 1]}, ${toBnDigits(y)}`;
+        }
+
+        function loadMuhasabaLogs() {
+            try {
+                return JSON.parse(localStorage.getItem('user_daily_muhasaba_logs')) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveMuhasabaLogs(logs) {
+            localStorage.setItem('user_daily_muhasaba_logs', JSON.stringify(logs));
+        }
+
+        function toggleMuhasabaItem(itemId) {
+            const todayKey = getTodayDateKey();
+            const logs = loadMuhasabaLogs();
+            if (!logs[todayKey]) logs[todayKey] = {};
+            logs[todayKey][itemId] = !logs[todayKey][itemId];
+            saveMuhasabaLogs(logs);
+            renderMuhasabaUI();
+        }
+
+        function renderMuhasabaUI() {
+            const todayKey = getTodayDateKey();
+            const logs = loadMuhasabaLogs();
+            const todayData = logs[todayKey] || {};
+
+            const dateEl = document.getElementById('muhasaba-today-date');
+            if (dateEl) dateEl.innerText = formatBanglaDate(todayKey);
+
+            let completedCount = 0;
+            MUHASABA_ITEMS.forEach(item => {
+                if (todayData[item.id]) completedCount++;
+            });
+            const remainingCount = MUHASABA_ITEMS.length - completedCount;
+
+            const statusBanner = document.getElementById('muhasaba-status-banner');
+            if (statusBanner) {
+                if (remainingCount === 0) {
+                    statusBanner.style.background = '#dcfce7';
+                    statusBanner.style.color = '#15803d';
+                    statusBanner.style.borderColor = '#15803d';
+                    statusBanner.innerHTML = '🎉 আলহামদুলিল্লাহ! আজকের সবগুলো আমল সম্পন্ন হয়েছে।';
+                } else {
+                    statusBanner.style.background = 'var(--green-soft)';
+                    statusBanner.style.color = 'var(--green-primary)';
+                    statusBanner.style.borderColor = 'var(--green-primary)';
+                    statusBanner.innerHTML = `⏳ আজকে আমল বাকি আছে: <span style="font-size: 16px; color: #b45309;">${toBnDigits(remainingCount)}</span> টি (সম্পন্ন: ${toBnDigits(completedCount)}/${toBnDigits(MUHASABA_ITEMS.length)})`;
+                }
+            }
+
+            const checklistEl = document.getElementById('muhasaba-checklist');
+            if (checklistEl) {
+                checklistEl.innerHTML = MUHASABA_ITEMS.map(item => {
+                    const isChecked = Boolean(todayData[item.id]);
+                    return `
+                        <div class="muhasaba-item ${isChecked ? 'checked' : ''}" onclick="toggleMuhasabaItem('${item.id}')">
+                            <div class="muhasaba-checkbox">${isChecked ? '✔' : ''}</div>
+                            <div class="muhasaba-label">${item.label}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderMonthlyMuhasabaReport(logs);
+        }
+
+        function renderMonthlyMuhasabaReport(logs) {
+            const reportEl = document.getElementById('monthly-muhasaba-report');
+            const subTitleEl = document.getElementById('monthly-summary-subtitle');
+            if (!reportEl) return;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const todayDate = now.getDate();
+            const monthStr = String(month + 1).padStart(2, '0');
+
+            let totalDaysChecked = 0;
+            let totalAmalDone = 0;
+            const totalPossible = todayDate * MUHASABA_ITEMS.length;
+
+            let rowsHtml = '';
+            for (let day = todayDate; day >= 1; day--) {
+                const dayStr = String(day).padStart(2, '0');
+                const dateKey = `${year}-${monthStr}-${dayStr}`;
+                const dayRecord = logs[dateKey] || {};
+
+                const doneList = [];
+                const missedList = [];
+
+                MUHASABA_ITEMS.forEach(item => {
+                    const cleanName = item.label.replace(/^[০-৯]+\.\s*/, '');
+                    if (dayRecord[item.id]) {
+                        doneList.push(cleanName);
+                    } else {
+                        missedList.push(cleanName);
+                    }
+                });
+
+                totalAmalDone += doneList.length;
+                if (doneList.length === MUHASABA_ITEMS.length) totalDaysChecked++;
+
+                const badgeColor = missedList.length === 0 ? '#15803d' : (doneList.length > 0 ? '#b45309' : '#dc2626');
+                const badgeBg = missedList.length === 0 ? '#dcfce7' : (doneList.length > 0 ? '#fef3c7' : '#fee2e2');
+
+                rowsHtml += `
+                    <div class="month-day-row">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <strong style="color: var(--green-primary);">${formatBanglaDate(dateKey)} ${day === todayDate ? '(আজ)' : ''}</strong>
+                            <span style="background: ${badgeBg}; color: ${badgeColor}; font-weight: bold; font-size: 11.5px; padding: 2px 8px; border-radius: 6px;">
+                                সম্পন্ন: ${toBnDigits(doneList.length)}/${toBnDigits(MUHASABA_ITEMS.length)}
+                            </span>
+                        </div>
+                        ${missedList.length === 0 
+                            ? `<div style="color: #15803d; font-size: 12px;">✔ সবগুলো আমল আদায় করা হয়েছে</div>`
+                            : `<div style="color: #b91c1c; font-size: 12px; line-height: 1.5;">❌ বাকি ছিল: ${missedList.join(' • ')}</div>`
+                        }
+                    </div>
+                `;
+            }
+
+            if (subTitleEl) {
+                subTitleEl.innerText = `চলতি মাসে সম্পন্ন: ${toBnDigits(totalAmalDone)}/${toBnDigits(totalPossible)} টি আমল (পূর্ণ দিন: ${toBnDigits(totalDaysChecked)} দিন)`;
+            }
+
+            reportEl.innerHTML = rowsHtml;
+        }
+
+        // ৭. উমরি কাজা ট্র্যাকিং লজিক
+        const WAQTS = [
+            { id: 'fajr', name: 'ফজর' },
+            { id: 'dhuhr', name: 'যোহর' },
+            { id: 'asr', name: 'আসর' },
+            { id: 'maghrib', name: 'মাগরিব' },
+            { id: 'isha', name: 'এশা' },
+            { id: 'witr', name: 'বিতর' }
+        ];
+
+        function loadQazaData() {
+            const saved = localStorage.getItem('user_umri_qaza_data');
+            if (saved) return JSON.parse(saved);
+            return { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0, witr: 0 };
+        }
+
+        function saveQazaData(data) {
+            localStorage.setItem('user_umri_qaza_data', JSON.stringify(data));
+            renderQazaCards();
+        }
+
+        function saveCustomQaza() {
+            const currentData = loadQazaData();
+            const updatedData = {};
+
+            WAQTS.forEach(w => {
+                const inputVal = document.getElementById('input_' + w.id).value.trim();
+                if (inputVal !== "") {
+                    const parsed = parseInt(inputVal);
+                    updatedData[w.id] = (isNaN(parsed) || parsed < 0) ? 0 : parsed;
+                } else {
+                    updatedData[w.id] = currentData[w.id] || 0;
+                }
+            });
+
+            if (confirm("নতুন কাজা সংখ্যা সংরক্ষণ করতে চান?")) {
+                saveQazaData(updatedData);
+                WAQTS.forEach(w => {
+                    document.getElementById('input_' + w.id).value = '';
+                });
+                alert("হিসাব সংরক্ষিত হয়েছে!");
+            }
+        }
+
+        function decrementWaqt(waqtId) {
+            const data = loadQazaData();
+            if (data[waqtId] > 0) {
+                data[waqtId] -= 1;
+                saveQazaData(data);
+            } else {
+                alert("আলহামদুলিল্লাহ! এই ওয়াক্তের কাজা বাকি নেই।");
+            }
+        }
+
+        function incrementWaqt(waqtId) {
+            const data = loadQazaData();
+            data[waqtId] = (data[waqtId] || 0) + 1;
+            saveQazaData(data);
+        }
+
+        function editWaqtDirectly(waqtId, waqtName) {
+            const data = loadQazaData();
+            const currentVal = data[waqtId] || 0;
+            const newVal = prompt(`${waqtName} ওয়াক্তের বর্তমান কাজা সংখ্যা:`, currentVal);
+            
+            if (newVal !== null) {
+                const parsed = parseInt(newVal.trim());
+                if (!isNaN(parsed) && parsed >= 0) {
+                    data[waqtId] = parsed;
+                    saveQazaData(data);
+                } else {
+                    alert("সঠিক সংখ্যা লিখুন!");
+                }
+            }
+        }
+
+        function renderQazaCards() {
+            const container = document.getElementById('qaza-grid');
+            const totalEl = document.getElementById('total-qaza-count');
+            if (!container) return;
+
+            const data = loadQazaData();
+            let totalCount = 0;
+
+            container.innerHTML = WAQTS.map(w => {
+                const count = data[w.id] || 0;
+                totalCount += count;
+                
+                return `
+                    <div class="item-card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; margin-bottom: 0;">
+                        <div>
+                            <div style="font-size: 16px; font-weight: bold; color: var(--green-primary); display: flex; align-items: center; gap: 8px;">
+                                <span>${w.name}</span>
+                                <button type="button" onclick="editWaqtDirectly('${w.id}', '${w.name}')" title="এডিট করুন" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">✏️</button>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                                বাকি: <span style="font-size: 15px; font-weight: bold; color: ${count === 0 ? '#15803d' : '#b45309'};">${count}</span> ওয়াক্ত
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" onclick="incrementWaqt('${w.id}')" style="background: var(--green-soft); border: 1px solid var(--green-primary); color: var(--green-primary); width: 32px; height: 32px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">+</button>
+                            <button type="button" class="btn-gold" onclick="decrementWaqt('${w.id}')" style="padding: 6px 12px; font-size: 12px;">✔ আদায় (-১)</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (totalEl) totalEl.innerText = totalCount;
+        }
+
+        // ৮. অফলাইন-সেফ আপডেট ও সিঙ্ক
+        async function manualRefresh() {
+            const btn = document.getElementById('top-refresh-btn');
+            if (btn) btn.classList.add('spin-icon');
+
+            if (navigator.onLine) {
+                try {
+                    if ('caches' in window) {
+                        const shellCache = await caches.open(APP_SHELL_CACHE);
+                        await shellCache.addAll(['./', './index.html', './data.json']).catch(() => {});
+                    }
+                    if ('serviceWorker' in navigator) {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        if (reg) await reg.update().catch(() => {});
+                    }
+                } catch (e) {}
+
+                await Promise.all([
+                    fetchContent(),
+                    loadPrayerTimes(),
+                    (async () => {
+                        isAudioLoaded = false;
+                        await fetchAudiosFromArchive();
+                    })()
+                ]);
+            } else {
+                fetchContent();
+                loadPrayerTimes();
+                isAudioLoaded = false;
+                fetchAudiosFromArchive();
+            }
+
+            setTimeout(() => {
+                if (btn) btn.classList.remove('spin-icon');
+            }, 600);
+        }
+
+        // ইনিশিয়ালাইজেশন
+        initDistrictDropdown();
+        switchTab(currentActiveTab);
+        fetchContent();
+        renderMuhasabaUI();
+        renderQazaCards();
+        loadPrayerTimes();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
