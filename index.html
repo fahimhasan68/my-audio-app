@@ -234,21 +234,20 @@
             text-align: left;
         }
 
-        /* পুরনো বয়ান ড্রপডাউন স্টাইল */
+        /* পুরনো বয়ান ড্রপডাউন স্টাইল (কার্ডের প্রস্থ ও ডিজাইন হুবহু উপরের কার্ডের মতো রাখার জন্য) */
         .old-bayan-details {
-            background: var(--card-white);
-            border: 1px solid var(--gold-main);
-            border-left: 4px solid var(--gold-main);
-            border-radius: 12px;
-            margin-top: 14px;
+            width: 100%;
+            margin-top: 4px;
             margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(22, 68, 49, 0.08);
-            overflow: hidden;
+            background: transparent;
+            border: none;
         }
 
         .old-bayan-summary {
             background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
             color: var(--gold-text);
+            border: 1px solid var(--gold-main);
+            border-radius: 12px;
             padding: 14px 16px;
             font-size: 16px;
             font-weight: bold;
@@ -258,6 +257,7 @@
             justify-content: space-between;
             align-items: center;
             user-select: none;
+            box-shadow: 0 2px 8px rgba(22, 68, 49, 0.12);
         }
 
         .old-bayan-summary::-webkit-details-marker {
@@ -265,9 +265,9 @@
         }
 
         .old-bayan-body {
-            padding: 12px 10px 4px 10px;
-            background-color: var(--cream-bg);
-            border-top: 1px solid var(--gold-main);
+            padding: 12px 0 0 0;
+            width: 100%;
+            background: transparent;
         }
 
         .item-title {
@@ -1087,7 +1087,7 @@
             return URL.createObjectURL(blob);
         }
 
-        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ (ইউনিক ID ভিত্তিক)
+        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ
         function formatAudioTime(seconds) {
             if (!seconds || isNaN(seconds) || !isFinite(seconds)) return "০:০০";
             const mins = Math.floor(seconds / 60);
@@ -1316,7 +1316,7 @@
             }
         }
 
-        // ১. অনলাইন ও অফলাইন অডিও লোড (সাম্প্রতিক বয়ান + পুরনো বয়ান ড্রপডাউন)
+        // ১. অনলাইন ও অফলাইন অডিও লোড
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
             const oldDropdownWrapper = document.getElementById('old-audio-dropdown-wrapper');
@@ -1407,7 +1407,7 @@
             isAudioLoaded = true;
         }
 
-        // একক অডিও কার্ড HTML তৈরি ফাংশন (মেইন ও পুরনো উভয় লিস্টের জন্য)
+        // একক অডিও কার্ড HTML তৈরি ফাংশন (উপরের এবং ড্রপডাউনের জন্য হুবহু একই ডিজাইন)
         async function buildSingleAudioCardHtml(file, uid, savedList, cache) {
             const displayTitle = file.name.replace(/\.opus$/i, '');
             const savedItem = savedList.find(item => item.name === file.name);
@@ -1524,7 +1524,7 @@
 
             container.innerHTML = headerNotice + cardsHtml.join('');
 
-            // একদম নিচে পুরনো বয়ানের ড্রপডাউন
+            // একদম নিচে পুরনো বয়ানের ড্রপডাউন (ভেতরে হুবহু উপরের মতোই ফুল-উইডথ কার্ড)
             if (oldDropdownWrapper) {
                 if (oldFiles && oldFiles.length > 0) {
                     const oldCardsHtml = await Promise.all(
