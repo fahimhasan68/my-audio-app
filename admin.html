@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ব্যাচ অ্যাডমিন প্যানেল - দ্বীনি মেহনত</title>
+    <title>অ্যাডমিন প্যানেল - দ্বীনি মেহনত</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root {
@@ -27,7 +27,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .container { max-width: 680px; margin: 16px auto; padding: 0 14px; }
+        .container { max-width: 720px; margin: 16px auto; padding: 0 14px; }
         .card {
             background: #fff;
             border: 1px solid var(--border-subtle);
@@ -39,9 +39,10 @@
         }
         h2 { font-size: 17px; color: var(--green-primary); margin-bottom: 10px; }
         label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: var(--green-primary); }
-        input[type="text"], input[type="password"], input[type="file"] {
+        input[type="text"], input[type="url"], input[type="password"], input[type="file"], select, textarea {
             width: 100%; padding: 10px; border: 1px solid var(--border-subtle);
             border-radius: 8px; margin-bottom: 12px; font-size: 14px; background: #fafaf7;
+            font-family: inherit;
         }
         .btn {
             background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
@@ -56,7 +57,7 @@
         }
         .btn-danger {
             background: #fee2e2; color: #b91c1c; border: 1px solid #f87171;
-            padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;
+            padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; flex-shrink: 0;
         }
         .status-msg {
             margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold; display: none;
@@ -67,11 +68,11 @@
             border-radius: 8px; padding: 10px; margin-bottom: 10px;
         }
         .batch-item-box input { margin-bottom: 6px; background: #fff; }
-        .audio-row {
+        .item-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; border-bottom: 1px dashed var(--border-subtle); gap: 10px;
         }
-        .audio-row:last-child { border-bottom: none; }
+        .item-row:last-child { border-bottom: none; }
         .step-badge {
             display: inline-block; background: var(--gold-main); color: var(--green-dark);
             font-weight: bold; font-size: 11.5px; padding: 2px 8px; border-radius: 5px; margin-bottom: 6px;
@@ -81,8 +82,8 @@
 <body>
 
 <header>
-    <div><strong>🛠️ দ্বীনি মেহনত - ব্যাচ অডিও অ্যাডমিন</strong></div>
-    <span style="font-size: 12px;">Bulk Release Sync</span>
+    <div><strong>🛠️ দ্বীনি মেহনত - পূর্ণাঙ্গ অ্যাডমিন প্যানেল</strong></div>
+    <button onclick="loadAllData()" style="background: rgba(255,255,255,0.15); color: var(--gold-text); border: 1px solid var(--gold-main); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">🔄 সব রিফ্রেশ</button>
 </header>
 
 <div class="container">
@@ -92,17 +93,39 @@
         <label>GitHub Personal Access Token (PAT):</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
         
-        <label>GitHub Release Tag নাম (যে রিলিজে ফাইলগুলো রাখবেন):</label>
-        <input type="text" id="release-tag" value="v1.0" placeholder="যেমন: v1.0">
+        <label>GitHub Release Tag নাম (যে রিলিজে অডিও ফাইলগুলো রাখবেন):</label>
+        <input type="text" id="release-tag" value="v4.0" placeholder="যেমন: v4.0">
         
         <button class="btn" onclick="saveSettings()">💾 সেটিংস সেভ করুন</button>
         <div id="settings-status" class="status-msg" style="background: #dcfce7; color: #15803d;"></div>
     </div>
 
-    <!-- ২. ব্যাচ প্রসেসিং কার্ড -->
+    <!-- ২. টেলিগ্রাম, হোয়াটসঅ্যাপ ও ইউটিউব লিংক সেটিংস -->
     <div class="card" style="border-top: 3px solid var(--gold-main);">
-        <h2>📦 ২. একসাথে অনেকগুলো বয়ান ব্যাচ আপলোড ও পাবলিশ</h2>
+        <h2>🔗 ২. সোশ্যাল মিডিয়া ও গ্রুপ লিংক আপডেট</h2>
+        <label>✈️ টেলিগ্রাম চ্যানেল লিংক:</label>
+        <input type="url" id="link-telegram" placeholder="https://t.me/your_channel">
+
+        <label>💬 হোয়াটসঅ্যাপ গ্রুপ লিংক:</label>
+        <input type="url" id="link-whatsapp" placeholder="https://chat.whatsapp.com/...">
+
+        <label>▶️ ইউটিউব চ্যানেল লিংক:</label>
+        <input type="url" id="link-youtube" placeholder="https://www.youtube.com/@your_channel">
+
+        <button class="btn" id="social-save-btn" onclick="saveSocialLinks()">💾 সোশ্যাল লিংক আপডেট করুন</button>
+        <div id="social-status" class="status-msg"></div>
+    </div>
+
+    <!-- ৩. ব্যাচ প্রসেসিং কার্ড (সাম্প্রতিক বয়ান ও পুরনো বয়ান ড্রপডাউন উভয়ের জন্য) -->
+    <div class="card" style="border-top: 3px solid var(--gold-main);">
+        <h2>📦 ৩. একসাথে অনেকগুলো বয়ান আপলোড (সাম্প্রতিক / পুরনো ড্রপডাউন)</h2>
         
+        <label>কোন সেকশনে বয়ানগুলো যুক্ত হবে?</label>
+        <select id="batch-target-category" onchange="if(preparedBatch.length > 0) prepareBatchFiles();" style="font-weight: bold; color: var(--green-primary);">
+            <option value="audios">🎙️ সাম্প্রতিক বয়ান (মূল তালিকায়)</option>
+            <option value="old_audios">📂 পুরনো বয়ানসমূহ (নিচের ড্রপডাউনে)</option>
+        </select>
+
         <span class="step-badge">ধাপ ক: ফাইল সিলেক্ট ও অটো-রিনেম ZIP তৈরি</span>
         <p style="font-size: 12.5px; color: #526b5e; margin-bottom: 8px; line-height: 1.5;">
             আপনার পিসি থেকে একসাথে যত খুশি বাংলা নামের অডিও ফাইল সিলেক্ট করুন। অ্যাপটি অটোমেটিক ইংরেজি নামের ZIP বানিয়ে দেবে এবং নিচে বাংলা শিরোনামের তালিকা তৈরি করবে:
@@ -118,7 +141,7 @@
 
             <div style="background: #fefce8; border: 1px solid #facc15; padding: 10px; border-radius: 8px; font-size: 12.5px; margin-bottom: 12px; line-height: 1.55;">
                 <strong>ধাপ খ:</strong> ডাউনলোড হওয়া ZIP ফাইলটি Extract/Unzip করে ভেতরের সব ইংরেজি ফাইল একসাথে 
-                <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold; text-decoration: underline;">GitHub Releases (<span id="tag-preview">v1.0</span>)</a> 
+                <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold; text-decoration: underline;">GitHub Releases (<span id="tag-preview">v4.0</span>)</a> 
                 পেজে ড্র্যাগ করে আপলোড ও Save করুন। তারপর নিচের বাটনে চাপুন:
             </div>
 
@@ -130,24 +153,54 @@
         <div id="batch-status" class="status-msg"></div>
     </div>
 
-    <!-- ৩. ছোট ফাইল (২৫ MB-এর নিচে) ডিরেক্ট এক ক্লিক আপলোড -->
+    <!-- ৪. নোটিশ স্লাইডার ম্যানেজমেন্ট -->
     <div class="card">
-        <h2>⚡ ৩. ছোট ফাইল ডিরেক্ট আপলোড (২৫ MB-এর কম হলে)</h2>
-        <label>বয়ানের বাংলা শিরোনাম:</label>
-        <input type="text" id="single-bn-title" placeholder="যেমন: ২য় দিন; জিকিরের তালকিন">
-        <label>অডিও ফাইল সিলেক্ট করুন:</label>
-        <input type="file" id="single-audio-file" accept="audio/*,.opus">
-        <button class="btn" id="single-upload-btn" onclick="uploadSingleDirect()">⬆️ ডিরেক্ট আপলোড ও পাবলিশ</button>
-        <div id="single-status" class="status-msg"></div>
+        <h2>📌 ৪. নোটিশ স্লাইডার আপডেট</h2>
+        <label>নোটিশের শিরোনাম:</label>
+        <input type="text" id="notice-title" placeholder="যেমন: খুলনা ফুলবাড়িগেট নৈশ মাদ্রাসায় হুজুরের বয়ান">
+
+        <label>নোটিশের ক্যাটাগরি / ব্যাজ (ছোট লেখা):</label>
+        <input type="text" id="notice-priority" placeholder="যেমন: বয়ান / আমল / ইজতিমা" value="জরুরি নোটিশ">
+
+        <label>বিস্তারিত বিবরণ:</label>
+        <textarea id="notice-content" rows="3" placeholder="বিস্তারিত তথ্য লিখুন..."></textarea>
+
+        <button class="btn" id="notice-add-btn" onclick="addNotice()">➕ নতুন নোটিশ যুক্ত করুন</button>
+        <div id="notice-status" class="status-msg"></div>
+
+        <div style="margin-top: 14px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+            <strong style="font-size: 13.5px; color: var(--green-primary);">বর্তমান নোটিশসমূহ:</strong>
+            <div id="published-notices-list" style="margin-top: 6px; font-size: 13px; color: #526b5e;">লোড হচ্ছে...</div>
+        </div>
     </div>
 
-    <!-- ৪. প্রকাশিত বয়ান তালিকা -->
+    <!-- ৫. প্রবন্ধ (.txt ফাইল) আপলোড ও ম্যানেজমেন্ট -->
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 style="margin: 0;">📋 প্রকাশিত বয়ানের তালিকা</h2>
-            <button onclick="loadExistingAudios()" style="background: var(--green-soft); border: 1px solid var(--green-primary); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">🔄 রিফ্রেশ</button>
+        <h2>📖 ৫. নতুন প্রবন্ধ (.txt) আপলোড</h2>
+        <label>প্রবন্ধের বাংলা শিরোনাম:</label>
+        <input type="text" id="article-title" placeholder="যেমন: ইরশাদুস সাঈদ; ৪০ দরূদ ও সালাম সংকলন">
+
+        <label>প্রবন্ধের .txt ফাইল সিলেক্ট করুন:</label>
+        <input type="file" id="article-file" accept=".txt,text/plain">
+
+        <button class="btn" id="article-upload-btn" onclick="uploadArticleTxt()">⬆️ প্রবন্ধ আপলোড ও পাবলিশ করুন</button>
+        <div id="article-status" class="status-msg"></div>
+
+        <div style="margin-top: 14px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+            <strong style="font-size: 13.5px; color: var(--green-primary);">প্রকাশিত প্রবন্ধসমূহ:</strong>
+            <div id="published-articles-list" style="margin-top: 6px; font-size: 13px; color: #526b5e;">লোড হচ্ছে...</div>
         </div>
-        <div id="published-list" style="font-size: 13px; color: #526b5e;">টোকেন সেভ করে তালিকা লোড করুন...</div>
+    </div>
+
+    <!-- ৬. প্রকাশিত বয়ান তালিকা (সাম্প্রতিক ও পুরনো উভয়ই) -->
+    <div class="card">
+        <h2>📋 ৬. প্রকাশিত বয়ানের তালিকা</h2>
+        
+        <strong style="font-size: 13.5px; color: var(--green-primary); display: block; margin-bottom: 6px;">🎙️ সাম্প্রতিক বয়ান:</strong>
+        <div id="published-list" style="font-size: 13px; color: #526b5e; margin-bottom: 16px;">টোকেন সেভ করে তালিকা লোড করুন...</div>
+
+        <strong style="font-size: 13.5px; color: #9c7813; display: block; margin-bottom: 6px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">📂 পুরনো বয়ানসমূহ (ড্রপডাউন):</strong>
+        <div id="published-old-list" style="font-size: 13px; color: #526b5e;">লোড হচ্ছে...</div>
     </div>
 </div>
 
@@ -159,23 +212,21 @@
 
     window.onload = () => {
         const savedToken = localStorage.getItem("dm_gh_token") || "";
-        const savedTag = localStorage.getItem("dm_gh_tag") || "v1.0";
+        const savedTag = localStorage.getItem("dm_gh_tag") || "v4.0";
         document.getElementById("gh-token").value = savedToken;
         document.getElementById("release-tag").value = savedTag;
         document.getElementById("tag-preview").innerText = savedTag;
-        if (savedToken) loadExistingAudios();
+        if (savedToken) loadAllData();
     };
 
     function saveSettings() {
         const token = document.getElementById("gh-token").value.trim();
-        const tag = document.getElementById("release-tag").value.trim() || "v1.0";
+        const tag = document.getElementById("release-tag").value.trim() || "v4.0";
         localStorage.setItem("dm_gh_token", token);
         localStorage.setItem("dm_gh_tag", tag);
         document.getElementById("tag-preview").innerText = tag;
-        const st = document.getElementById("settings-status");
-        st.style.display = "block";
-        st.innerText = "✅ সেটিংস সংরক্ষিত হয়েছে!";
-        loadExistingAudios();
+        showMsg("settings-status", "✅ সেটিংস সংরক্ষিত হয়েছে!");
+        loadAllData();
         if (preparedBatch.length > 0) prepareBatchFiles();
     }
 
@@ -194,10 +245,155 @@
         return decodeURIComponent(escape(atob(str.replace(/\s/g, ''))));
     }
 
-    // ধাপ ক: অনেকগুলো ফাইল সিলেক্ট করলে অটোমেটিক ইংরেজি নাম ও বাংলা টাইটেল জেনারেট
+    async function getDataJson(token) {
+        const headers = { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" };
+        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${DATA_FILE}?t=${Date.now()}`, { headers });
+        if (res.status === 404) {
+            return { sha: null, content: { social_links: {}, notices: [], articles: [], audios: [], old_audios: [] } };
+        }
+        if (!res.ok) throw new Error(`data.json পড়া সম্ভব হয়নি (Status: ${res.status})`);
+        const fileData = await res.json();
+        const parsed = JSON.parse(base64ToUtf8(fileData.content));
+        if (!parsed.audios) parsed.audios = [];
+        if (!parsed.old_audios) parsed.old_audios = [];
+        if (!parsed.notices) parsed.notices = [];
+        if (!parsed.articles) parsed.articles = [];
+        if (!parsed.social_links) parsed.social_links = {};
+        return { sha: fileData.sha, content: parsed };
+    }
+
+    async function updateDataJson(token, sha, newContentObj, commitMsg) {
+        const headers = {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+        };
+        const body = {
+            message: commitMsg,
+            content: utf8ToBase64(JSON.stringify(newContentObj, null, 2))
+        };
+        if (sha) body.sha = sha;
+
+        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${DATA_FILE}`, {
+            method: "PUT",
+            headers,
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(`data.json আপডেট ব্যর্থ হয়েছে (Status: ${res.status})`);
+    }
+
+    // সব ডাটা লোড করে অ্যাডমিন প্যানেলের সব সেকশন পূর্ণ করা
+    async function loadAllData() {
+        const token = document.getElementById("gh-token").value.trim();
+        if (!token) return;
+
+        try {
+            const { content } = await getDataJson(token);
+
+            // সোশ্যাল লিংক ইনপুট বক্সে বসানো
+            document.getElementById("link-telegram").value = content.social_links?.telegram || "";
+            document.getElementById("link-whatsapp").value = content.social_links?.whatsapp || "";
+            document.getElementById("link-youtube").value = content.social_links?.youtube || "";
+
+            // নোটিশ তালিকা
+            const noticeListEl = document.getElementById("published-notices-list");
+            if (content.notices.length === 0) {
+                noticeListEl.innerHTML = "কোনো নোটিশ নেই।";
+            } else {
+                noticeListEl.innerHTML = content.notices.map((n, idx) => `
+                    <div class="item-row">
+                        <div>
+                            <div style="font-weight: bold; color: var(--green-primary);">📌 ${n.title} <span style="font-size:11px; color:#9c7813;">[${n.priority || ''}]</span></div>
+                            <div style="font-size: 12px; color: #555;">${n.content || ''}</div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteNotice(${idx})">মুছুন</button>
+                    </div>
+                `).join('');
+            }
+
+            // প্রবন্ধ তালিকা
+            const articleListEl = document.getElementById("published-articles-list");
+            if (content.articles.length === 0) {
+                articleListEl.innerHTML = "কোনো প্রবন্ধ নেই।";
+            } else {
+                articleListEl.innerHTML = content.articles.map((a, idx) => `
+                    <div class="item-row">
+                        <div>
+                            <div style="font-weight: bold; color: var(--green-primary);">📜 ${a.title}</div>
+                            <div style="font-size: 11px; color: #666;">ফাইল: ${a.file} | তারিখ: ${a.date}</div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteArticle(${idx})">মুছুন</button>
+                    </div>
+                `).join('');
+            }
+
+            // সাম্প্রতিক বয়ান তালিকা
+            const mainListEl = document.getElementById("published-list");
+            if (content.audios.length === 0) {
+                mainListEl.innerHTML = "কোনো সাম্প্রতিক বয়ান নেই।";
+            } else {
+                mainListEl.innerHTML = content.audios.map((item, idx) => `
+                    <div class="item-row">
+                        <div>
+                            <div style="font-weight: bold; color: var(--green-primary);">🎙️ ${item.title}</div>
+                            <div style="font-size: 11px; color: #666;">ফাইল: ${item.fileName}</div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteAudioItem('audios', ${idx})">মুছুন</button>
+                    </div>
+                `).join('');
+            }
+
+            // পুরনো বয়ান তালিকা
+            const oldListEl = document.getElementById("published-old-list");
+            if (content.old_audios.length === 0) {
+                oldListEl.innerHTML = "ড্রপডাউনে এখনো কোনো পুরনো বয়ান যোগ করা হয়নি।";
+            } else {
+                oldListEl.innerHTML = content.old_audios.map((item, idx) => `
+                    <div class="item-row">
+                        <div>
+                            <div style="font-weight: bold; color: var(--green-primary);">📂 ${item.title}</div>
+                            <div style="font-size: 11px; color: #666;">ফাইল: ${item.fileName}</div>
+                        </div>
+                        <button class="btn-danger" onclick="deleteAudioItem('old_audios', ${idx})">মুছুন</button>
+                    </div>
+                `).join('');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // সোশ্যাল লিংক সেভ ফাংশন
+    async function saveSocialLinks() {
+        const token = document.getElementById("gh-token").value.trim();
+        if (!token) return alert("প্রথমে ১ নম্বর সেকশনে GitHub টোকেন দিয়ে সেভ করুন!");
+
+        const btn = document.getElementById("social-save-btn");
+        btn.disabled = true;
+        showMsg("social-status", "⏳ সোশ্যাল লিংক আপডেট হচ্ছে...");
+
+        try {
+            const { sha, content } = await getDataJson(token);
+            content.social_links = {
+                telegram: document.getElementById("link-telegram").value.trim(),
+                whatsapp: document.getElementById("link-whatsapp").value.trim(),
+                youtube: document.getElementById("link-youtube").value.trim()
+            };
+
+            await updateDataJson(token, sha, content, "Update social media links");
+            showMsg("social-status", "✅ টেলিগ্রাম, হোয়াটসঅ্যাপ ও ইউটিউব লিংক সফলভাবে আপডেট হয়েছে!");
+        } catch (err) {
+            showMsg("social-status", "❌ ত্রুটি: " + err.message, true);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    // ব্যাচ অডিও ফাইল প্রস্তুতি
     function prepareBatchFiles() {
         const fileInput = document.getElementById("batch-files");
-        const tag = document.getElementById("release-tag").value.trim() || "v1.0";
+        const tag = document.getElementById("release-tag").value.trim() || "v4.0";
+        const category = document.getElementById("batch-target-category").value;
         const previewArea = document.getElementById("batch-preview-area");
         const listContainer = document.getElementById("batch-list-container");
 
@@ -206,12 +402,12 @@
             return;
         }
 
+        const prefix = category === "old_audios" ? "old_bayan" : "bayan";
         const baseTimestamp = Date.now();
         preparedBatch = Array.from(fileInput.files).map((file, index) => {
-            // ফাইলের আসল বাংলা নাম থেকে এক্সটেনশন বাদ দিয়ে বাংলা শিরোনাম নেওয়া
             const bnTitle = file.name.replace(/\.[^/.]+$/, "").trim();
             const ext = file.name.split('.').pop().toLowerCase() || 'opus';
-            const enFileName = `bayan_${baseTimestamp}_${String(index + 1).padStart(2, '0')}.${ext}`;
+            const enFileName = `${prefix}_${baseTimestamp}_${String(index + 1).padStart(2, '0')}.${ext}`;
             const releaseUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${encodeURIComponent(tag)}/${enFileName}`;
 
             return {
@@ -240,7 +436,6 @@
         }
     }
 
-    // সব ফাইল ইংরেজি নামে রিনেম করে একটি ZIP ডাউনলোড করানো
     async function downloadRenamedZip() {
         if (preparedBatch.length === 0) return;
         const zipBtn = document.getElementById("zip-btn");
@@ -269,56 +464,22 @@
         }
     }
 
-    async function getDataJson(token) {
-        const headers = { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github.v3+json" };
-        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${DATA_FILE}?t=${Date.now()}`, { headers });
-        if (res.status === 404) {
-            return { sha: null, content: { notices: [], articles: [], audios: [] } };
-        }
-        if (!res.ok) throw new Error(`data.json পড়া সম্ভব হয়নি (Status: ${res.status})`);
-        const fileData = await res.json();
-        const parsed = JSON.parse(base64ToUtf8(fileData.content));
-        if (!parsed.audios) parsed.audios = [];
-        return { sha: fileData.sha, content: parsed };
-    }
-
-    async function updateDataJson(token, sha, newContentObj, commitMsg) {
-        const headers = {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
-        };
-        const body = {
-            message: commitMsg,
-            content: utf8ToBase64(JSON.stringify(newContentObj, null, 2))
-        };
-        if (sha) body.sha = sha;
-
-        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${DATA_FILE}`, {
-            method: "PUT",
-            headers,
-            body: JSON.stringify(body)
-        });
-        if (!res.ok) throw new Error(`data.json আপডেট ব্যর্থ হয়েছে (Status: ${res.status})`);
-    }
-
-    // এক ক্লিকে সবগুলো ব্যাচ ফাইল data.json-এ পাবলিশ
     async function publishAllBatch() {
         const token = document.getElementById("gh-token").value.trim();
+        const category = document.getElementById("batch-target-category").value;
         if (!token) return alert("প্রথমে ১ নম্বর সেকশনে GitHub টোকেন দিয়ে সেভ করুন!");
         if (preparedBatch.length === 0) return alert("কোনো ফাইল সিলেক্ট করা হয়নি!");
 
         const btn = document.getElementById("batch-publish-btn");
         btn.disabled = true;
-        showMsg("batch-status", `⏳ ${preparedBatch.length}টি বয়ান একসাথে data.json-এ যুক্ত হচ্ছে...`);
+        showMsg("batch-status", `⏳ ${preparedBatch.length}টি বয়ান একসাথে পাবলিশ হচ্ছে...`);
 
         try {
             const { sha, content } = await getDataJson(token);
             const todayStr = new Date().toLocaleDateString('bn-BD');
 
-            // উল্টো দিক থেকে unshift করলে লিস্টের সিরিয়াল ঠিক থাকে
             [...preparedBatch].reverse().forEach((item, i) => {
-                content.audios.unshift({
+                content[category].unshift({
                     id: Date.now() + i,
                     title: item.bnTitle || item.enFileName,
                     fileName: item.enFileName,
@@ -327,13 +488,13 @@
                 });
             });
 
-            await updateDataJson(token, sha, content, `Batch publish ${preparedBatch.length} audios`);
+            await updateDataJson(token, sha, content, `Batch publish ${preparedBatch.length} to ${category}`);
 
-            showMsg("batch-status", `🎉 আলহামদুলিল্লাহ! একসাথে ${preparedBatch.length}টি বয়ান বাংলা শিরোনামসহ সফলভাবে পাবলিশ হয়েছে!`);
+            showMsg("batch-status", `🎉 আলহামদুলিল্লাহ! একসাথে ${preparedBatch.length}টি বয়ান সফলভাবে পাবলিশ হয়েছে!`);
             document.getElementById("batch-files").value = "";
             document.getElementById("batch-preview-area").style.display = "none";
             preparedBatch = [];
-            loadExistingAudios();
+            loadAllData();
         } catch (err) {
             showMsg("batch-status", "❌ ত্রুটি: " + err.message, true);
         } finally {
@@ -341,41 +502,84 @@
         }
     }
 
-    // ছোট ফাইলের জন্য ডিরেক্ট আপলোড
-    function fileToBase64(file) {
+    // নোটিশ যোগ ও মুছা
+    async function addNotice() {
+        const token = document.getElementById("gh-token").value.trim();
+        const title = document.getElementById("notice-title").value.trim();
+        const priority = document.getElementById("notice-priority").value.trim() || "নোটিশ";
+        const bodyText = document.getElementById("notice-content").value.trim();
+
+        if (!token) return alert("প্রথমে GitHub টোকেন দিয়ে সেভ করুন!");
+        if (!title) return alert("নোটিশের শিরোনাম লিখুন!");
+
+        const btn = document.getElementById("notice-add-btn");
+        btn.disabled = true;
+        showMsg("notice-status", "⏳ নোটিশ যুক্ত হচ্ছে...");
+
+        try {
+            const { sha, content } = await getDataJson(token);
+            content.notices.unshift({
+                title: title,
+                date: new Date().toLocaleDateString('bn-BD'),
+                priority: priority,
+                content: bodyText
+            });
+
+            await updateDataJson(token, sha, content, `Add notice: ${title}`);
+            showMsg("notice-status", "✅ নতুন নোটিশ যুক্ত হয়েছে!");
+            document.getElementById("notice-title").value = "";
+            document.getElementById("notice-content").value = "";
+            loadAllData();
+        } catch (err) {
+            showMsg("notice-status", "❌ ত্রুটি: " + err.message, true);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    async function deleteNotice(idx) {
+        if (!confirm("এই নোটিশটি মুছে ফেলতে চান?")) return;
+        const token = document.getElementById("gh-token").value.trim();
+        try {
+            const { sha, content } = await getDataJson(token);
+            content.notices.splice(idx, 1);
+            await updateDataJson(token, sha, content, `Delete notice #${idx}`);
+            loadAllData();
+        } catch (e) {
+            alert("মুছতে ব্যর্থ: " + e.message);
+        }
+    }
+
+    // প্রবন্ধ (.txt) আপলোড ও মুছা
+    function readFileAsText(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = err => reject(err);
+            reader.readAsText(file, "UTF-8");
         });
     }
 
-    async function uploadSingleDirect() {
+    async function uploadArticleTxt() {
         const token = document.getElementById("gh-token").value.trim();
-        const bnTitle = document.getElementById("single-bn-title").value.trim();
-        const fileInput = document.getElementById("single-audio-file");
-        const btn = document.getElementById("single-upload-btn");
+        const title = document.getElementById("article-title").value.trim();
+        const fileInput = document.getElementById("article-file");
 
         if (!token) return alert("প্রথমে GitHub টোকেন দিয়ে সেভ করুন!");
-        if (!bnTitle) return alert("বয়ানের বাংলা শিরোনাম লিখুন!");
-        if (!fileInput.files || fileInput.files.length === 0) return alert("একটি অডিও ফাইল সিলেক্ট করুন!");
+        if (!title) return alert("প্রবন্ধের বাংলা শিরোনাম লিখুন!");
+        if (!fileInput.files || fileInput.files.length === 0) return alert("একটি .txt ফাইল সিলেক্ট করুন!");
 
         const file = fileInput.files[0];
-        if (file.size > 24.5 * 1024 * 1024) {
-            return alert("ফাইলটি ২৫ MB-এর বড়! অনুগ্রহ করে উপরের ২ নম্বর ব্যাচ সেকশনটি ব্যবহার করুন।");
-        }
-
-        const ext = file.name.split('.').pop().toLowerCase() || 'opus';
-        const safeEnglishFileName = `bayan_${Date.now()}.${ext}`;
-        const repoPath = `audios/${safeEnglishFileName}`;
-
+        const safeTxtName = `article_${Date.now()}.txt`;
+        const btn = document.getElementById("article-upload-btn");
         btn.disabled = true;
-        showMsg("single-status", "⏳ আপলোড হচ্ছে...");
+        showMsg("article-status", "⏳ প্রবন্ধ আপলোড ও পাবলিশ হচ্ছে...");
 
         try {
-            const base64Audio = await fileToBase64(file);
-            const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${repoPath}`, {
+            const rawText = await readFileAsText(file);
+
+            // ১. রিপোজিটরির রুটে .txt ফাইলটি আপলোড করা
+            const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${safeTxtName}`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -383,71 +587,54 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: `Upload audio: ${safeEnglishFileName}`,
-                    content: base64Audio
+                    message: `Upload article: ${safeTxtName}`,
+                    content: utf8ToBase64(rawText)
                 })
             });
 
-            if (!uploadRes.ok) throw new Error("আপলোড ব্যর্থ হয়েছে।");
+            if (!uploadRes.ok) throw new Error("TXT ফাইল আপলোড ব্যর্থ হয়েছে।");
 
-            const downloadUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/main/${repoPath}`;
+            // ২. data.json-এ প্রবন্ধের এন্ট্রি যুক্ত করা
             const { sha, content } = await getDataJson(token);
-
-            content.audios.unshift({
-                id: Date.now(),
-                title: bnTitle,
-                fileName: safeEnglishFileName,
-                url: downloadUrl,
-                date: new Date().toLocaleDateString('bn-BD')
+            content.articles.unshift({
+                title: title,
+                date: new Date().toLocaleDateString('bn-BD'),
+                file: safeTxtName
             });
 
-            await updateDataJson(token, sha, content, `Publish: ${safeEnglishFileName}`);
-
-            showMsg("single-status", `🎉 সফলভাবে পাবলিশ হয়েছে!`);
-            document.getElementById("single-bn-title").value = "";
+            await updateDataJson(token, sha, content, `Publish article: ${title}`);
+            showMsg("article-status", "🎉 প্রবন্ধ সফলভাবে পাবলিশ হয়েছে!");
+            document.getElementById("article-title").value = "";
             fileInput.value = "";
-            loadExistingAudios();
+            loadAllData();
         } catch (err) {
-            showMsg("single-status", "❌ ত্রুটি: " + err.message, true);
+            showMsg("article-status", "❌ ত্রুটি: " + err.message, true);
         } finally {
             btn.disabled = false;
         }
     }
 
-    async function loadExistingAudios() {
+    async function deleteArticle(idx) {
+        if (!confirm("এই প্রবন্ধটি তালিকা থেকে মুছে ফেলতে চান?")) return;
         const token = document.getElementById("gh-token").value.trim();
-        const listEl = document.getElementById("published-list");
-        if (!token) return;
-
-        listEl.innerHTML = "লোড হচ্ছে...";
         try {
-            const { content } = await getDataJson(token);
-            if (!content.audios || content.audios.length === 0) {
-                listEl.innerHTML = "এখনো কোনো বয়ান যোগ করা হয়নি।";
-                return;
-            }
-            listEl.innerHTML = content.audios.map((item, idx) => `
-                <div class="audio-row">
-                    <div>
-                        <div style="font-weight: bold; color: var(--green-primary);">🎙️ ${item.title}</div>
-                        <div style="font-size: 11px; color: #666;">ফাইল: ${item.fileName}</div>
-                    </div>
-                    <button class="btn-danger" onclick="deleteAudioItem(${idx})">মুছুন</button>
-                </div>
-            `).join('');
+            const { sha, content } = await getDataJson(token);
+            content.articles.splice(idx, 1);
+            await updateDataJson(token, sha, content, `Delete article #${idx}`);
+            loadAllData();
         } catch (e) {
-            listEl.innerHTML = "লোড করতে সমস্যা হয়েছে: " + e.message;
+            alert("মুছতে ব্যর্থ: " + e.message);
         }
     }
 
-    async function deleteAudioItem(idx) {
+    async function deleteAudioItem(category, idx) {
         if (!confirm("তালিকা থেকে এই বয়ানটি মুছে ফেলতে চান?")) return;
         const token = document.getElementById("gh-token").value.trim();
         try {
             const { sha, content } = await getDataJson(token);
-            const removed = content.audios.splice(idx, 1)[0];
-            await updateDataJson(token, sha, content, `Remove audio: ${removed?.fileName || idx}`);
-            loadExistingAudios();
+            const removed = content[category].splice(idx, 1)[0];
+            await updateDataJson(token, sha, content, `Remove audio from ${category}: ${removed?.fileName || idx}`);
+            loadAllData();
         } catch (e) {
             alert("মুছতে ব্যর্থ: " + e.message);
         }
