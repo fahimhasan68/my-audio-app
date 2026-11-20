@@ -43,25 +43,33 @@
 
         header {
             background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
-            padding: 12px 18px;
+            padding: 12px 14px;
             border-bottom: 3px solid var(--gold-main);
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
             flex-shrink: 0;
+            gap: 8px;
         }
 
         .app-title {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: bold;
             color: var(--gold-text);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
         }
 
-        .refresh-btn {
-            width: 36px;
-            height: 36px;
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-icon-btn {
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--gold-main);
@@ -70,13 +78,19 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.25s ease, background-color 0.2s;
+            transition: transform 0.2s ease, background-color 0.2s;
             padding: 0;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .header-icon-btn:active {
+            background-color: var(--gold-main);
+            color: var(--green-dark);
+            transform: scale(0.92);
         }
 
         .refresh-btn:active {
-            background-color: var(--gold-main);
-            color: var(--green-dark);
             transform: rotate(180deg) scale(0.92);
         }
 
@@ -104,7 +118,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ব্যানার স্লাইডশো স্টাইল (বয়ান সেকশনের একদম উপরে) */
+        /* ব্যানার স্লাইডশো স্টাইল */
         .notice-slider-wrapper {
             position: relative;
             width: 100%;
@@ -220,6 +234,42 @@
             text-align: left;
         }
 
+        /* পুরনো বয়ান ড্রপডাউন স্টাইল */
+        .old-bayan-details {
+            background: var(--card-white);
+            border: 1px solid var(--gold-main);
+            border-left: 4px solid var(--gold-main);
+            border-radius: 12px;
+            margin-top: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(22, 68, 49, 0.08);
+            overflow: hidden;
+        }
+
+        .old-bayan-summary {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            color: var(--gold-text);
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .old-bayan-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .old-bayan-body {
+            padding: 12px 10px 4px 10px;
+            background-color: var(--cream-bg);
+            border-top: 1px solid var(--gold-main);
+        }
+
         .item-title {
             font-size: 17px;
             font-weight: bold;
@@ -235,17 +285,6 @@
             color: var(--text-muted);
             display: inline-block;
             margin-top: 5px;
-        }
-
-        .item-desc {
-            font-size: 15px;
-            color: var(--text-dark);
-            line-height: 1.75;
-            margin-top: 10px;
-            white-space: pre-line;
-            border-top: 1px dashed var(--border-subtle);
-            padding-top: 10px;
-            text-align: left;
         }
 
         .font-control-bar {
@@ -277,7 +316,7 @@
             color: #ffffff;
         }
 
-        /* সাদার ওপর কালো মিনিমালিস্ট মিডিয়া প্লেয়ার */
+        /* মিনিমালিস্ট মিডিয়া প্লেয়ার */
         .minimal-player {
             margin-top: 14px;
             padding: 4px 2px 2px 2px;
@@ -662,26 +701,52 @@
 
     <header>
         <div class="app-title">দ্বীনি মেহনত</div>
-        <button type="button" class="refresh-btn" id="top-refresh-btn" title="আপডেট" onclick="manualRefresh()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                <path d="M3 3v5h5"/>
-                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-                <path d="M16 16h5v5"/>
-            </svg>
-        </button>
+        <div class="header-actions">
+            <!-- আপডেট বাটন -->
+            <button type="button" class="header-icon-btn refresh-btn" id="top-refresh-btn" title="আপডেট" onclick="manualRefresh()">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                    <path d="M16 16h5v5"/>
+                </svg>
+            </button>
+
+            <!-- টেলিগ্রাম লোগো বাটন -->
+            <a href="#" id="header-telegram-btn" class="header-icon-btn" title="টেলিগ্রাম চ্যানেল" onclick="openSocialLink(event, 'telegram')" style="display: none;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+            </a>
+
+            <!-- হোয়াটসঅ্যাপ লোগো বাটন -->
+            <a href="#" id="header-whatsapp-btn" class="header-icon-btn" title="হোয়াটসঅ্যাপ গ্রুপ" onclick="openSocialLink(event, 'whatsapp')" style="display: none;">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                </svg>
+            </a>
+
+            <!-- ইউটিউব লোগো বাটন -->
+            <a href="#" id="header-youtube-btn" class="header-icon-btn" title="ইউটিউব চ্যানেল" onclick="openSocialLink(event, 'youtube')" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+            </a>
+        </div>
     </header>
 
     <main>
-        <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার -->
+        <!-- ১. বয়ান (অডিও) সেকশন + টপ নোটিশ স্লাইডার + পুরনো বয়ান ড্রপডাউন -->
         <section id="tab-audio" class="tab-section active">
-            <!-- নোটিশ ব্যানার ও টেক্সট স্লাইডশো (ডানে-বামে সোয়াইপ ও প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড) -->
             <div id="top-notice-banner" class="notice-slider-wrapper" style="display: none;">
                 <div id="notice-slides-track" class="notice-slides-track"></div>
                 <div id="notice-slider-dots" class="slider-dots"></div>
             </div>
 
             <div id="audio-list" class="status-box">বয়ান তালিকা লোড হচ্ছে...</div>
+            
+            <!-- পুরনো বয়ানের ড্রপডাউন কন্টেইনার -->
+            <div id="old-audio-dropdown-wrapper"></div>
         </section>
 
         <!-- ২. প্রবন্ধ সেকশন -->
@@ -719,7 +784,6 @@
 
         <!-- ৪. মুহাসাবা সেকশন -->
         <section id="tab-muhasaba" class="tab-section">
-            <!-- হযরত উমর (রা.)-এর হাদিস/উক্তি -->
             <div class="muhasaba-quote-card">
                 <div class="muhasaba-quote-text">
                     “তোমাদের হিসাব নেওয়ার পূর্বেই তোমরা নিজেদের হিসাব নিয়ে নাও এবং তোমাদের আমল ওজন করার পূর্বেই তা ওজন করে নাও।”
@@ -727,23 +791,19 @@
                 <div class="muhasaba-quote-ref">— হযরত উমর ইবনুল খাত্তাব (রা.) [তিরমিযী: ২৪৫৯]</div>
             </div>
 
-            <!-- দৈনন্দিন মুহাসাবা ড্যাশবোর্ড -->
             <div class="item-card" style="border-top: 3px solid var(--gold-main);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                     <div class="item-title" style="font-size: 17px; width: auto;">📋 দৈনন্দিন মুহাসাবা</div>
                     <span id="muhasaba-today-date" style="font-size: 12px; color: var(--text-muted); font-weight: bold;"></span>
                 </div>
 
-                <!-- আজকের আমল স্ট্যাটাস ব্যানার -->
                 <div id="muhasaba-status-banner" style="background: var(--green-soft); border: 1px solid var(--green-primary); border-radius: 8px; padding: 8px 12px; margin: 10px 0 12px 0; text-align: center; font-size: 13.5px; font-weight: bold; color: var(--green-primary);">
                     আজকে আমল বাকি আছে: ৭টি
                 </div>
 
-                <!-- ৭টি দৈনন্দিন আমলের চেকলিস্ট -->
                 <div id="muhasaba-checklist"></div>
             </div>
 
-            <!-- মিনিমাইজড পুরো মাসের ড্যাশবোর্ড -->
             <div class="item-card" style="padding: 0; overflow: hidden; border-left: 4px solid var(--gold-main);">
                 <details id="monthly-muhasaba-details">
                     <summary style="padding: 14px 16px; list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
@@ -842,12 +902,13 @@
         let isAudioLoaded = false;
         let currentArticleFontSize = parseInt(localStorage.getItem('user_article_font_size')) || 16;
 
+        let activeSocialLinks = { telegram: "", whatsapp: "", youtube: "" };
         const activeBlobUrls = {};
         let sliderInterval = null;
         let currentSlideIdx = 0;
         let totalSlidesCount = 0;
 
-        // সাদার ওপর কালো মিনিমালিস্ট SVG আইকনসমূহ
+        // মিনিমালিস্ট SVG আইকনসমূহ
         const SVG_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 2px;"><path d="M8 5.14v14l11-7-11-7z"/></svg>`;
         const SVG_PAUSE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
         const SVG_SEEK_BACK = `<svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>`;
@@ -891,6 +952,43 @@
             { bn: "গোপালগঞ্জ", en: "Gopalganj" }, { bn: "মাদারীপুর", en: "Madaripur" },
             { bn: "রাজবাড়ী", en: "Rajbari" }, { bn: "শরীয়তপুর", en: "Shariatpur" }
         ];
+
+        // সোশ্যাল লিংক আপডেট ও ওপেন ফাংশন
+        function applySocialLinks(links) {
+            if (!links) return;
+            activeSocialLinks = {
+                telegram: (links.telegram || "").trim(),
+                whatsapp: (links.whatsapp || "").trim(),
+                youtube: (links.youtube || "").trim()
+            };
+
+            const tgBtn = document.getElementById('header-telegram-btn');
+            const waBtn = document.getElementById('header-whatsapp-btn');
+            const ytBtn = document.getElementById('header-youtube-btn');
+
+            if (tgBtn) {
+                tgBtn.style.display = activeSocialLinks.telegram ? 'inline-flex' : 'none';
+                tgBtn.href = activeSocialLinks.telegram || '#';
+            }
+            if (waBtn) {
+                waBtn.style.display = activeSocialLinks.whatsapp ? 'inline-flex' : 'none';
+                waBtn.href = activeSocialLinks.whatsapp || '#';
+            }
+            if (ytBtn) {
+                ytBtn.style.display = activeSocialLinks.youtube ? 'inline-flex' : 'none';
+                ytBtn.href = activeSocialLinks.youtube || '#';
+            }
+        }
+
+        function openSocialLink(event, platform) {
+            event.preventDefault();
+            const url = activeSocialLinks[platform];
+            if (!url) {
+                alert("এই লিংকটি এখনো যুক্ত করা হয়নি।");
+                return;
+            }
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
 
         function updateArticleFontSizeUI() {
             const displayEl = document.getElementById('font-size-display');
@@ -989,7 +1087,7 @@
             return URL.createObjectURL(blob);
         }
 
-        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ
+        // মিনিমালিস্ট অডিও প্লেয়ার ফাংশনসমূহ (ইউনিক ID ভিত্তিক)
         function formatAudioTime(seconds) {
             if (!seconds || isNaN(seconds) || !isFinite(seconds)) return "০:০০";
             const mins = Math.floor(seconds / 60);
@@ -998,15 +1096,16 @@
             return toBnDigits(formatted);
         }
 
-        function togglePlayAudio(idx) {
-            const audio = document.getElementById(`audio-el-${idx}`);
-            const btn = document.getElementById(`play-btn-${idx}`);
+        function togglePlayAudio(uid) {
+            const audio = document.getElementById(`audio-el-${uid}`);
+            const btn = document.getElementById(`play-btn-${uid}`);
             if (!audio) return;
 
-            document.querySelectorAll('audio').forEach((otherAudio, otherIdx) => {
+            document.querySelectorAll('audio').forEach((otherAudio) => {
                 if (otherAudio !== audio && !otherAudio.paused) {
                     otherAudio.pause();
-                    const otherBtn = document.getElementById(`play-btn-${otherIdx}`);
+                    const otherUid = otherAudio.id.replace('audio-el-', '');
+                    const otherBtn = document.getElementById(`play-btn-${otherUid}`);
                     if (otherBtn) otherBtn.innerHTML = SVG_PLAY;
                 }
             });
@@ -1023,21 +1122,21 @@
             }
         }
 
-        function seekAudioStep(idx, deltaSeconds) {
-            const audio = document.getElementById(`audio-el-${idx}`);
+        function seekAudioStep(uid, deltaSeconds) {
+            const audio = document.getElementById(`audio-el-${uid}`);
             if (!audio) return;
             const duration = audio.duration || 0;
             let target = (audio.currentTime || 0) + deltaSeconds;
             if (target < 0) target = 0;
             if (duration > 0 && target > duration) target = duration;
             audio.currentTime = target;
-            onAudioTimeUpdate(idx);
+            onAudioTimeUpdate(uid);
         }
 
-        function onSeekInput(idx, val) {
-            const audio = document.getElementById(`audio-el-${idx}`);
-            const slider = document.getElementById(`seek-${idx}`);
-            const timeEl = document.getElementById(`time-label-${idx}`);
+        function onSeekInput(uid, val) {
+            const audio = document.getElementById(`audio-el-${uid}`);
+            const slider = document.getElementById(`seek-${uid}`);
+            const timeEl = document.getElementById(`time-label-${uid}`);
             if (!audio || !audio.duration) return;
 
             const newTime = (parseFloat(val) / 100) * audio.duration;
@@ -1050,10 +1149,10 @@
             }
         }
 
-        function onAudioTimeUpdate(idx) {
-            const audio = document.getElementById(`audio-el-${idx}`);
-            const slider = document.getElementById(`seek-${idx}`);
-            const timeEl = document.getElementById(`time-label-${idx}`);
+        function onAudioTimeUpdate(uid) {
+            const audio = document.getElementById(`audio-el-${uid}`);
+            const slider = document.getElementById(`seek-${uid}`);
+            const timeEl = document.getElementById(`time-label-${uid}`);
             if (!audio) return;
 
             const current = audio.currentTime || 0;
@@ -1072,9 +1171,9 @@
             }
         }
 
-        function onAudioEnded(idx) {
-            const btn = document.getElementById(`play-btn-${idx}`);
-            const slider = document.getElementById(`seek-${idx}`);
+        function onAudioEnded(uid) {
+            const btn = document.getElementById(`play-btn-${uid}`);
+            const slider = document.getElementById(`seek-${uid}`);
             if (btn) btn.innerHTML = SVG_PLAY;
             if (slider) {
                 slider.value = 0;
@@ -1082,7 +1181,7 @@
             }
         }
 
-        // বয়ান সেকশনের উপরে নোটিশ স্লাইডশো (প্রতি ৩ সেকেন্ড পরপর অটো-স্লাইড + আঙুলে ডানে-বামে সোয়াইপ)
+        // নোটিশ স্লাইডশো
         function startNoticeAutoSlide() {
             if (sliderInterval) {
                 clearInterval(sliderInterval);
@@ -1217,36 +1316,40 @@
             }
         }
 
-        // ১. অনলাইন ও অফলাইন অডিও লোড (GitHub Releases + data.json থেকে)
+        // ১. অনলাইন ও অফলাইন অডিও লোড (সাম্প্রতিক বয়ান + পুরনো বয়ান ড্রপডাউন)
         async function fetchAudiosFromArchive() {
             const container = document.getElementById('audio-list');
+            const oldDropdownWrapper = document.getElementById('old-audio-dropdown-wrapper');
             if (!container) return;
 
             const savedList = getSavedAudioList();
             let cachedAllFiles = [];
+            let cachedOldFiles = [];
             try {
                 cachedAllFiles = JSON.parse(localStorage.getItem('user_cached_archive_files')) || [];
+                cachedOldFiles = JSON.parse(localStorage.getItem('user_cached_old_archive_files')) || [];
             } catch (e) {}
 
             if (!navigator.onLine) {
-                const offlineFilesToShow = savedList.length > 0 ? [...savedList].reverse() : cachedAllFiles;
-                if (offlineFilesToShow.length === 0) {
+                const offlineMain = cachedAllFiles.length > 0 ? cachedAllFiles : [...savedList].reverse();
+                if (offlineMain.length === 0 && cachedOldFiles.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
                         📡 আপনি অফলাইনে আছেন।<br>
                         অ্যাপের ভেতরে কোনো অডিও এখনো সেভ করা হয়নি। ইন্টারনেট চালু করে অডিও সেভ করে রাখুন।
                     `;
+                    if (oldDropdownWrapper) oldDropdownWrapper.innerHTML = '';
                     return;
                 }
-                await renderAudioCards(offlineFilesToShow, true);
+                await renderAudioCards(offlineMain, true, cachedOldFiles);
                 isAudioLoaded = true;
                 return;
             }
 
-            if (cachedAllFiles.length > 0) {
-                await renderAudioCards(cachedAllFiles, false);
+            if (cachedAllFiles.length > 0 || cachedOldFiles.length > 0) {
+                await renderAudioCards(cachedAllFiles, false, cachedOldFiles);
             } else if (savedList.length > 0) {
-                await renderAudioCards([...savedList].reverse(), false);
+                await renderAudioCards([...savedList].reverse(), false, []);
             } else {
                 container.className = 'status-box';
                 container.innerHTML = 'বয়ান লোড হচ্ছে...';
@@ -1264,8 +1367,8 @@
                 } catch (err) {}
             }
 
-            if (!data || !data.audios) {
-                if (cachedAllFiles.length === 0 && savedList.length === 0) {
+            if (!data || (!data.audios && !data.old_audios)) {
+                if (cachedAllFiles.length === 0 && cachedOldFiles.length === 0 && savedList.length === 0) {
                     container.className = 'status-box';
                     container.innerHTML = `
                         বয়ান লোড করতে সমস্যা হয়েছে।<br>
@@ -1275,15 +1378,27 @@
                 return;
             }
 
-            const audioFiles = data.audios.map(item => ({
+            if (data.social_links) {
+                applySocialLinks(data.social_links);
+            }
+
+            const audioFiles = (data.audios || []).map(item => ({
                 name: item.title,
                 fileName: item.fileName,
                 url: item.url
             }));
 
-            if (audioFiles.length > 0) {
-                localStorage.setItem('user_cached_archive_files', JSON.stringify(audioFiles));
-                await renderAudioCards(audioFiles, false);
+            const oldAudioFiles = (data.old_audios || []).map(item => ({
+                name: item.title,
+                fileName: item.fileName,
+                url: item.url
+            }));
+
+            localStorage.setItem('user_cached_archive_files', JSON.stringify(audioFiles));
+            localStorage.setItem('user_cached_old_archive_files', JSON.stringify(oldAudioFiles));
+
+            if (audioFiles.length > 0 || oldAudioFiles.length > 0) {
+                await renderAudioCards(audioFiles, false, oldAudioFiles);
             } else if (savedList.length === 0) {
                 container.className = 'status-box';
                 container.innerHTML = 'কোনো অডিও ফাইল পাওয়া যায়নি।';
@@ -1292,9 +1407,102 @@
             isAudioLoaded = true;
         }
 
-        // ২. অডিও কার্ড রেন্ডার
-        async function renderAudioCards(files, isOfflineMode) {
+        // একক অডিও কার্ড HTML তৈরি ফাংশন (মেইন ও পুরনো উভয় লিস্টের জন্য)
+        async function buildSingleAudioCardHtml(file, uid, savedList, cache) {
+            const displayTitle = file.name.replace(/\.opus$/i, '');
+            const savedItem = savedList.find(item => item.name === file.name);
+            const fileUrl = file.url || (savedItem && savedItem.url) || '';
+            const isSaved = Boolean(savedItem);
+
+            let audioSrc = fileUrl;
+            let preloadMode = "none";
+
+            if (isSaved) {
+                if (activeBlobUrls[file.name]) {
+                    audioSrc = activeBlobUrls[file.name];
+                    preloadMode = "metadata";
+                } else if (savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
+                    try {
+                        const { Filesystem } = window.Capacitor.Plugins;
+                        const readRes = await Filesystem.readFile({
+                            path: savedItem.safeName,
+                            directory: 'DATA'
+                        });
+                        if (readRes && readRes.data) {
+                            audioSrc = base64ToPlayableUrl(readRes.data);
+                            activeBlobUrls[file.name] = audioSrc;
+                            preloadMode = "metadata";
+                        }
+                    } catch (readErr) {
+                        console.warn("Read file error:", readErr);
+                    }
+                } else if (cache && fileUrl) {
+                    try {
+                        const cachedResponse = await cache.match(fileUrl);
+                        if (cachedResponse) {
+                            const blob = await cachedResponse.blob();
+                            audioSrc = URL.createObjectURL(blob);
+                            activeBlobUrls[file.name] = audioSrc;
+                            preloadMode = "metadata";
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            const safeTitleArg = file.name.replace(/'/g, "\\'");
+            const rightSlotControls = isSaved
+                ? `<span class="btn-minimal-icon" title="অফলাইনে সেভ করা আছে" style="cursor: default;">${SVG_CHECK}</span>
+                   <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${safeTitleArg}')">${SVG_TRASH}</button>`
+                : `<button type="button" class="btn-minimal-icon" id="dl-btn-${uid}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${safeTitleArg}', '${uid}')">${SVG_DOWNLOAD}</button>`;
+
+            return `
+                <div class="item-card">
+                    <div class="item-title">🎙️ ${displayTitle}</div>
+                    
+                    <div class="minimal-player">
+                        <audio id="audio-el-${uid}" preload="${preloadMode}" src="${audioSrc}"
+                            ontimeupdate="onAudioTimeUpdate('${uid}')"
+                            onloadedmetadata="onAudioTimeUpdate('${uid}')"
+                            onended="onAudioEnded('${uid}')"></audio>
+
+                        <input type="range" id="seek-${uid}" class="minimal-seek-slider" value="0" min="0" max="100" step="0.1"
+                            oninput="onSeekInput('${uid}', this.value)">
+
+                        <div class="minimal-controls-row">
+                            <div class="minimal-left-slot" id="time-label-${uid}">০:০০</div>
+
+                            <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড পেছনে" onclick="seekAudioStep('${uid}', -10)">
+                                ${SVG_SEEK_BACK}
+                            </button>
+
+                            <button type="button" class="btn-minimal-play" id="play-btn-${uid}" title="প্লে / পজ" onclick="togglePlayAudio('${uid}')">
+                                ${SVG_PLAY}
+                            </button>
+
+                            <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড সামনে" onclick="seekAudioStep('${uid}', 10)">
+                                ${SVG_SEEK_FWD}
+                            </button>
+
+                            <div class="minimal-right-slot">
+                                ${rightSlotControls}
+                            </div>
+                        </div>
+
+                        <div id="dl-box-${uid}" class="dl-status-box">
+                            <div class="dl-progress-track">
+                                <div id="dl-fill-${uid}" class="dl-progress-fill"></div>
+                            </div>
+                            <div id="dl-text-${uid}" style="font-weight: bold;">ডাউনলোড হচ্ছে... ০%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ২. অডিও কার্ড ও পুরনো বয়ান ড্রপডাউন রেন্ডার
+        async function renderAudioCards(files, isOfflineMode, oldFiles = []) {
             const container = document.getElementById('audio-list');
+            const oldDropdownWrapper = document.getElementById('old-audio-dropdown-wrapper');
             if (!container) return;
 
             const savedList = getSavedAudioList();
@@ -1310,111 +1518,46 @@
                 ? `<div style="background: var(--green-soft); color: var(--green-primary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-bottom: 12px; border: 1px solid var(--green-primary);">📴 অফলাইন মোড: সেভ করা বয়ানসমূহ ইন্টারনেট ছাড়াই শুনতে পারবেন</div>` 
                 : '';
 
-            const cardsHtml = await Promise.all(files.map(async (file, idx) => {
-                const displayTitle = file.name.replace(/\.opus$/i, '');
-                const savedItem = savedList.find(item => item.name === file.name);
-                const fileUrl = file.url || (savedItem && savedItem.url) || '';
-                const isSaved = Boolean(savedItem);
-
-                let audioSrc = fileUrl;
-                let preloadMode = "none";
-
-                if (isSaved) {
-                    if (activeBlobUrls[file.name]) {
-                        audioSrc = activeBlobUrls[file.name];
-                        preloadMode = "metadata";
-                    } else if (savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
-                        try {
-                            const { Filesystem } = window.Capacitor.Plugins;
-                            const readRes = await Filesystem.readFile({
-                                path: savedItem.safeName,
-                                directory: 'DATA'
-                            });
-                            if (readRes && readRes.data) {
-                                audioSrc = base64ToPlayableUrl(readRes.data);
-                                activeBlobUrls[file.name] = audioSrc;
-                                preloadMode = "metadata";
-                            }
-                        } catch (readErr) {
-                            console.warn("Read file error:", readErr);
-                        }
-                    } else if (cache && fileUrl) {
-                        try {
-                            const cachedResponse = await cache.match(fileUrl);
-                            if (cachedResponse) {
-                                const blob = await cachedResponse.blob();
-                                audioSrc = URL.createObjectURL(blob);
-                                activeBlobUrls[file.name] = audioSrc;
-                                preloadMode = "metadata";
-                            }
-                        } catch (e) {}
-                    }
-                }
-
-                const safeTitleArg = file.name.replace(/'/g, "\\'");
-                const rightSlotControls = isSaved
-                    ? `<span class="btn-minimal-icon" title="অফলাইনে সেভ করা আছে" style="cursor: default;">${SVG_CHECK}</span>
-                       <button type="button" class="btn-minimal-icon" title="মুছে ফেলুন" onclick="deleteOfflineAudio('${fileUrl}', '${safeTitleArg}')">${SVG_TRASH}</button>`
-                    : `<button type="button" class="btn-minimal-icon" id="dl-btn-${idx}" title="অফলাইনে ডাউনলোড করুন" onclick="saveAudioInApp('${fileUrl}', '${safeTitleArg}', ${idx})">${SVG_DOWNLOAD}</button>`;
-
-                return `
-                    <div class="item-card">
-                        <div class="item-title">🎙️ ${displayTitle}</div>
-                        
-                        <div class="minimal-player">
-                            <audio id="audio-el-${idx}" preload="${preloadMode}" src="${audioSrc}"
-                                ontimeupdate="onAudioTimeUpdate(${idx})"
-                                onloadedmetadata="onAudioTimeUpdate(${idx})"
-                                onended="onAudioEnded(${idx})"></audio>
-
-                            <input type="range" id="seek-${idx}" class="minimal-seek-slider" value="0" min="0" max="100" step="0.1"
-                                oninput="onSeekInput(${idx}, this.value)">
-
-                            <div class="minimal-controls-row">
-                                <div class="minimal-left-slot" id="time-label-${idx}">০:০০</div>
-
-                                <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড পেছনে" onclick="seekAudioStep(${idx}, -10)">
-                                    ${SVG_SEEK_BACK}
-                                </button>
-
-                                <button type="button" class="btn-minimal-play" id="play-btn-${idx}" title="প্লে / পজ" onclick="togglePlayAudio(${idx})">
-                                    ${SVG_PLAY}
-                                </button>
-
-                                <button type="button" class="btn-minimal-icon" title="১০ সেকেন্ড সামনে" onclick="seekAudioStep(${idx}, 10)">
-                                    ${SVG_SEEK_FWD}
-                                </button>
-
-                                <div class="minimal-right-slot">
-                                    ${rightSlotControls}
-                                </div>
-                            </div>
-
-                            <div id="dl-box-${idx}" class="dl-status-box">
-                                <div class="dl-progress-track">
-                                    <div id="dl-fill-${idx}" class="dl-progress-fill"></div>
-                                </div>
-                                <div id="dl-text-${idx}" style="font-weight: bold;">ডাউনলোড হচ্ছে... ০%</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }));
+            const cardsHtml = await Promise.all(
+                files.map((file, idx) => buildSingleAudioCardHtml(file, `main_${idx}`, savedList, cache))
+            );
 
             container.innerHTML = headerNotice + cardsHtml.join('');
+
+            // একদম নিচে পুরনো বয়ানের ড্রপডাউন
+            if (oldDropdownWrapper) {
+                if (oldFiles && oldFiles.length > 0) {
+                    const oldCardsHtml = await Promise.all(
+                        oldFiles.map((file, idx) => buildSingleAudioCardHtml(file, `old_${idx}`, savedList, cache))
+                    );
+                    oldDropdownWrapper.innerHTML = `
+                        <details class="old-bayan-details">
+                            <summary class="old-bayan-summary">
+                                <span>📂 পুরনো বয়ানসমূহ (${toBnDigits(oldFiles.length)}টি)</span>
+                                <span style="font-size: 13px;">দেখুন ▼</span>
+                            </summary>
+                            <div class="old-bayan-body">
+                                ${oldCardsHtml.join('')}
+                            </div>
+                        </details>
+                    `;
+                } else {
+                    oldDropdownWrapper.innerHTML = '';
+                }
+            }
         }
 
         // ৩. সরাসরি রুট DATA ডিরেক্টরিতে সেভ
-        async function saveAudioInApp(url, fileName, idx) {
+        async function saveAudioInApp(url, fileName, uid) {
             if (!navigator.onLine) {
                 alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
                 return;
             }
 
-            const btn = document.getElementById(`dl-btn-${idx}`);
-            const box = document.getElementById(`dl-box-${idx}`);
-            const fill = document.getElementById(`dl-fill-${idx}`);
-            const text = document.getElementById(`dl-text-${idx}`);
+            const btn = document.getElementById(`dl-btn-${uid}`);
+            const box = document.getElementById(`dl-box-${uid}`);
+            const fill = document.getElementById(`dl-fill-${uid}`);
+            const text = document.getElementById(`dl-text-${uid}`);
 
             if (!btn || btn.disabled) return;
             btn.disabled = true;
@@ -1427,7 +1570,7 @@
             let progressTimer = null;
 
             try {
-                const safeFileName = `deeni_audio_${idx}_${Date.now()}.opus`;
+                const safeFileName = `deeni_audio_${uid}_${Date.now()}.opus`;
 
                 if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
                     const { Filesystem } = window.Capacitor.Plugins;
@@ -1528,7 +1671,7 @@
             fetchAudiosFromArchive();
         }
 
-        // ৪. জেলাভিত্তিক নামাজের সময়সূচি ও নফল নামাজ
+        // ৪. জেলাভিত্তিক নামাজের সময়সূচি
         function initDistrictDropdown() {
             const selectEl = document.getElementById('district-select');
             if (!selectEl) return;
@@ -1681,13 +1824,14 @@
             }
         }
 
-        // ৫. প্রবন্ধ ও টপ ব্যানার নোটিশ লোড
+        // ৫. প্রবন্ধ, টপ ব্যানার নোটিশ ও সোশ্যাল লিংক লোড
         async function fetchContent() {
             const cachedSiteData = localStorage.getItem('user_cached_site_data');
             let hasCache = false;
             if (cachedSiteData) {
                 try {
                     const parsed = JSON.parse(cachedSiteData);
+                    applySocialLinks(parsed.social_links || {});
                     renderArticles(parsed.articles || []);
                     renderNoticeBannerSlider(parsed.notices || []);
                     hasCache = true;
@@ -1702,6 +1846,7 @@
                         if (response.ok) {
                             const data = await response.json();
                             localStorage.setItem('user_cached_site_data', JSON.stringify(data));
+                            applySocialLinks(data.social_links || {});
                             renderArticles(data.articles || []);
                             renderNoticeBannerSlider(data.notices || []);
                             return;
@@ -1738,7 +1883,9 @@
                     if (savedText) textContent = savedText;
 
                     if (navigator.onLine) {
-                        const fileUrls = [`${REMOTE_BASE_URL}${item.file}`, item.file];
+                        const fileUrls = item.file.startsWith('http')
+                            ? [item.file]
+                            : [`${REMOTE_BASE_URL}${item.file}`, item.file];
                         for (const fUrl of fileUrls) {
                             try {
                                 const response = await fetchWithTimeout(fUrl, 3500);
@@ -1775,7 +1922,7 @@
             updateArticleFontSizeUI();
         }
 
-        // ৬. দৈনন্দিন ও মাসিক মুহাসাবা ট্র্যাকিং লজিক (৭টি আমলসহ)
+        // ৬. দৈনন্দিন ও মাসিক মুহাসাবা ট্র্যাকিং লজিক
         const MUHASABA_ITEMS = [
             { id: 'tilawat', label: '১. কোরআন তেলাওয়াত' },
             { id: 'daily_zikr', label: '২. দৈনন্দিন জিকির' },
