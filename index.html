@@ -51,6 +51,7 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
             flex-shrink: 0;
             gap: 8px;
+            transition: all 0.25s ease;
         }
 
         .app-title {
@@ -101,6 +102,49 @@
             padding: 12px;
             padding-bottom: 90px;
             width: 100%;
+            transition: padding 0.2s ease;
+        }
+
+        /* ফুল-স্ক্রিন রিডিং মোড: কিতাব/প্রবন্ধ খুললে উপরের ও নিচের বার হাইড হবে */
+        body.fullscreen-reading header,
+        body.fullscreen-reading nav,
+        body.fullscreen-reading .font-control-bar {
+            display: none !important;
+        }
+
+        body.fullscreen-reading main {
+            padding: 6px !important;
+            height: 100vh !important;
+            background-color: #fcfcf9;
+        }
+
+        body.fullscreen-reading .article-card-item:not(.is-open) {
+            display: none !important;
+        }
+
+        body.fullscreen-reading .article-card-item.is-open {
+            margin-bottom: 0 !important;
+            border-radius: 8px !important;
+            border-left-width: 3px !important;
+        }
+
+        /* আড়াআড়ি (Forced Landscape) মোড */
+        body.forced-landscape {
+            position: fixed !important;
+            top: 0 !important;
+            left: 100vw !important;
+            width: 100vh !important;
+            height: 100vw !important;
+            transform: rotate(90deg) !important;
+            transform-origin: top left !important;
+            overflow: hidden !important;
+            z-index: 9999 !important;
+        }
+
+        body.forced-landscape main {
+            width: 100vh !important;
+            height: 100vw !important;
+            padding: 8px 14px !important;
         }
 
         .tab-section {
@@ -316,30 +360,106 @@
             color: #ffffff;
         }
 
-        /* বড় কিতাবের সূচিপত্র ড্রপডাউন ও হেডিং স্টাইল */
-        .toc-sticky-bar {
+        /* কোণায় ভাসমান ফ্লোটিং কন্ট্রোল (আড়াআড়ি রোটেট বাটন + গোল সূচিপত্র বাটন + প্রস্থান বাটন) */
+        .toc-floating-corner {
             position: sticky;
-            top: 0;
-            z-index: 20;
-            background: var(--green-soft);
-            border: 1.5px solid var(--green-primary);
-            border-radius: 8px;
-            padding: 8px 10px;
-            margin-bottom: 14px;
-            box-shadow: 0 3px 8px rgba(22, 68, 49, 0.12);
+            top: 8px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            height: 0;
+            overflow: visible;
+            white-space: normal;
+            pointer-events: none;
         }
 
-        .toc-select {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 6px;
-            border: 1px solid var(--gold-main);
-            background: #ffffff;
-            color: var(--green-dark);
-            font-size: 13.5px;
-            font-weight: bold;
-            outline: none;
+        .reader-floating-btns {
+            pointer-events: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .toc-circle-btn {
+            pointer-events: auto;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 100%);
+            color: var(--gold-text);
+            border: 1.5px solid var(--gold-main);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s;
+            padding: 0;
+        }
+
+        .toc-circle-btn:active,
+        .toc-circle-btn.active-mode {
+            transform: scale(0.92);
+            background: var(--gold-main);
+            color: var(--green-dark);
+        }
+
+        .toc-dropdown-panel {
+            pointer-events: auto;
+            display: none;
+            margin-top: 6px;
+            width: 270px;
+            max-width: 82vw;
+            max-height: 270px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1.5px solid var(--gold-main);
+            border-radius: 10px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+            white-space: normal;
+            text-align: left;
+        }
+
+        .toc-dropdown-panel.open {
+            display: block;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .toc-panel-header {
+            background: var(--green-primary);
+            color: var(--gold-text);
+            font-size: 12px;
+            font-weight: bold;
+            padding: 7px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .toc-list-item {
+            padding: 9px 12px;
+            font-size: 13px;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .toc-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .toc-list-item:active, .toc-list-item:hover {
+            background: var(--green-soft);
+            color: var(--green-primary);
+            font-weight: bold;
+        }
+
+        .toc-list-item.is-sub {
+            padding-left: 22px;
+            font-size: 12.5px;
+            color: var(--text-muted);
         }
 
         .book-chapter-heading {
@@ -347,22 +467,24 @@
             border-left: 4px solid var(--gold-main);
             border-bottom: 1px solid var(--border-subtle);
             color: var(--green-dark);
-            font-size: 1.12em;
+            font-size: 1.08em;
             font-weight: bold;
-            padding: 8px 12px;
-            margin: 18px 0 10px 0;
+            padding: 7px 11px;
+            margin: 16px 0 8px 0;
             border-radius: 6px;
-            scroll-margin-top: 72px;
+            scroll-margin-top: 56px;
+            white-space: normal;
         }
 
         .book-sub-heading {
             color: var(--green-primary);
-            font-size: 1.04em;
+            font-size: 1.02em;
             font-weight: bold;
             border-bottom: 1px dashed var(--gold-main);
             padding-bottom: 4px;
-            margin: 14px 0 8px 0;
-            scroll-margin-top: 72px;
+            margin: 12px 0 6px 0;
+            scroll-margin-top: 56px;
+            white-space: normal;
         }
 
         .back-to-toc-btn {
@@ -732,30 +854,34 @@
             line-height: 1.6;
         }
 
+        /* আরবি, হাদিস নম্বর ও রেফারেন্স স্পেসিং ফিক্স */
         .article-content-body .ar-box {
             font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'PDMS Saleem QuranFont', 'Amiri', serif !important;
-            font-size: 1.55em !important;
+            font-size: 1.5em !important;
             line-height: 1.85 !important;
             text-align: right;
             color: var(--green-dark);
-            margin: -14px 0 !important;
+            margin: 6px 0 8px 0 !important;
         }
 
         .article-content-body .hadith-num {
             font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
-            font-size: 1.15em !important;
+            font-size: 1.08em !important;
             font-weight: bold;
             color: #9c7813;
             text-align: right;
-            margin: -10px 0 -16px 0 !important;
+            margin: 10px 0 4px 0 !important;
         }
 
         .article-content-body .ref-box {
             font-family: 'Noorehuda', 'Al Qalam Quran Majeed', 'Amiri', serif !important;
-            font-size: 0.92em !important;
+            font-size: 0.9em !important;
             color: var(--text-muted);
             text-align: left;
-            margin: -16px 0 -8px 0 !important;
+            margin: 6px 0 12px 0 !important;
+            padding-top: 3px;
+            border-top: 1px dotted var(--border-subtle);
+            display: block;
         }
     </style>
 </head>
@@ -957,7 +1083,7 @@
         const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
         const DATA_URL = "data.json";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v7";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v9";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -979,6 +1105,9 @@
         const SVG_SPINNER = `<svg class="spin-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
         const SVG_CHECK = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
         const SVG_TRASH = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+
+        // ফোন রোটেট (আড়াআড়ি পড়ুন) আইকন
+        const SVG_ROTATE_PHONE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16.47 2.53a9 9 0 0 1 5 5"/><polyline points="21 3 21.5 7.5 17 7"/><path d="M7.53 21.47a9 9 0 0 1-5-5"/><polyline points="3 21 2.5 16.5 7 17"/><rect x="7" y="5" width="10" height="14" rx="2" transform="rotate(-35 12 12)"/></svg>`;
 
         const BD_DISTRICTS = [
             { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
@@ -1075,6 +1204,9 @@
         }
 
         function switchTab(tabName, btnElement) {
+            // অন্য ট্যাবে গেলে ফুল-স্ক্রিন বা আড়াআড়ি মোড রিসেট
+            exitFullscreenReading();
+
             currentActiveTab = tabName;
             sessionStorage.setItem('active_app_tab', tabName);
 
@@ -1921,7 +2053,70 @@
             }
         }
 
-        // বড় কিতাব বা প্রবন্ধের ## এবং ### হেডিং থেকে অটোমেটিক সূচিপত্র ড্রপডাউন তৈরি
+        // ফুল-স্ক্রিন ও আড়াআড়ি (Landscape) রিডিং কন্ট্রোল ফাংশনসমূহ
+        function handleArticleToggle(detailsEl) {
+            const cardEl = detailsEl.closest('.article-card-item');
+            if (detailsEl.open) {
+                document.querySelectorAll('.article-card-item details').forEach(d => {
+                    if (d !== detailsEl) {
+                        d.open = false;
+                        const otherCard = d.closest('.article-card-item');
+                        if (otherCard) otherCard.classList.remove('is-open');
+                    }
+                });
+                if (cardEl) cardEl.classList.add('is-open');
+                document.body.classList.add('fullscreen-reading');
+            } else {
+                if (cardEl) cardEl.classList.remove('is-open');
+                exitFullscreenReading();
+            }
+        }
+
+        function exitFullscreenReading() {
+            document.body.classList.remove('fullscreen-reading');
+            document.body.classList.remove('forced-landscape');
+            document.querySelectorAll('.rotate-mode-btn').forEach(b => b.classList.remove('active-mode'));
+            if (screen.orientation && screen.orientation.unlock) {
+                try { screen.orientation.unlock(); } catch (e) {}
+            }
+        }
+
+        function closeCurrentBook(articleIdx) {
+            const detailsEl = document.getElementById(`article-details-${articleIdx}`);
+            if (detailsEl) {
+                detailsEl.open = false;
+                const cardEl = detailsEl.closest('.article-card-item');
+                if (cardEl) cardEl.classList.remove('is-open');
+            }
+            exitFullscreenReading();
+        }
+
+        async function toggleLandscapeReading(event, btnEl) {
+            event.stopPropagation();
+            const isCurrentlyLandscape = document.body.classList.contains('forced-landscape');
+
+            if (!isCurrentlyLandscape) {
+                // আড়াআড়ি মোড চালু করা
+                if (screen.orientation && screen.orientation.lock) {
+                    try {
+                        await screen.orientation.lock('landscape');
+                    } catch (e) {
+                        // যদি ব্রাউজার/ডিভাইস নেটিভ লক আটকায় তবে CSS রোটেশন চালু হবে
+                    }
+                }
+                document.body.classList.add('forced-landscape');
+                if (btnEl) btnEl.classList.add('active-mode');
+            } else {
+                // পোর্ট্রেট মোডে ফিরে আসা
+                document.body.classList.remove('forced-landscape');
+                if (btnEl) btnEl.classList.remove('active-mode');
+                if (screen.orientation && screen.orientation.unlock) {
+                    try { screen.orientation.unlock(); } catch (e) {}
+                }
+            }
+        }
+
+        // বড় কিতাবের কোণায় ভাসমান আড়াআড়ি বাটন + গোল সূচিপত্র বাটন + প্রস্থান বাটন
         function formatBookWithTOC(rawText, articleIdx) {
             const lines = rawText.split(/\r?\n/);
             const tocItems = [];
@@ -1943,27 +2138,39 @@
                 return line;
             });
 
+            const rotateBtnHtml = `<button type="button" class="toc-circle-btn rotate-mode-btn" title="আড়াআড়ি পড়ুন" onclick="toggleLandscapeReading(event, this)">${SVG_ROTATE_PHONE}</button>`;
+            const closeBtnHtml = `<button type="button" class="toc-circle-btn" title="বন্ধ করুন" onclick="closeCurrentBook(${articleIdx})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+
             if (tocItems.length > 0) {
-                const optionsHtml = tocItems.map(item => {
-                    const prefix = item.isSub ? '   ↳ ' : '';
-                    return `<option value="${item.id}">${prefix}${item.title}</option>`;
-                }).join('');
+                const listHtml = tocItems.map(item =>
+                    `<div class="toc-list-item ${item.isSub ? 'is-sub' : ''}" onclick="selectTocItem('${item.id}', 'toc-panel-${articleIdx}')">${item.isSub ? '↳ ' : ''}${item.title}</div>`
+                ).join('');
 
-                const tocBarHtml = `
-                    <div id="toc-top-${articleIdx}" class="toc-sticky-bar">
-                        <div style="font-size: 11.5px; color: var(--green-primary); font-weight: bold; margin-bottom: 4px;">📑 সূচিপত্র (সরাসরি যেতে অধ্যায় নির্বাচন করুন):</div>
-                        <select class="toc-select" onchange="jumpToBookSection(this.value)">
-                            <option value="">-- অধ্যায় বা হাদিস বাছাই করুন (${toBnDigits(tocItems.length)}টি) --</option>
-                            ${optionsHtml}
-                        </select>
-                    </div>
-                `;
+                const tocBtnHtml = `<button type="button" class="toc-circle-btn" title="সূচিপত্র" onclick="toggleTocPanel(event, 'toc-panel-${articleIdx}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+                const floatingCornerHtml = `<div id="toc-top-${articleIdx}" class="toc-floating-corner"><div class="reader-floating-btns">${rotateBtnHtml}${tocBtnHtml}${closeBtnHtml}</div><div id="toc-panel-${articleIdx}" class="toc-dropdown-panel"><div class="toc-panel-header">📑 সূচিপত্র (${toBnDigits(tocItems.length)}টি অধ্যায়)</div>${listHtml}</div></div>`;
 
-                const footerBtnHtml = `<div style="text-align: right;"><button type="button" class="back-to-toc-btn" onclick="jumpToBookSection('toc-top-${articleIdx}')">⬆️ সূচিপত্রে ফিরে যান</button></div>`;
-                return tocBarHtml + processedLines.join('\n') + footerBtnHtml;
+                const footerBtnHtml = `<div style="text-align: right; white-space: normal;"><button type="button" class="back-to-toc-btn" onclick="jumpToBookSection('toc-top-${articleIdx}')">⬆️ উপরে ফিরে যান</button></div>`;
+                return floatingCornerHtml + processedLines.join('\n') + footerBtnHtml;
             }
 
-            return rawText;
+            // ছোট প্রবন্ধের ক্ষেত্রেও কোণায় আড়াআড়ি পড়ুন ও বন্ধ বাটন থাকবে
+            const simpleFloatingHtml = `<div class="toc-floating-corner"><div class="reader-floating-btns">${rotateBtnHtml}${closeBtnHtml}</div></div>`;
+            return simpleFloatingHtml + rawText;
+        }
+
+        function toggleTocPanel(event, panelId) {
+            event.stopPropagation();
+            const panel = document.getElementById(panelId);
+            if (!panel) return;
+            const isOpen = panel.classList.contains('open');
+            document.querySelectorAll('.toc-dropdown-panel').forEach(p => p.classList.remove('open'));
+            if (!isOpen) panel.classList.add('open');
+        }
+
+        function selectTocItem(targetId, panelId) {
+            const panel = document.getElementById(panelId);
+            if (panel) panel.classList.remove('open');
+            jumpToBookSection(targetId);
         }
 
         function jumpToBookSection(targetId) {
@@ -1973,6 +2180,12 @@
                 targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.toc-floating-corner')) {
+                document.querySelectorAll('.toc-dropdown-panel').forEach(p => p.classList.remove('open'));
+            }
+        });
 
         async function renderArticles(articles) {
             const container = document.getElementById('article-list');
@@ -2020,8 +2233,8 @@
                 const formattedBody = formatBookWithTOC(textContent, idx);
 
                 html += `
-                    <div class="item-card" style="padding: 0; overflow: visible;">
-                        <details style="cursor: pointer;">
+                    <div class="item-card article-card-item" style="padding: 0; overflow: visible;">
+                        <details id="article-details-${idx}" ontoggle="handleArticleToggle(this)" style="cursor: pointer;">
                             <summary style="padding: 14px 16px; list-style: none; outline: none; user-select: none;">
                                 <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
