@@ -234,7 +234,7 @@
             text-align: left;
         }
 
-        /* পুরনো বয়ান ড্রপডাউন স্টাইল (কার্ডের প্রস্থ ও ডিজাইন হুবহু উপরের কার্ডের মতো রাখার জন্য) */
+        /* পুরনো বয়ান ড্রপডাউন স্টাইল */
         .old-bayan-details {
             width: 100%;
             margin-top: 4px;
@@ -314,6 +314,68 @@
         .font-btn:active {
             background-color: var(--green-primary);
             color: #ffffff;
+        }
+
+        /* বড় কিতাবের সূচিপত্র ড্রপডাউন ও হেডিং স্টাইল */
+        .toc-sticky-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: var(--green-soft);
+            border: 1.5px solid var(--green-primary);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 14px;
+            box-shadow: 0 3px 8px rgba(22, 68, 49, 0.12);
+        }
+
+        .toc-select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--gold-main);
+            background: #ffffff;
+            color: var(--green-dark);
+            font-size: 13.5px;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .book-chapter-heading {
+            background: linear-gradient(135deg, var(--green-soft) 0%, #ffffff 100%);
+            border-left: 4px solid var(--gold-main);
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--green-dark);
+            font-size: 1.12em;
+            font-weight: bold;
+            padding: 8px 12px;
+            margin: 18px 0 10px 0;
+            border-radius: 6px;
+            scroll-margin-top: 72px;
+        }
+
+        .book-sub-heading {
+            color: var(--green-primary);
+            font-size: 1.04em;
+            font-weight: bold;
+            border-bottom: 1px dashed var(--gold-main);
+            padding-bottom: 4px;
+            margin: 14px 0 8px 0;
+            scroll-margin-top: 72px;
+        }
+
+        .back-to-toc-btn {
+            display: inline-block;
+            margin-top: 14px;
+            background: var(--green-primary);
+            color: var(--gold-text);
+            border: 1px solid var(--gold-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         /* মিনিমালিস্ট মিডিয়া প্লেয়ার */
@@ -749,7 +811,7 @@
             <div id="old-audio-dropdown-wrapper"></div>
         </section>
 
-        <!-- ২. প্রবন্ধ সেকশন -->
+        <!-- ২. প্রবন্ধ ও কিতাব সেকশন -->
         <section id="tab-articles" class="tab-section">
             <div class="font-control-bar">
                 <span style="font-size: 13px; color: var(--green-primary); font-weight: bold;">🔍 লেখার আকার: <b id="font-size-display">16px</b></span>
@@ -895,7 +957,7 @@
         const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
         const DATA_URL = "data.json";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v6";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v7";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -1407,7 +1469,7 @@
             isAudioLoaded = true;
         }
 
-        // একক অডিও কার্ড HTML তৈরি ফাংশন (উপরের এবং ড্রপডাউনের জন্য হুবহু একই ডিজাইন)
+        // একক অডিও কার্ড HTML তৈরি ফাংশন
         async function buildSingleAudioCardHtml(file, uid, savedList, cache) {
             const displayTitle = file.name.replace(/\.opus$/i, '');
             const savedItem = savedList.find(item => item.name === file.name);
@@ -1524,7 +1586,6 @@
 
             container.innerHTML = headerNotice + cardsHtml.join('');
 
-            // একদম নিচে পুরনো বয়ানের ড্রপডাউন (ভেতরে হুবহু উপরের মতোই ফুল-উইডথ কার্ড)
             if (oldDropdownWrapper) {
                 if (oldFiles && oldFiles.length > 0) {
                     const oldCardsHtml = await Promise.all(
@@ -1824,7 +1885,7 @@
             }
         }
 
-        // ৫. প্রবন্ধ, টপ ব্যানার নোটিশ ও সোশ্যাল লিংক লোড
+        // ৫. প্রবন্ধ, কিতাব, টপ ব্যানার নোটিশ ও সোশ্যাল লিংক লোড
         async function fetchContent() {
             const cachedSiteData = localStorage.getItem('user_cached_site_data');
             let hasCache = false;
@@ -1860,6 +1921,59 @@
             }
         }
 
+        // বড় কিতাব বা প্রবন্ধের ## এবং ### হেডিং থেকে অটোমেটিক সূচিপত্র ড্রপডাউন তৈরি
+        function formatBookWithTOC(rawText, articleIdx) {
+            const lines = rawText.split(/\r?\n/);
+            const tocItems = [];
+            let headingCounter = 0;
+
+            const processedLines = lines.map(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('## ')) {
+                    const titleText = trimmed.replace(/^##\s+/, '').trim();
+                    const anchorId = `book-${articleIdx}-sec-${headingCounter++}`;
+                    tocItems.push({ id: anchorId, title: titleText, isSub: false });
+                    return `<div id="${anchorId}" class="book-chapter-heading">📖 ${titleText}</div>`;
+                } else if (trimmed.startsWith('### ')) {
+                    const subText = trimmed.replace(/^###\s+/, '').trim();
+                    const anchorId = `book-${articleIdx}-sec-${headingCounter++}`;
+                    tocItems.push({ id: anchorId, title: subText, isSub: true });
+                    return `<div id="${anchorId}" class="book-sub-heading">🔹 ${subText}</div>`;
+                }
+                return line;
+            });
+
+            if (tocItems.length > 0) {
+                const optionsHtml = tocItems.map(item => {
+                    const prefix = item.isSub ? '   ↳ ' : '';
+                    return `<option value="${item.id}">${prefix}${item.title}</option>`;
+                }).join('');
+
+                const tocBarHtml = `
+                    <div id="toc-top-${articleIdx}" class="toc-sticky-bar">
+                        <div style="font-size: 11.5px; color: var(--green-primary); font-weight: bold; margin-bottom: 4px;">📑 সূচিপত্র (সরাসরি যেতে অধ্যায় নির্বাচন করুন):</div>
+                        <select class="toc-select" onchange="jumpToBookSection(this.value)">
+                            <option value="">-- অধ্যায় বা হাদিস বাছাই করুন (${toBnDigits(tocItems.length)}টি) --</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                `;
+
+                const footerBtnHtml = `<div style="text-align: right;"><button type="button" class="back-to-toc-btn" onclick="jumpToBookSection('toc-top-${articleIdx}')">⬆️ সূচিপত্রে ফিরে যান</button></div>`;
+                return tocBarHtml + processedLines.join('\n') + footerBtnHtml;
+            }
+
+            return rawText;
+        }
+
+        function jumpToBookSection(targetId) {
+            if (!targetId) return;
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         async function renderArticles(articles) {
             const container = document.getElementById('article-list');
             if (!container) return;
@@ -1873,7 +1987,8 @@
             container.className = '';
 
             let html = '';
-            for (const item of articles) {
+            for (let idx = 0; idx < articles.length; idx++) {
+                const item = articles[idx];
                 let textContent = item.content || '';
 
                 if (item.file) {
@@ -1888,7 +2003,7 @@
                             : [`${REMOTE_BASE_URL}${item.file}`, item.file];
                         for (const fUrl of fileUrls) {
                             try {
-                                const response = await fetchWithTimeout(fUrl, 3500);
+                                const response = await fetchWithTimeout(fUrl, 4500);
                                 if (response.ok) {
                                     textContent = await response.text();
                                     localStorage.setItem(cacheKey, textContent);
@@ -1902,8 +2017,10 @@
                     }
                 }
 
+                const formattedBody = formatBookWithTOC(textContent, idx);
+
                 html += `
-                    <div class="item-card" style="padding: 0; overflow: hidden;">
+                    <div class="item-card" style="padding: 0; overflow: visible;">
                         <details style="cursor: pointer;">
                             <summary style="padding: 14px 16px; list-style: none; outline: none; user-select: none;">
                                 <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
@@ -1912,7 +2029,7 @@
                                     <span style="font-size: 13px; font-weight: bold; color: var(--green-primary);">পড়ুন ▼</span>
                                 </div>
                             </summary>
-                            <div class="article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.85; color: var(--text-dark); text-align: left; padding: 14px 16px 18px 16px; background-color: #fcfcf9; border-top: 1px dashed var(--border-subtle);">${textContent}</div>
+                            <div class="article-content-body" style="white-space: pre-wrap; font-size: ${currentArticleFontSize}px; line-height: 1.85; color: var(--text-dark); text-align: left; padding: 14px 16px 18px 16px; background-color: #fcfcf9; border-top: 1px dashed var(--border-subtle);">${formattedBody}</div>
                         </details>
                     </div>
                 `;
