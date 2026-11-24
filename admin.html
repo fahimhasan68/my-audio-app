@@ -77,6 +77,11 @@
             display: inline-block; background: var(--gold-main); color: var(--green-dark);
             font-weight: bold; font-size: 11.5px; padding: 2px 8px; border-radius: 5px; margin-bottom: 6px;
         }
+        .type-badge {
+            font-size: 10.5px; font-weight: bold; padding: 1px 6px; border-radius: 4px; margin-left: 5px;
+        }
+        .badge-pdf { background: #fee2e2; color: #b91c1c; }
+        .badge-txt { background: #e7efe9; color: #164431; }
     </style>
 </head>
 <body>
@@ -93,7 +98,7 @@
         <label>GitHub Personal Access Token (PAT):</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
         
-        <label>GitHub Release Tag নাম (যে রিলিজে অডিও ফাইলগুলো রাখবেন):</label>
+        <label>GitHub Release Tag নাম (যে রিলিজে অডিও ও PDF ফাইলগুলো রাখবেন):</label>
         <input type="text" id="release-tag" value="v4.0" placeholder="যেমন: v4.0">
         
         <button class="btn" onclick="saveSettings()">💾 সেটিংস সেভ করুন</button>
@@ -174,20 +179,23 @@
         </div>
     </div>
 
-    <!-- ৫. প্রবন্ধ (.txt ফাইল) আপলোড ও ম্যানেজমেন্ট -->
-    <div class="card">
-        <h2>📖 ৫. নতুন প্রবন্ধ (.txt) আপলোড</h2>
-        <label>প্রবন্ধের বাংলা শিরোনাম:</label>
-        <input type="text" id="article-title" placeholder="যেমন: ইরশাদুস সাঈদ; ৪০ দরূদ ও সালাম সংকলন">
+    <!-- ৫. কিতাব (.pdf - GitHub Releases) ও প্রবন্ধ (.txt) আপলোড -->
+    <div class="card" style="border-top: 3px solid var(--gold-main);">
+        <h2>📖 ৫. নতুন কিতাব (.pdf) বা প্রবন্ধ (.txt) আপলোড</h2>
+        <label>কিতাব বা প্রবন্ধের বাংলা শিরোনাম:</label>
+        <input type="text" id="article-title" placeholder="যেমন: দেওবন্দ আন্দোলন: ইতিহাস ঐতিহ্য অবদান">
 
-        <label>প্রবন্ধের .txt ফাইল সিলেক্ট করুন:</label>
-        <input type="file" id="article-file" accept=".txt,text/plain">
+        <label>ফাইল সিলেক্ট করুন (.pdf অথবা .txt):</label>
+        <input type="file" id="article-file" accept=".pdf,.txt,application/pdf,text/plain">
+        <p style="font-size: 12px; color: #526b5e; margin-top: -8px; margin-bottom: 12px;">
+            * <strong>.pdf</strong> সিলেক্ট করলে সেটি স্বয়ংক্রিয়ভাবে <strong>GitHub Releases</strong>-এ আপলোড হবে এবং ইউজার অ্যাপ থেকে সরাসরি ফুল-স্ক্রিন, জুম ও আড়াআড়ি মোডে পড়তে পারবে।
+        </p>
 
-        <button class="btn" id="article-upload-btn" onclick="uploadArticleTxt()">⬆️ প্রবন্ধ আপলোড ও পাবলিশ করুন</button>
+        <button class="btn" id="article-upload-btn" onclick="uploadArticleOrPdf()">⬆️ কিতাব / প্রবন্ধ আপলোড ও পাবলিশ করুন</button>
         <div id="article-status" class="status-msg"></div>
 
         <div style="margin-top: 14px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
-            <strong style="font-size: 13.5px; color: var(--green-primary);">প্রকাশিত প্রবন্ধসমূহ:</strong>
+            <strong style="font-size: 13.5px; color: var(--green-primary);">প্রকাশিত কিতাব ও প্রবন্ধসমূহ:</strong>
             <div id="published-articles-list" style="margin-top: 6px; font-size: 13px; color: #526b5e;">লোড হচ্ছে...</div>
         </div>
     </div>
@@ -282,6 +290,38 @@
         if (!res.ok) throw new Error(`data.json আপডেট ব্যর্থ হয়েছে (Status: ${res.status})`);
     }
 
+    // নির্ধারিত ট্যাগের GitHub Release খুঁজে বের করা অথবা স্বয়ংক্রিয়ভাবে তৈরি করা
+    async function getOrCreateGithubRelease(token, tag) {
+        const headers = {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+        };
+
+        const checkRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${encodeURIComponent(tag)}`, { headers });
+        if (checkRes.ok) {
+            return await checkRes.json();
+        }
+
+        const createRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+                tag_name: tag,
+                name: `Release ${tag}`,
+                body: "দ্বীনি মেহনত অ্যাপের কিতাব ও অডিও ফাইলসমূহ",
+                draft: false,
+                prerelease: false
+            })
+        });
+
+        if (!createRes.ok) {
+            const errInfo = await createRes.json().catch(() => ({}));
+            throw new Error(`রিলিজ (${tag}) তৈরি করা যায়নি: ${errInfo.message || createRes.status}`);
+        }
+        return await createRes.json();
+    }
+
     // সব ডাটা লোড করে অ্যাডমিন প্যানেলের সব সেকশন পূর্ণ করা
     async function loadAllData() {
         const token = document.getElementById("gh-token").value.trim();
@@ -290,7 +330,6 @@
         try {
             const { content } = await getDataJson(token);
 
-            // সোশ্যাল লিংক ইনপুট বক্সে বসানো
             document.getElementById("link-telegram").value = content.social_links?.telegram || "";
             document.getElementById("link-whatsapp").value = content.social_links?.whatsapp || "";
             document.getElementById("link-youtube").value = content.social_links?.youtube || "";
@@ -311,20 +350,26 @@
                 `).join('');
             }
 
-            // প্রবন্ধ তালিকা
+            // কিতাব ও প্রবন্ধ তালিকা
             const articleListEl = document.getElementById("published-articles-list");
             if (content.articles.length === 0) {
-                articleListEl.innerHTML = "কোনো প্রবন্ধ নেই।";
+                articleListEl.innerHTML = "কোনো কিতাব বা প্রবন্ধ নেই।";
             } else {
-                articleListEl.innerHTML = content.articles.map((a, idx) => `
-                    <div class="item-row">
-                        <div>
-                            <div style="font-weight: bold; color: var(--green-primary);">📜 ${a.title}</div>
-                            <div style="font-size: 11px; color: #666;">ফাইল: ${a.file} | তারিখ: ${a.date}</div>
+                articleListEl.innerHTML = content.articles.map((a, idx) => {
+                    const isPdf = (a.type === 'pdf') || (a.file && a.file.toLowerCase().endsWith('.pdf'));
+                    const badge = isPdf
+                        ? `<span class="type-badge badge-pdf">PDF (Release)</span>`
+                        : `<span class="type-badge badge-txt">TXT</span>`;
+                    return `
+                        <div class="item-row">
+                            <div>
+                                <div style="font-weight: bold; color: var(--green-primary);">${isPdf ? '📕' : '📜'} ${a.title} ${badge}</div>
+                                <div style="font-size: 11px; color: #666; word-break: break-all;">ফাইল: ${a.file} | তারিখ: ${a.date}</div>
+                            </div>
+                            <button class="btn-danger" onclick="deleteArticle(${idx})">মুছুন</button>
                         </div>
-                        <button class="btn-danger" onclick="deleteArticle(${idx})">মুছুন</button>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             // সাম্প্রতিক বয়ান তালিকা
@@ -550,7 +595,7 @@
         }
     }
 
-    // প্রবন্ধ (.txt) আপলোড ও মুছা
+    // কিতাব (.pdf - GitHub Releases) ও প্রবন্ধ (.txt) আপলোড
     function readFileAsText(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -560,50 +605,92 @@
         });
     }
 
-    async function uploadArticleTxt() {
+    async function uploadArticleOrPdf() {
         const token = document.getElementById("gh-token").value.trim();
+        const tag = document.getElementById("release-tag").value.trim() || "v4.0";
         const title = document.getElementById("article-title").value.trim();
         const fileInput = document.getElementById("article-file");
 
         if (!token) return alert("প্রথমে GitHub টোকেন দিয়ে সেভ করুন!");
-        if (!title) return alert("প্রবন্ধের বাংলা শিরোনাম লিখুন!");
-        if (!fileInput.files || fileInput.files.length === 0) return alert("একটি .txt ফাইল সিলেক্ট করুন!");
+        if (!title) return alert("কিতাব বা প্রবন্ধের বাংলা শিরোনাম লিখুন!");
+        if (!fileInput.files || fileInput.files.length === 0) return alert("একটি .pdf অথবা .txt ফাইল সিলেক্ট করুন!");
 
         const file = fileInput.files[0];
-        const safeTxtName = `article_${Date.now()}.txt`;
+        const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
         const btn = document.getElementById("article-upload-btn");
         btn.disabled = true;
-        showMsg("article-status", "⏳ প্রবন্ধ আপলোড ও পাবলিশ হচ্ছে...");
 
         try {
-            const rawText = await readFileAsText(file);
+            if (isPdf) {
+                showMsg("article-status", "⏳ ১/৩: GitHub Release প্রস্তুত করা হচ্ছে...");
+                const releaseObj = await getOrCreateGithubRelease(token, tag);
+                const safePdfName = `kitab_${Date.now()}.pdf`;
+                const uploadBaseUrl = releaseObj.upload_url.split('{')[0];
+                const assetUploadUrl = `${uploadBaseUrl}?name=${encodeURIComponent(safePdfName)}`;
 
-            // ১. রিপোজিটরির রুটে .txt ফাইলটি আপলোড করা
-            const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${safeTxtName}`, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Accept": "application/vnd.github.v3+json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: `Upload article: ${safeTxtName}`,
-                    content: utf8ToBase64(rawText)
-                })
-            });
+                showMsg("article-status", `⏳ ২/৩: PDF ফাইলটি (${(file.size / (1024 * 1024)).toFixed(2)} MB) GitHub Releases-এ আপলোড হচ্ছে...`);
 
-            if (!uploadRes.ok) throw new Error("TXT ফাইল আপলোড ব্যর্থ হয়েছে।");
+                const assetRes = await fetch(assetUploadUrl, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Accept": "application/vnd.github.v3+json",
+                        "Content-Type": "application/pdf"
+                    },
+                    body: file
+                });
 
-            // ২. data.json-এ প্রবন্ধের এন্ট্রি যুক্ত করা
-            const { sha, content } = await getDataJson(token);
-            content.articles.unshift({
-                title: title,
-                date: new Date().toLocaleDateString('bn-BD'),
-                file: safeTxtName
-            });
+                if (!assetRes.ok) {
+                    const errData = await assetRes.json().catch(() => ({}));
+                    throw new Error(`GitHub Release আপলোড ব্যর্থ: ${errData.message || assetRes.status}`);
+                }
 
-            await updateDataJson(token, sha, content, `Publish article: ${title}`);
-            showMsg("article-status", "🎉 প্রবন্ধ সফলভাবে পাবলিশ হয়েছে!");
+                const assetJson = await assetRes.json();
+                const downloadUrl = assetJson.browser_download_url || `https://github.com/${OWNER}/${REPO}/releases/download/${encodeURIComponent(tag)}/${safePdfName}`;
+
+                showMsg("article-status", "⏳ ৩/৩: data.json আপডেট ও পাবলিশ হচ্ছে...");
+                const { sha, content } = await getDataJson(token);
+                content.articles.unshift({
+                    title: title,
+                    date: new Date().toLocaleDateString('bn-BD'),
+                    file: downloadUrl,
+                    type: "pdf"
+                });
+
+                await updateDataJson(token, sha, content, `Publish PDF kitab to Release (${tag}): ${title}`);
+                showMsg("article-status", "🎉 আলহামদুলিল্লাহ! PDF কিতাবটি GitHub Releases-এ আপলোড ও পাবলিশ হয়েছে!");
+            } else {
+                const safeTxtName = `article_${Date.now()}.txt`;
+                showMsg("article-status", "⏳ প্রবন্ধ (.txt) আপলোড ও পাবলিশ হচ্ছে...");
+                const rawText = await readFileAsText(file);
+
+                const uploadRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${safeTxtName}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Accept": "application/vnd.github.v3+json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: `Upload article: ${safeTxtName}`,
+                        content: utf8ToBase64(rawText)
+                    })
+                });
+
+                if (!uploadRes.ok) throw new Error("TXT ফাইল আপলোড ব্যর্থ হয়েছে।");
+
+                const { sha, content } = await getDataJson(token);
+                content.articles.unshift({
+                    title: title,
+                    date: new Date().toLocaleDateString('bn-BD'),
+                    file: safeTxtName,
+                    type: "txt"
+                });
+
+                await updateDataJson(token, sha, content, `Publish article: ${title}`);
+                showMsg("article-status", "🎉 প্রবন্ধ সফলভাবে পাবলিশ হয়েছে!");
+            }
+
             document.getElementById("article-title").value = "";
             fileInput.value = "";
             loadAllData();
@@ -615,7 +702,7 @@
     }
 
     async function deleteArticle(idx) {
-        if (!confirm("এই প্রবন্ধটি তালিকা থেকে মুছে ফেলতে চান?")) return;
+        if (!confirm("এই কিতাব/প্রবন্ধটি তালিকা থেকে মুছে ফেলতে চান?")) return;
         const token = document.getElementById("gh-token").value.trim();
         try {
             const { sha, content } = await getDataJson(token);
