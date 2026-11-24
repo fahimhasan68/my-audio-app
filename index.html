@@ -2,9 +2,16 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>দ্বীনি মেহনত</title>
     <meta name="theme-color" content="#164431">
+    <!-- অ্যাপের ভেতরেই PDF রেন্ডার করার জন্য PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
     <style>
         :root {
             --green-primary: #164431;
@@ -113,7 +120,7 @@
         }
 
         body.fullscreen-reading main {
-            padding: 6px !important;
+            padding: 4px !important;
             height: 100vh !important;
             background-color: #fcfcf9;
         }
@@ -144,7 +151,7 @@
         body.forced-landscape main {
             width: 100vh !important;
             height: 100vw !important;
-            padding: 8px 14px !important;
+            padding: 6px 12px !important;
         }
 
         .tab-section {
@@ -360,7 +367,7 @@
             color: #ffffff;
         }
 
-        /* কোণায় ভাসমান ফ্লোটিং কন্ট্রোল (ফিক্সড সূচিপত্র ড্রপডাউন পজিশন) */
+        /* কোণায় ভাসমান ফ্লোটিং কন্ট্রোল */
         .toc-floating-corner {
             position: sticky;
             top: 8px;
@@ -379,7 +386,7 @@
             pointer-events: auto;
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
         }
 
         .toc-circle-btn {
@@ -397,6 +404,8 @@
             cursor: pointer;
             transition: transform 0.2s ease, background-color 0.2s;
             padding: 0;
+            font-weight: bold;
+            font-size: 14px;
         }
 
         .toc-circle-btn:active,
@@ -465,6 +474,112 @@
             padding-left: 22px;
             font-size: 12.5px;
             color: var(--text-muted);
+        }
+
+        /* PDF রিডার স্পেশাল কন্টেইনার ও কন্ট্রোল স্টাইল */
+        .pdf-reader-wrapper {
+            background: #2b2d30;
+            border-top: 1px solid var(--border-subtle);
+            padding: 8px 4px 24px 4px;
+            min-height: 85vh;
+            position: relative;
+        }
+
+        .pdf-top-toolbar {
+            position: sticky;
+            top: 4px;
+            z-index: 45;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: rgba(15, 48, 34, 0.95);
+            border: 1.5px solid var(--gold-main);
+            border-radius: 10px;
+            padding: 6px 8px;
+            margin: 0 4px 10px 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            color: var(--gold-text);
+        }
+
+        .pdf-page-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pdf-page-input {
+            width: 46px;
+            padding: 3px 4px;
+            border-radius: 5px;
+            border: 1px solid var(--gold-main);
+            background: #ffffff;
+            color: var(--green-dark);
+            font-weight: bold;
+            text-align: center;
+            font-size: 12.5px;
+        }
+
+        .pdf-tool-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--gold-text);
+            border: 1px solid var(--gold-main);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pdf-tool-btn:active,
+        .pdf-tool-btn.active-mode {
+            background: var(--gold-main);
+            color: var(--green-dark);
+        }
+
+        .pdf-pages-viewport {
+            width: 100%;
+            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 20px;
+        }
+
+        .pdf-page-canvas-box {
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 220px;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .pdf-page-canvas-box canvas {
+            display: block;
+            max-width: none;
+        }
+
+        .pdf-page-num-tag {
+            position: absolute;
+            bottom: 6px;
+            right: 8px;
+            background: rgba(22, 68, 49, 0.82);
+            color: var(--gold-text);
+            font-size: 10.5px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            pointer-events: none;
         }
 
         .book-chapter-heading {
@@ -950,7 +1065,7 @@
             <div id="old-audio-dropdown-wrapper"></div>
         </section>
 
-        <!-- ২. প্রবন্ধ ও কিতাব সেকশন -->
+        <!-- ২. প্রবন্ধ ও কিতাব (PDF / TXT) সেকশন -->
         <section id="tab-articles" class="tab-section">
             <div class="font-control-bar">
                 <span style="font-size: 13px; color: var(--green-primary); font-weight: bold;">🔍 লেখার আকার: <b id="font-size-display">16px</b></span>
@@ -1096,7 +1211,7 @@
         const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
         const DATA_URL = "data.json";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v10";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v12";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -1105,6 +1220,7 @@
 
         let activeSocialLinks = { telegram: "", whatsapp: "", youtube: "" };
         const activeBlobUrls = {};
+        const loadedPdfDocs = {}; // লোড হওয়া PDF ডকুমেন্ট স্টোর
         let sliderInterval = null;
         let currentSlideIdx = 0;
         let totalSlidesCount = 0;
@@ -1118,7 +1234,7 @@
         const SVG_SPINNER = `<svg class="spin-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
         const SVG_CHECK = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
         const SVG_TRASH = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
-        const SVG_ROTATE_PHONE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16.47 2.53a9 9 0 0 1 5 5"/><polyline points="21 3 21.5 7.5 17 7"/><path d="M7.53 21.47a9 9 0 0 1-5-5"/><polyline points="3 21 2.5 16.5 7 17"/><rect x="7" y="5" width="10" height="14" rx="2" transform="rotate(-35 12 12)"/></svg>`;
+        const SVG_ROTATE_PHONE = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16.47 2.53a9 9 0 0 1 5 5"/><polyline points="21 3 21.5 7.5 17 7"/><path d="M7.53 21.47a9 9 0 0 1-5-5"/><polyline points="3 21 2.5 16.5 7 17"/><rect x="7" y="5" width="10" height="14" rx="2" transform="rotate(-35 12 12)"/></svg>`;
 
         const BD_DISTRICTS = [
             { bn: "খুলনা", en: "Khulna" }, { bn: "ঢাকা", en: "Dhaka" },
@@ -2026,7 +2142,7 @@
             }
         }
 
-        // ৫. প্রবন্ধ, কিতাব, টপ ব্যানার নোটিশ ও সোশ্যাল লিংক লোড
+        // ৫. প্রবন্ধ, কিতাব (PDF / TXT), টপ ব্যানার নোটিশ ও সোশ্যাল লিংক লোড
         async function fetchContent() {
             const cachedSiteData = localStorage.getItem('user_cached_site_data');
             let hasCache = false;
@@ -2065,6 +2181,9 @@
         // ফুল-স্ক্রিন ও আড়াআড়ি (Landscape) রিডিং কন্ট্রোল ফাংশনসমূহ
         function handleArticleToggle(detailsEl) {
             const cardEl = detailsEl.closest('.article-card-item');
+            const idx = detailsEl.dataset.idx;
+            const isPdf = detailsEl.dataset.ispdf === '1';
+
             if (detailsEl.open) {
                 document.querySelectorAll('.article-card-item details').forEach(d => {
                     if (d !== detailsEl) {
@@ -2075,6 +2194,10 @@
                 });
                 if (cardEl) cardEl.classList.add('is-open');
                 document.body.classList.add('fullscreen-reading');
+
+                if (isPdf && !loadedPdfDocs[idx]) {
+                    initPdfViewer(idx, detailsEl.dataset.fileurl);
+                }
             } else {
                 if (cardEl) cardEl.classList.remove('is-open');
                 exitFullscreenReading();
@@ -2111,17 +2234,27 @@
                     } catch (e) {}
                 }
                 document.body.classList.add('forced-landscape');
-                if (btnEl) btnEl.classList.add('active-mode');
+                document.querySelectorAll('.rotate-mode-btn').forEach(b => b.classList.add('active-mode'));
             } else {
                 document.body.classList.remove('forced-landscape');
-                if (btnEl) btnEl.classList.remove('active-mode');
+                document.querySelectorAll('.rotate-mode-btn').forEach(b => b.classList.remove('active-mode'));
                 if (screen.orientation && screen.orientation.unlock) {
                     try { screen.orientation.unlock(); } catch (e) {}
                 }
             }
+
+            // কোনো PDF খোলা থাকলে নতুন স্ক্রিন প্রস্থ অনুযায়ী জুম ফিট করা
+            setTimeout(() => {
+                document.querySelectorAll('.article-card-item.is-open details[data-ispdf="1"]').forEach(d => {
+                    const idx = d.dataset.idx;
+                    if (loadedPdfDocs[idx]) {
+                        fitPdfToScreen(idx);
+                    }
+                });
+            }, 150);
         }
 
-        // বড় কিতাবের কোণায় ভাসমান আড়াআড়ি বাটন + গোল সূচিপত্র বাটন + প্রস্থান বাটন
+        // বড় TXT কিতাবের কোণায় ভাসমান আড়াআড়ি বাটন + গোল সূচিপত্র বাটন + প্রস্থান বাটন
         function formatBookWithTOC(rawText, articleIdx) {
             const lines = rawText.split(/\r?\n/);
             const tocItems = [];
@@ -2191,13 +2324,202 @@
             }
         });
 
+        // অ্যাপের ভেতরে সরাসরি PDF লোড ও রেন্ডার ইঞ্জিন (GitHub Releases CORS সাপোর্টসহ)
+        async function fetchPdfBufferWithFallback(pdfUrl) {
+            const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `${REMOTE_BASE_URL}${pdfUrl}`;
+            const candidates = [
+                fullUrl,
+                `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`
+            ];
+
+            for (const url of candidates) {
+                try {
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        const buf = await res.arrayBuffer();
+                        if (buf && buf.byteLength > 500) {
+                            return buf;
+                        }
+                    }
+                } catch (e) {}
+            }
+            throw new Error("PDF ফাইলটি লোড করা সম্ভব হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।");
+        }
+
+        async function initPdfViewer(idx, pdfUrl) {
+            const statusEl = document.getElementById(`pdf-status-${idx}`);
+            const viewportEl = document.getElementById(`pdf-viewport-${idx}`);
+            const totalPagesEl = document.getElementById(`pdf-total-pages-${idx}`);
+            if (!viewportEl) return;
+
+            if (!window.pdfjsLib) {
+                if (statusEl) statusEl.innerText = "❌ PDF রিডার লাইব্রেরি লোড হয়নি। ইন্টারনেট চালু করে রিফ্রেশ দিন।";
+                return;
+            }
+
+            try {
+                if (statusEl) {
+                    statusEl.style.display = "block";
+                    statusEl.innerText = "⏳ PDF কিতাব লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...";
+                }
+
+                const arrayBuffer = await fetchPdfBufferWithFallback(pdfUrl);
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdfDoc = await loadingTask.promise;
+
+                const firstPage = await pdfDoc.getPage(1);
+                const baseViewport = firstPage.getViewport({ scale: 1 });
+                const containerWidth = Math.max(280, viewportEl.clientWidth - 12);
+                const initialScale = containerWidth / baseViewport.width;
+
+                loadedPdfDocs[idx] = {
+                    doc: pdfDoc,
+                    numPages: pdfDoc.numPages,
+                    scale: initialScale,
+                    baseWidth: baseViewport.width,
+                    renderedPages: new Set(),
+                    renderingPages: new Set()
+                };
+
+                if (totalPagesEl) totalPagesEl.innerText = toBnDigits(pdfDoc.numPages);
+                if (statusEl) statusEl.style.display = "none";
+
+                buildPdfPagePlaceholders(idx);
+            } catch (err) {
+                if (statusEl) {
+                    statusEl.style.display = "block";
+                    statusEl.innerHTML = `❌ ${err.message}<br><button type="button" class="btn-gold" style="margin-top:10px;" onclick="initPdfViewer(${idx}, '${pdfUrl}')">🔄 আবার চেষ্টা করুন</button>`;
+                }
+            }
+        }
+
+        function buildPdfPagePlaceholders(idx) {
+            const state = loadedPdfDocs[idx];
+            const viewportEl = document.getElementById(`pdf-viewport-${idx}`);
+            if (!state || !viewportEl) return;
+
+            state.renderedPages.clear();
+            state.renderingPages.clear();
+
+            let boxesHtml = '';
+            for (let p = 1; p <= state.numPages; p++) {
+                boxesHtml += `
+                    <div id="pdf-page-box-${idx}-${p}" class="pdf-page-canvas-box" data-page="${p}">
+                        <span style="color:#666; font-size:12px;">পৃষ্ঠা ${toBnDigits(p)} লোড হচ্ছে...</span>
+                        <span class="pdf-page-num-tag">${toBnDigits(p)} / ${toBnDigits(state.numPages)}</span>
+                    </div>
+                `;
+            }
+            viewportEl.innerHTML = boxesHtml;
+
+            // Lazy IntersectionObserver দিয়ে যেসব পৃষ্ঠা স্ক্রিনে আসছে শুধু সেগুলো হাই-রেজোলিউশনে রেন্ডার করা
+            const mainEl = document.querySelector('main');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const pageNum = parseInt(entry.target.dataset.page);
+                        renderSinglePdfPage(idx, pageNum);
+                        const pageInput = document.getElementById(`pdf-page-input-${idx}`);
+                        if (pageInput && document.activeElement !== pageInput) {
+                            pageInput.value = pageNum;
+                        }
+                    }
+                });
+            }, { root: mainEl, rootMargin: '400px 0px' });
+
+            for (let p = 1; p <= state.numPages; p++) {
+                const box = document.getElementById(`pdf-page-box-${idx}-${p}`);
+                if (box) observer.observe(box);
+            }
+
+            // প্রথম ২টি পৃষ্ঠা তাৎক্ষণিক রেন্ডার
+            renderSinglePdfPage(idx, 1);
+            if (state.numPages >= 2) renderSinglePdfPage(idx, 2);
+        }
+
+        async function renderSinglePdfPage(idx, pageNum) {
+            const state = loadedPdfDocs[idx];
+            if (!state || state.renderedPages.has(pageNum) || state.renderingPages.has(pageNum)) return;
+
+            const box = document.getElementById(`pdf-page-box-${idx}-${pageNum}`);
+            if (!box) return;
+
+            state.renderingPages.add(pageNum);
+            try {
+                const page = await state.doc.getPage(pageNum);
+                const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+                const viewport = page.getViewport({ scale: state.scale });
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = Math.floor(viewport.width * dpr);
+                canvas.height = Math.floor(viewport.height * dpr);
+                canvas.style.width = `${Math.floor(viewport.width)}px`;
+                canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                box.style.width = `${Math.floor(viewport.width)}px`;
+                box.style.height = `${Math.floor(viewport.height)}px`;
+                box.innerHTML = '';
+                box.appendChild(canvas);
+
+                const tag = document.createElement('span');
+                tag.className = 'pdf-page-num-tag';
+                tag.innerText = `${toBnDigits(pageNum)} / ${toBnDigits(state.numPages)}`;
+                box.appendChild(tag);
+
+                state.renderedPages.add(pageNum);
+            } catch (e) {
+                console.warn(`Page ${pageNum} render error:`, e);
+            } finally {
+                state.renderingPages.delete(pageNum);
+            }
+        }
+
+        function changePdfZoom(idx, delta) {
+            const state = loadedPdfDocs[idx];
+            if (!state) return;
+            const fitScale = (Math.max(280, (document.getElementById(`pdf-viewport-${idx}`)?.clientWidth || 340) - 12)) / state.baseWidth;
+            const minScale = fitScale * 0.75;
+            const maxScale = fitScale * 3.2;
+
+            state.scale = Math.min(maxScale, Math.max(minScale, state.scale + delta));
+            buildPdfPagePlaceholders(idx);
+        }
+
+        function fitPdfToScreen(idx) {
+            const state = loadedPdfDocs[idx];
+            const viewportEl = document.getElementById(`pdf-viewport-${idx}`);
+            if (!state || !viewportEl) return;
+            const containerWidth = Math.max(280, viewportEl.clientWidth - 12);
+            state.scale = containerWidth / state.baseWidth;
+            buildPdfPagePlaceholders(idx);
+        }
+
+        function jumpToPdfPage(idx, pageVal) {
+            const state = loadedPdfDocs[idx];
+            if (!state) return;
+            let targetPage = parseInt(pageVal);
+            if (isNaN(targetPage) || targetPage < 1) targetPage = 1;
+            if (targetPage > state.numPages) targetPage = state.numPages;
+
+            const box = document.getElementById(`pdf-page-box-${idx}-${targetPage}`);
+            if (box) {
+                renderSinglePdfPage(idx, targetPage);
+                box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
         async function renderArticles(articles) {
             const container = document.getElementById('article-list');
             if (!container) return;
 
             if (!articles || articles.length === 0) {
                 container.className = 'status-box';
-                container.innerHTML = 'কোনো প্রবন্ধ পাওয়া যায়নি।';
+                container.innerHTML = 'কোনো কিতাব বা প্রবন্ধ পাওয়া যায়নি।';
                 return;
             }
 
@@ -2206,8 +2528,46 @@
             let html = '';
             for (let idx = 0; idx < articles.length; idx++) {
                 const item = articles[idx];
-                let textContent = item.content || '';
+                const isPdf = (item.type === 'pdf') || (item.file && item.file.toLowerCase().endsWith('.pdf'));
 
+                if (isPdf) {
+                    const pdfUrl = item.file || '';
+                    html += `
+                        <div class="item-card article-card-item" style="padding: 0; overflow: visible;">
+                            <details id="article-details-${idx}" data-idx="${idx}" data-ispdf="1" data-fileurl="${pdfUrl}" ontoggle="handleArticleToggle(this)" style="cursor: pointer;">
+                                <summary style="padding: 14px 16px; list-style: none; outline: none; user-select: none;">
+                                    <div class="item-title">📕 ${item.title || 'শিরোনামহীন কিতাব'}</div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                                        <span class="item-date">তারিখ: ${item.date || '—'} • PDF কিতাব</span>
+                                        <span style="font-size: 13px; font-weight: bold; color: var(--green-primary);">পড়ুন ▼</span>
+                                    </div>
+                                </summary>
+                                <div class="pdf-reader-wrapper">
+                                    <div class="pdf-top-toolbar">
+                                        <div class="pdf-page-controls">
+                                            <span>পৃষ্ঠা:</span>
+                                            <input type="number" id="pdf-page-input-${idx}" class="pdf-page-input" value="1" min="1" onchange="jumpToPdfPage(${idx}, this.value)">
+                                            <span>/ <b id="pdf-total-pages-${idx}">...</b></span>
+                                        </div>
+                                        <div style="display:inline-flex; align-items:center; gap:5px;">
+                                            <button type="button" class="pdf-tool-btn" title="জুম আউট" onclick="changePdfZoom(${idx}, -0.2)">➖</button>
+                                            <button type="button" class="pdf-tool-btn" title="স্ক্রিন ফিট" onclick="fitPdfToScreen(${idx})">Fit</button>
+                                            <button type="button" class="pdf-tool-btn" title="জুম ইন" onclick="changePdfZoom(${idx}, 0.2)">➕</button>
+                                            <button type="button" class="pdf-tool-btn rotate-mode-btn" title="আড়াআড়ি পড়ুন" onclick="toggleLandscapeReading(event, this)">${SVG_ROTATE_PHONE}</button>
+                                            <button type="button" class="pdf-tool-btn" title="বন্ধ করুন" onclick="closeCurrentBook(${idx})" style="background:#991b1b; color:#fff;">✕</button>
+                                        </div>
+                                    </div>
+                                    <div id="pdf-status-${idx}" style="color:#f0d77b; text-align:center; padding:30px 12px; font-size:14px; font-weight:bold;">লোড হচ্ছে...</div>
+                                    <div id="pdf-viewport-${idx}" class="pdf-pages-viewport"></div>
+                                </div>
+                            </details>
+                        </div>
+                    `;
+                    continue;
+                }
+
+                // সাধারণ প্রবন্ধ বা TXT কিতাবের জন্য
+                let textContent = item.content || '';
                 if (item.file) {
                     const cacheKey = 'text_cache_' + item.file;
                     const savedText = localStorage.getItem(cacheKey);
@@ -2238,7 +2598,7 @@
 
                 html += `
                     <div class="item-card article-card-item" style="padding: 0; overflow: visible;">
-                        <details id="article-details-${idx}" ontoggle="handleArticleToggle(this)" style="cursor: pointer;">
+                        <details id="article-details-${idx}" data-idx="${idx}" data-ispdf="0" ontoggle="handleArticleToggle(this)" style="cursor: pointer;">
                             <summary style="padding: 14px 16px; list-style: none; outline: none; user-select: none;">
                                 <div class="item-title">📜 ${item.title || 'শিরোনামহীন'}</div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
