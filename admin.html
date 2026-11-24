@@ -146,7 +146,7 @@
 
             <div style="background: #fefce8; border: 1px solid #facc15; padding: 10px; border-radius: 8px; font-size: 12.5px; margin-bottom: 12px; line-height: 1.55;">
                 <strong>ধাপ খ:</strong> ডাউনলোড হওয়া ZIP ফাইলটি Extract/Unzip করে ভেতরের সব ইংরেজি ফাইল একসাথে 
-                <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold; text-decoration: underline;">GitHub Releases (<span id="tag-preview">v4.0</span>)</a> 
+                <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold; text-decoration: underline;">GitHub Releases (<span class="tag-preview-text">v4.0</span>)</a> 
                 পেজে ড্র্যাগ করে আপলোড ও Save করুন। তারপর নিচের বাটনে চাপুন:
             </div>
 
@@ -183,15 +183,28 @@
     <div class="card" style="border-top: 3px solid var(--gold-main);">
         <h2>📖 ৫. নতুন কিতাব (.pdf) বা প্রবন্ধ (.txt) আপলোড</h2>
         <label>কিতাব বা প্রবন্ধের বাংলা শিরোনাম:</label>
-        <input type="text" id="article-title" placeholder="যেমন: দেওবন্দ আন্দোলন: ইতিহাস ঐতিহ্য অবদান">
+        <input type="text" id="article-title" placeholder="যেমন: মা'আরিফুল হাদীস ১ম খণ্ড">
 
         <label>ফাইল সিলেক্ট করুন (.pdf অথবা .txt):</label>
-        <input type="file" id="article-file" accept=".pdf,.txt,application/pdf,text/plain">
-        <p style="font-size: 12px; color: #526b5e; margin-top: -8px; margin-bottom: 12px;">
-            * <strong>.pdf</strong> সিলেক্ট করলে সেটি স্বয়ংক্রিয়ভাবে <strong>GitHub Releases</strong>-এ আপলোড হবে এবং ইউজার অ্যাপ থেকে সরাসরি ফুল-স্ক্রিন, জুম ও আড়াআড়ি মোডে পড়তে পারবে।
-        </p>
+        <input type="file" id="article-file" accept=".pdf,.txt,application/pdf,text/plain" onchange="handleArticleFileSelect()">
 
-        <button class="btn" id="article-upload-btn" onclick="uploadArticleOrPdf()">⬆️ কিতাব / প্রবন্ধ আপলোড ও পাবলিশ করুন</button>
+        <!-- PDF সিলেক্ট করলে অটো-রিনেম ও রিলিজ নির্দেশনা দেখাবে -->
+        <div id="pdf-release-box" style="display: none; background: #fefce8; border: 1px solid #facc15; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+            <span class="step-badge">PDF আপলোড পদ্ধতি (CORS নিরাপদ)</span>
+            <p style="font-size: 12.5px; color: #163024; margin-bottom: 8px; line-height: 1.55;">
+                ব্রাউজার থেকে সরাসরি GitHub Releases-এ ফাইল আপলোড ব্লক থাকে। তাই নিচের বাটনে চেপে ইংরেজি নামের PDF ফাইলটি ডাউনলোড করে 
+                <a href="https://github.com/fahimhasan68/my-audio-app/releases" target="_blank" style="color: var(--green-primary); font-weight: bold; text-decoration: underline;">GitHub Releases (<span class="tag-preview-text">v4.0</span>)</a> 
+                পেজে ড্রপ করে সেভ করুন, তারপর নিচের পাবলিশ বাটনে চাপুন:
+            </p>
+            <div style="font-size: 12px; margin-bottom: 8px; color: #526b5e;">
+                রিনেম করা ফাইলের নাম: <code id="pdf-renamed-preview" style="background:#fff; padding:2px 6px; border:1px solid #ddd; border-radius:4px; font-weight:bold;"></code>
+            </div>
+            <button type="button" class="btn-secondary" onclick="downloadRenamedPdf()">
+                📥 রিনেম করা PDF ফাইলটি ডাউনলোড করুন
+            </button>
+        </div>
+
+        <button class="btn" id="article-upload-btn" onclick="uploadArticleOrPdf()">🚀 কিতাব / প্রবন্ধ পাবলিশ করুন</button>
         <div id="article-status" class="status-msg"></div>
 
         <div style="margin-top: 14px; border-top: 1px solid var(--border-subtle); padding-top: 10px;">
@@ -217,25 +230,31 @@
     const REPO = "my-audio-app";
     const DATA_FILE = "data.json";
     let preparedBatch = [];
+    let preparedPdfInfo = null;
 
     window.onload = () => {
         const savedToken = localStorage.getItem("dm_gh_token") || "";
         const savedTag = localStorage.getItem("dm_gh_tag") || "v4.0";
         document.getElementById("gh-token").value = savedToken;
         document.getElementById("release-tag").value = savedTag;
-        document.getElementById("tag-preview").innerText = savedTag;
+        updateTagPreviews(savedTag);
         if (savedToken) loadAllData();
     };
+
+    function updateTagPreviews(tag) {
+        document.querySelectorAll(".tag-preview-text").forEach(el => el.innerText = tag);
+    }
 
     function saveSettings() {
         const token = document.getElementById("gh-token").value.trim();
         const tag = document.getElementById("release-tag").value.trim() || "v4.0";
         localStorage.setItem("dm_gh_token", token);
         localStorage.setItem("dm_gh_tag", tag);
-        document.getElementById("tag-preview").innerText = tag;
+        updateTagPreviews(tag);
         showMsg("settings-status", "✅ সেটিংস সংরক্ষিত হয়েছে!");
         loadAllData();
         if (preparedBatch.length > 0) prepareBatchFiles();
+        if (preparedPdfInfo) handleArticleFileSelect();
     }
 
     function showMsg(elId, msg, isError = false) {
@@ -290,39 +309,6 @@
         if (!res.ok) throw new Error(`data.json আপডেট ব্যর্থ হয়েছে (Status: ${res.status})`);
     }
 
-    // নির্ধারিত ট্যাগের GitHub Release খুঁজে বের করা অথবা স্বয়ংক্রিয়ভাবে তৈরি করা
-    async function getOrCreateGithubRelease(token, tag) {
-        const headers = {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github.v3+json",
-            "Content-Type": "application/json"
-        };
-
-        const checkRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/tags/${encodeURIComponent(tag)}`, { headers });
-        if (checkRes.ok) {
-            return await checkRes.json();
-        }
-
-        const createRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-                tag_name: tag,
-                name: `Release ${tag}`,
-                body: "দ্বীনি মেহনত অ্যাপের কিতাব ও অডিও ফাইলসমূহ",
-                draft: false,
-                prerelease: false
-            })
-        });
-
-        if (!createRes.ok) {
-            const errInfo = await createRes.json().catch(() => ({}));
-            throw new Error(`রিলিজ (${tag}) তৈরি করা যায়নি: ${errInfo.message || createRes.status}`);
-        }
-        return await createRes.json();
-    }
-
-    // সব ডাটা লোড করে অ্যাডমিন প্যানেলের সব সেকশন পূর্ণ করা
     async function loadAllData() {
         const token = document.getElementById("gh-token").value.trim();
         if (!token) return;
@@ -334,7 +320,6 @@
             document.getElementById("link-whatsapp").value = content.social_links?.whatsapp || "";
             document.getElementById("link-youtube").value = content.social_links?.youtube || "";
 
-            // নোটিশ তালিকা
             const noticeListEl = document.getElementById("published-notices-list");
             if (content.notices.length === 0) {
                 noticeListEl.innerHTML = "কোনো নোটিশ নেই।";
@@ -350,7 +335,6 @@
                 `).join('');
             }
 
-            // কিতাব ও প্রবন্ধ তালিকা
             const articleListEl = document.getElementById("published-articles-list");
             if (content.articles.length === 0) {
                 articleListEl.innerHTML = "কোনো কিতাব বা প্রবন্ধ নেই।";
@@ -372,7 +356,6 @@
                 }).join('');
             }
 
-            // সাম্প্রতিক বয়ান তালিকা
             const mainListEl = document.getElementById("published-list");
             if (content.audios.length === 0) {
                 mainListEl.innerHTML = "কোনো সাম্প্রতিক বয়ান নেই।";
@@ -388,7 +371,6 @@
                 `).join('');
             }
 
-            // পুরনো বয়ান তালিকা
             const oldListEl = document.getElementById("published-old-list");
             if (content.old_audios.length === 0) {
                 oldListEl.innerHTML = "ড্রপডাউনে এখনো কোনো পুরনো বয়ান যোগ করা হয়নি।";
@@ -408,7 +390,6 @@
         }
     }
 
-    // সোশ্যাল লিংক সেভ ফাংশন
     async function saveSocialLinks() {
         const token = document.getElementById("gh-token").value.trim();
         if (!token) return alert("প্রথমে ১ নম্বর সেকশনে GitHub টোকেন দিয়ে সেভ করুন!");
@@ -434,7 +415,6 @@
         }
     }
 
-    // ব্যাচ অডিও ফাইল প্রস্তুতি
     function prepareBatchFiles() {
         const fileInput = document.getElementById("batch-files");
         const tag = document.getElementById("release-tag").value.trim() || "v4.0";
@@ -547,7 +527,6 @@
         }
     }
 
-    // নোটিশ যোগ ও মুছা
     async function addNotice() {
         const token = document.getElementById("gh-token").value.trim();
         const title = document.getElementById("notice-title").value.trim();
@@ -595,7 +574,52 @@
         }
     }
 
-    // কিতাব (.pdf - GitHub Releases) ও প্রবন্ধ (.txt) আপলোড
+    // PDF সিলেক্ট করলে অটো-রিনেম প্রস্তুত করা
+    function handleArticleFileSelect() {
+        const fileInput = document.getElementById("article-file");
+        const pdfBox = document.getElementById("pdf-release-box");
+        const titleInput = document.getElementById("article-title");
+        const tag = document.getElementById("release-tag").value.trim() || "v4.0";
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+            pdfBox.style.display = "none";
+            preparedPdfInfo = null;
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
+        if (!titleInput.value.trim()) {
+            titleInput.value = file.name.replace(/\.[^/.]+$/, "").trim();
+        }
+
+        if (isPdf) {
+            const safePdfName = `kitab_${Date.now()}.pdf`;
+            const releaseUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${encodeURIComponent(tag)}/${safePdfName}`;
+            preparedPdfInfo = {
+                file: file,
+                enFileName: safePdfName,
+                url: releaseUrl
+            };
+            document.getElementById("pdf-renamed-preview").innerText = safePdfName;
+            pdfBox.style.display = "block";
+        } else {
+            preparedPdfInfo = null;
+            pdfBox.style.display = "none";
+        }
+    }
+
+    function downloadRenamedPdf() {
+        if (!preparedPdfInfo) return;
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(preparedPdfInfo.file);
+        a.download = preparedPdfInfo.enFileName;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showMsg("article-status", `✅ "${preparedPdfInfo.enFileName}" ডাউনলোড হয়েছে! এখন ফাইলটি GitHub Releases-এ আপলোড করে সেভ করুন, তারপর নিচের পাবলিশ বাটনে চাপুন।`);
+    }
+
     function readFileAsText(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -607,7 +631,6 @@
 
     async function uploadArticleOrPdf() {
         const token = document.getElementById("gh-token").value.trim();
-        const tag = document.getElementById("release-tag").value.trim() || "v4.0";
         const title = document.getElementById("article-title").value.trim();
         const fileInput = document.getElementById("article-file");
 
@@ -622,43 +645,21 @@
 
         try {
             if (isPdf) {
-                showMsg("article-status", "⏳ ১/৩: GitHub Release প্রস্তুত করা হচ্ছে...");
-                const releaseObj = await getOrCreateGithubRelease(token, tag);
-                const safePdfName = `kitab_${Date.now()}.pdf`;
-                const uploadBaseUrl = releaseObj.upload_url.split('{')[0];
-                const assetUploadUrl = `${uploadBaseUrl}?name=${encodeURIComponent(safePdfName)}`;
-
-                showMsg("article-status", `⏳ ২/৩: PDF ফাইলটি (${(file.size / (1024 * 1024)).toFixed(2)} MB) GitHub Releases-এ আপলোড হচ্ছে...`);
-
-                const assetRes = await fetch(assetUploadUrl, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/pdf"
-                    },
-                    body: file
-                });
-
-                if (!assetRes.ok) {
-                    const errData = await assetRes.json().catch(() => ({}));
-                    throw new Error(`GitHub Release আপলোড ব্যর্থ: ${errData.message || assetRes.status}`);
-                }
-
-                const assetJson = await assetRes.json();
-                const downloadUrl = assetJson.browser_download_url || `https://github.com/${OWNER}/${REPO}/releases/download/${encodeURIComponent(tag)}/${safePdfName}`;
-
-                showMsg("article-status", "⏳ ৩/৩: data.json আপডেট ও পাবলিশ হচ্ছে...");
+                if (!preparedPdfInfo) handleArticleFileSelect();
+                showMsg("article-status", "⏳ data.json-এ PDF কিতাবের লিংক যুক্ত হচ্ছে...");
                 const { sha, content } = await getDataJson(token);
+
                 content.articles.unshift({
                     title: title,
                     date: new Date().toLocaleDateString('bn-BD'),
-                    file: downloadUrl,
+                    file: preparedPdfInfo.url,
                     type: "pdf"
                 });
 
-                await updateDataJson(token, sha, content, `Publish PDF kitab to Release (${tag}): ${title}`);
-                showMsg("article-status", "🎉 আলহামদুলিল্লাহ! PDF কিতাবটি GitHub Releases-এ আপলোড ও পাবলিশ হয়েছে!");
+                await updateDataJson(token, sha, content, `Publish PDF kitab: ${title}`);
+                showMsg("article-status", "🎉 আলহামদুলিল্লাহ! PDF কিতাবটি সফলভাবে পাবলিশ হয়েছে! (নিশ্চিত করুন যে রিনেম করা ফাইলটি GitHub Releases-এ আপলোড করা হয়েছে)");
+                preparedPdfInfo = null;
+                document.getElementById("pdf-release-box").style.display = "none";
             } else {
                 const safeTxtName = `article_${Date.now()}.txt`;
                 showMsg("article-status", "⏳ প্রবন্ধ (.txt) আপলোড ও পাবলিশ হচ্ছে...");
