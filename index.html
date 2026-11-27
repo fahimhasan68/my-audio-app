@@ -1236,7 +1236,7 @@
         const DATA_URL = "data.json";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
         const PDF_CACHE_NAME = "deeni-mehonot-saved-pdfs-v1";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v13";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v14";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -2343,7 +2343,7 @@
             }
         });
 
-        // GitHub Release Asset API ও প্রগ্রেস পার্সেন্টেজসহ PDF ডাউনলোডার
+        // PDF লোডিং পার্সেন্টেজ ও মাল্টি-প্রক্সি ডাউনলোডার
         function updatePdfProgressUI(idx, percent, sizeText) {
             const pctEl = document.getElementById(`pdf-pct-${idx}`);
             const fillEl = document.getElementById(`pdf-fill-${idx}`);
@@ -2353,13 +2353,14 @@
             if (subEl && sizeText) subEl.innerText = sizeText;
         }
 
-        async function downloadWithProgress(fetchUrl, headers, idx) {
-            const res = await fetch(fetchUrl, { headers });
+        async function downloadWithProgress(fetchUrl, idx) {
+            const res = await fetch(fetchUrl);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
             const contentLength = parseInt(res.headers.get('Content-Length') || '0', 10);
             if (!res.body) {
                 const buf = await res.arrayBuffer();
+                if (buf.byteLength < 1000) throw new Error("Empty or HTML response");
                 updatePdfProgressUI(idx, 100, 'সম্পন্ন');
                 return buf;
             }
@@ -2381,11 +2382,13 @@
                     const totMB = (contentLength / (1024 * 1024)).toFixed(1);
                     updatePdfProgressUI(idx, pct, `${toBnDigits(recMB)} MB / ${toBnDigits(totMB)} MB`);
                 } else {
-                    fakePct = Math.min(92, fakePct + 3);
+                    fakePct = Math.min(94, fakePct + 2);
                     const recMB = (received / (1024 * 1024)).toFixed(1);
-                    updatePdfProgressUI(idx, fakePct, `ডাউনলোড হয়েছে: ${toBnDigits(recMB)} MB`);
+                    updatePdfProgressUI(idx, fakePct, `ডাউনলোড হচ্ছে: ${toBnDigits(recMB)} MB`);
                 }
             }
+
+            if (received < 1000) throw new Error("Invalid PDF data");
 
             updatePdfProgressUI(idx, 100, 'পৃষ্ঠা প্রস্তুত হচ্ছে...');
             const fullBuffer = new Uint8Array(received);
@@ -2394,26 +2397,14 @@
                 fullBuffer.set(chunk, offset);
                 offset += chunk.length;
             }
-            return fullBuffer.buffer;
-        }
 
-        async function resolveGithubReleaseAssetUrl(pdfUrl) {
-            // URL ফরম্যাট: https://github.com/{owner}/{repo}/releases/download/{tag}/{filename}
-            const match = pdfUrl.match(/github\.com\/([^\/]+)\/([^\/]+)\/releases\/download\/([^\/]+)\/(.+)$/);
-            if (!match) return null;
-
-            const [, owner, repo, tag, rawFileName] = match;
-            const fileName = decodeURIComponent(rawFileName);
-            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`;
-
-            const res = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
-            if (!res.ok) return null;
-            const releaseData = await res.json();
-            const asset = (releaseData.assets || []).find(a => a.name === fileName);
-            if (asset && asset.url) {
-                return { apiAssetUrl: asset.url, size: asset.size };
+            // PDF ফাইল হেডার (%PDF-) যাচাই করা যাতে কোনো HTML এরর পেজ রেন্ডার না হয়
+            const headerStr = new TextDecoder().decode(fullBuffer.slice(0, 8));
+            if (!headerStr.includes('%PDF')) {
+                throw new Error("সার্ভার থেকে সঠিক PDF আসেনি");
             }
-            return null;
+
+            return fullBuffer.buffer;
         }
 
         async function fetchPdfBufferWithProgress(pdfUrl, idx) {
@@ -2433,40 +2424,36 @@
 
             let arrayBuffer = null;
 
-            // ২. GitHub Releases Asset API দিয়ে সরাসরি বাইনারি ডাউনলোড (CORS-মুক্ত ও নির্ভুল % সহ)
-            try {
-                updatePdfProgressUI(idx, 5, 'সার্ভারের সাথে সংযোগ হচ্ছে...');
-                const assetInfo = await resolveGithubReleaseAssetUrl(fullUrl);
-                if (assetInfo && assetInfo.apiAssetUrl) {
-                    arrayBuffer = await downloadWithProgress(
-                        assetInfo.apiAssetUrl,
-                        { 'Accept': 'application/octet-stream' },
-                        idx
-                    );
-                }
-            } catch (apiErr) {
-                console.warn("GitHub API asset fetch failed, trying fallback:", apiErr);
+            // ২. সরাসরি এবং রিডাইরেক্ট-সাপোর্টেড CORS প্রক্সি চেন
+            const candidates = [];
+            if (!fullUrl.includes('github.com/')) {
+                candidates.push(fullUrl);
             }
+            candidates.push(
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`,
+                `https://corsproxy.io/?url=${encodeURIComponent(fullUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`,
+                fullUrl
+            );
 
-            // ৩. ফোলব্যাক (সরাসরি লিংক বা প্রক্সি)
-            if (!arrayBuffer || arrayBuffer.byteLength < 500) {
-                const fallbacks = [
-                    fullUrl,
-                    `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`
-                ];
-                for (const fbUrl of fallbacks) {
-                    try {
-                        arrayBuffer = await downloadWithProgress(fbUrl, {}, idx);
-                        if (arrayBuffer && arrayBuffer.byteLength > 500) break;
-                    } catch (e) {}
+            for (let i = 0; i < candidates.length; i++) {
+                try {
+                    updatePdfProgressUI(idx, 5, i === 0 ? 'সার্ভার থেকে ডাউনলোড শুরু হচ্ছে...' : `বিকল্প সার্ভার (${toBnDigits(i + 1)}) চেষ্টা করা হচ্ছে...`);
+                    arrayBuffer = await downloadWithProgress(candidates[i], idx);
+                    if (arrayBuffer && arrayBuffer.byteLength > 1000) {
+                        break;
+                    }
+                } catch (err) {
+                    console.warn(`PDF source ${i + 1} failed:`, err);
+                    arrayBuffer = null;
                 }
             }
 
-            if (!arrayBuffer || arrayBuffer.byteLength < 500) {
-                throw new Error("PDF ফাইলটি পাওয়া যায়নি। নিশ্চিত করুন যে ফাইলটি GitHub Releases-এ আপলোড করা হয়েছে এবং ইন্টারনেট চালু আছে।");
+            if (!arrayBuffer || arrayBuffer.byteLength < 1000) {
+                throw new Error("PDF ফাইলটি লোড করা সম্ভব হয়নি। অনুগ্রহ করে নিশ্চিত করুন যে ফাইলটি GitHub Releases-এ আপলোড ও Publish করা আছে।");
             }
 
-            // ৪. ভবিষ্যতে অফলাইনে পড়ার জন্য ক্যাশে সেভ করে রাখা
+            // ৩. ভবিষ্যতে অফলাইনে পড়ার জন্য ক্যাশে সেভ করে রাখা
             if ('caches' in window) {
                 try {
                     const cache = await caches.open(PDF_CACHE_NAME);
