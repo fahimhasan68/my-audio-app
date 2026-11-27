@@ -576,6 +576,19 @@
             padding-bottom: 20px;
         }
 
+        .pdf-iframe-viewer {
+            width: 100%;
+            height: calc(100vh - 65px);
+            border: none;
+            background: #ffffff;
+            border-radius: 6px;
+            display: block;
+        }
+
+        body.forced-landscape .pdf-iframe-viewer {
+            height: calc(100vw - 65px);
+        }
+
         .pdf-page-canvas-box {
             background: #ffffff;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
@@ -1235,8 +1248,7 @@
         const REMOTE_BASE_URL = `https://${GH_OWNER}.github.io/${GH_REPO}/`;
         const DATA_URL = "data.json";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const PDF_CACHE_NAME = "deeni-mehonot-saved-pdfs-v1";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v14";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v15";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -2267,7 +2279,7 @@
             setTimeout(() => {
                 document.querySelectorAll('.article-card-item.is-open details[data-ispdf="1"]').forEach(d => {
                     const idx = d.dataset.idx;
-                    if (loadedPdfDocs[idx]) {
+                    if (loadedPdfDocs[idx] && !loadedPdfDocs[idx].isIframe) {
                         fitPdfToScreen(idx);
                     }
                 });
@@ -2343,7 +2355,26 @@
             }
         });
 
-        // PDF লোডিং পার্সেন্টেজ ও মাল্টি-প্রক্সি ডাউনলোডার
+        // ফোনের স্টোরেজে সেভ করা PDF-এর তালিকা ম্যানেজমেন্ট
+        function getSavedPdfList() {
+            try {
+                return JSON.parse(localStorage.getItem('user_offline_pdf_list_v1')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function savePdfMetadata(pdfObj) {
+            const list = getSavedPdfList().filter(item => item.url !== pdfObj.url);
+            list.push(pdfObj);
+            localStorage.setItem('user_offline_pdf_list_v1', JSON.stringify(list));
+        }
+
+        function removePdfMetadata(pdfUrl) {
+            const list = getSavedPdfList().filter(item => item.url !== pdfUrl);
+            localStorage.setItem('user_offline_pdf_list_v1', JSON.stringify(list));
+        }
+
         function updatePdfProgressUI(idx, percent, sizeText) {
             const pctEl = document.getElementById(`pdf-pct-${idx}`);
             const fillEl = document.getElementById(`pdf-fill-${idx}`);
@@ -2353,177 +2384,226 @@
             if (subEl && sizeText) subEl.innerText = sizeText;
         }
 
-        async function downloadWithProgress(fetchUrl, idx) {
-            const res = await fetch(fetchUrl);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-            const contentLength = parseInt(res.headers.get('Content-Length') || '0', 10);
-            if (!res.body) {
-                const buf = await res.arrayBuffer();
-                if (buf.byteLength < 1000) throw new Error("Empty or HTML response");
-                updatePdfProgressUI(idx, 100, 'সম্পন্ন');
-                return buf;
-            }
-
-            const reader = res.body.getReader();
-            const chunks = [];
-            let received = 0;
-            let fakePct = 8;
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                chunks.push(value);
-                received += value.length;
-
-                if (contentLength > 0) {
-                    const pct = Math.min(99, Math.round((received / contentLength) * 100));
-                    const recMB = (received / (1024 * 1024)).toFixed(1);
-                    const totMB = (contentLength / (1024 * 1024)).toFixed(1);
-                    updatePdfProgressUI(idx, pct, `${toBnDigits(recMB)} MB / ${toBnDigits(totMB)} MB`);
-                } else {
-                    fakePct = Math.min(94, fakePct + 2);
-                    const recMB = (received / (1024 * 1024)).toFixed(1);
-                    updatePdfProgressUI(idx, fakePct, `ডাউনলোড হচ্ছে: ${toBnDigits(recMB)} MB`);
-                }
-            }
-
-            if (received < 1000) throw new Error("Invalid PDF data");
-
-            updatePdfProgressUI(idx, 100, 'পৃষ্ঠা প্রস্তুত হচ্ছে...');
-            const fullBuffer = new Uint8Array(received);
-            let offset = 0;
-            for (const chunk of chunks) {
-                fullBuffer.set(chunk, offset);
-                offset += chunk.length;
-            }
-
-            // PDF ফাইল হেডার (%PDF-) যাচাই করা যাতে কোনো HTML এরর পেজ রেন্ডার না হয়
-            const headerStr = new TextDecoder().decode(fullBuffer.slice(0, 8));
-            if (!headerStr.includes('%PDF')) {
-                throw new Error("সার্ভার থেকে সঠিক PDF আসেনি");
-            }
-
-            return fullBuffer.buffer;
-        }
-
-        async function fetchPdfBufferWithProgress(pdfUrl, idx) {
+        async function deleteOfflinePdf(idx, pdfUrl) {
+            if (!confirm("ফোনের স্টোরেজ থেকে এই PDF কিতাবটি মুছে ফেলতে চান?")) return;
             const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `${REMOTE_BASE_URL}${pdfUrl}`;
+            const savedItem = getSavedPdfList().find(item => item.url === fullUrl);
 
-            // ১. অফলাইন ক্যাশ চেক করা
-            if ('caches' in window) {
+            if (savedItem && savedItem.safeName && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem) {
                 try {
-                    const cache = await caches.open(PDF_CACHE_NAME);
-                    const cached = await cache.match(fullUrl);
-                    if (cached) {
-                        updatePdfProgressUI(idx, 100, 'অফলাইন মেমোরি থেকে খুলছে...');
-                        return await cached.arrayBuffer();
-                    }
+                    await window.Capacitor.Plugins.Filesystem.deleteFile({
+                        path: savedItem.safeName,
+                        directory: 'DATA'
+                    });
                 } catch (e) {}
             }
 
-            let arrayBuffer = null;
-
-            // ২. সরাসরি এবং রিডাইরেক্ট-সাপোর্টেড CORS প্রক্সি চেন
-            const candidates = [];
-            if (!fullUrl.includes('github.com/')) {
-                candidates.push(fullUrl);
-            }
-            candidates.push(
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`,
-                `https://corsproxy.io/?url=${encodeURIComponent(fullUrl)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`,
-                fullUrl
-            );
-
-            for (let i = 0; i < candidates.length; i++) {
-                try {
-                    updatePdfProgressUI(idx, 5, i === 0 ? 'সার্ভার থেকে ডাউনলোড শুরু হচ্ছে...' : `বিকল্প সার্ভার (${toBnDigits(i + 1)}) চেষ্টা করা হচ্ছে...`);
-                    arrayBuffer = await downloadWithProgress(candidates[i], idx);
-                    if (arrayBuffer && arrayBuffer.byteLength > 1000) {
-                        break;
-                    }
-                } catch (err) {
-                    console.warn(`PDF source ${i + 1} failed:`, err);
-                    arrayBuffer = null;
-                }
-            }
-
-            if (!arrayBuffer || arrayBuffer.byteLength < 1000) {
-                throw new Error("PDF ফাইলটি লোড করা সম্ভব হয়নি। অনুগ্রহ করে নিশ্চিত করুন যে ফাইলটি GitHub Releases-এ আপলোড ও Publish করা আছে।");
-            }
-
-            // ৩. ভবিষ্যতে অফলাইনে পড়ার জন্য ক্যাশে সেভ করে রাখা
-            if ('caches' in window) {
-                try {
-                    const cache = await caches.open(PDF_CACHE_NAME);
-                    await cache.put(fullUrl, new Response(arrayBuffer.slice(0), {
-                        headers: { 'Content-Type': 'application/pdf' }
-                    }));
-                } catch (e) {}
-            }
-
-            return arrayBuffer;
+            removePdfMetadata(fullUrl);
+            delete loadedPdfDocs[idx];
+            alert("✅ ফোনের স্টোরেজ থেকে কিতাবটি মুছে ফেলা হয়েছে।");
+            closeCurrentBook(idx);
         }
 
+        function base64ToUint8Array(base64Str) {
+            let clean = String(base64Str).replace(/\s/g, '');
+            if (clean.startsWith('data:')) clean = clean.split(',')[1] || '';
+            const binary = atob(clean);
+            const len = binary.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        // সরাসরি ফোনের স্টোরেজে সেভ করে তারপর অ্যাপের ভেতরেই PDF ওপেন
         async function initPdfViewer(idx, pdfUrl) {
             const statusEl = document.getElementById(`pdf-status-${idx}`);
             const viewportEl = document.getElementById(`pdf-viewport-${idx}`);
             const totalPagesEl = document.getElementById(`pdf-total-pages-${idx}`);
             if (!viewportEl) return;
 
-            if (!window.pdfjsLib) {
-                if (statusEl) statusEl.innerHTML = `<div class="pdf-loader-card">❌ PDF রিডার লাইব্রেরি লোড হয়নি। ইন্টারনেট চালু করে রিফ্রেশ দিন।</div>`;
-                return;
-            }
+            const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `${REMOTE_BASE_URL}${pdfUrl}`;
+            const isCapacitorNative = Boolean(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem);
 
-            try {
-                if (statusEl) {
-                    statusEl.style.display = "block";
-                    statusEl.innerHTML = `
-                        <div class="pdf-loader-card">
-                            <div style="font-size: 14px; font-weight: bold;">📖 কিতাব লোড হচ্ছে... <span id="pdf-pct-${idx}" style="font-size: 16px; color: #fde047;">০%</span></div>
-                            <div class="pdf-progress-track">
-                                <div id="pdf-fill-${idx}" class="pdf-progress-fill"></div>
+            // ১. অ্যান্ড্রয়েড অ্যাপ (Capacitor APK): সরাসরি ফোনের স্টোরেজে সেভ করে PDF.js দিয়ে ওপেন
+            if (isCapacitorNative) {
+                const { Filesystem } = window.Capacitor.Plugins;
+                let progressListener = null;
+                let fakeTimer = null;
+
+                try {
+                    if (statusEl) {
+                        statusEl.style.display = "block";
+                        statusEl.innerHTML = `
+                            <div class="pdf-loader-card">
+                                <div style="font-size: 14px; font-weight: bold;">📥 ফোনে সেভ হচ্ছে... <span id="pdf-pct-${idx}" style="font-size: 16px; color: #fde047;">০%</span></div>
+                                <div class="pdf-progress-track">
+                                    <div id="pdf-fill-${idx}" class="pdf-progress-fill"></div>
+                                </div>
+                                <div id="pdf-sub-${idx}" style="font-size: 11.5px; color: #d5dfd9;">ফাইল যাচাই করা হচ্ছে...</div>
                             </div>
-                            <div id="pdf-sub-${idx}" style="font-size: 11.5px; color: #d5dfd9;">অপেক্ষা করুন...</div>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
 
-                const arrayBuffer = await fetchPdfBufferWithProgress(pdfUrl, idx);
-                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-                const pdfDoc = await loadingTask.promise;
+                    let savedItem = getSavedPdfList().find(item => item.url === fullUrl);
+                    let fileUri = null;
 
-                const firstPage = await pdfDoc.getPage(1);
-                const baseViewport = firstPage.getViewport({ scale: 1 });
-                const containerWidth = Math.max(280, viewportEl.clientWidth - 12);
-                const initialScale = containerWidth / baseViewport.width;
+                    if (savedItem && savedItem.safeName) {
+                        try {
+                            const uriRes = await Filesystem.getUri({
+                                path: savedItem.safeName,
+                                directory: 'DATA'
+                            });
+                            if (uriRes && uriRes.uri) {
+                                fileUri = uriRes.uri;
+                                updatePdfProgressUI(idx, 100, 'অফলাইন স্টোরেজ থেকে খুলছে...');
+                            }
+                        } catch (e) {
+                            savedItem = null;
+                        }
+                    }
 
-                loadedPdfDocs[idx] = {
-                    doc: pdfDoc,
-                    numPages: pdfDoc.numPages,
-                    scale: initialScale,
-                    baseWidth: baseViewport.width,
-                    renderedPages: new Set(),
-                    renderingPages: new Set()
-                };
+                    if (!fileUri) {
+                        if (!navigator.onLine) {
+                            throw new Error("প্রথমবার কিতাবটি ফোনে সেভ করতে ইন্টারনেট সংযোগ চালু করুন।");
+                        }
 
-                if (totalPagesEl) totalPagesEl.innerText = toBnDigits(pdfDoc.numPages);
-                if (statusEl) statusEl.style.display = "none";
+                        const safePdfName = `deeni_kitab_${idx}_${Date.now()}.pdf`;
+                        let realProgressActive = false;
 
-                buildPdfPagePlaceholders(idx);
-            } catch (err) {
-                if (statusEl) {
-                    statusEl.style.display = "block";
-                    statusEl.innerHTML = `
-                        <div class="pdf-loader-card">
-                            <div style="color: #fca5a5; font-size: 13.5px; margin-bottom: 10px;">❌ ${err.message}</div>
-                            <button type="button" class="btn-gold" onclick="initPdfViewer(${idx}, '${pdfUrl}')">🔄 আবার চেষ্টা করুন</button>
-                        </div>
-                    `;
+                        if (typeof Filesystem.addListener === 'function') {
+                            try {
+                                progressListener = await Filesystem.addListener('progress', (prog) => {
+                                    if (prog && prog.contentLength > 0) {
+                                        realProgressActive = true;
+                                        const pct = Math.min(99, Math.round((prog.bytes / prog.contentLength) * 100));
+                                        const recMB = (prog.bytes / (1024 * 1024)).toFixed(1);
+                                        const totMB = (prog.contentLength / (1024 * 1024)).toFixed(1);
+                                        updatePdfProgressUI(idx, pct, `${toBnDigits(recMB)} MB / ${toBnDigits(totMB)} MB`);
+                                    }
+                                });
+                            } catch (e) {}
+                        }
+
+                        let fakePct = 8;
+                        fakeTimer = setInterval(() => {
+                            if (!realProgressActive && fakePct < 92) {
+                                fakePct += 3;
+                                updatePdfProgressUI(idx, fakePct, 'ফোনের স্টোরেজে ডাউনলোড হচ্ছে...');
+                            }
+                        }, 500);
+
+                        const dlResult = await Filesystem.downloadFile({
+                            url: fullUrl,
+                            path: safePdfName,
+                            directory: 'DATA',
+                            progress: true
+                        });
+
+                        clearInterval(fakeTimer);
+                        fakeTimer = null;
+                        if (progressListener && progressListener.remove) {
+                            progressListener.remove();
+                            progressListener = null;
+                        }
+
+                        if (!dlResult || !dlResult.path) {
+                            throw new Error("ফোনের স্টোরেজে PDF ডাউনলোড ব্যর্থ হয়েছে।");
+                        }
+
+                        const uriRes = await Filesystem.getUri({
+                            path: safePdfName,
+                            directory: 'DATA'
+                        });
+                        fileUri = uriRes.uri || dlResult.path;
+
+                        savePdfMetadata({
+                            url: fullUrl,
+                            safeName: safePdfName,
+                            uri: fileUri
+                        });
+
+                        updatePdfProgressUI(idx, 100, 'সেভ সম্পন্ন! কিতাব খুলছে...');
+                    }
+
+                    let pdfDoc = null;
+                    if (window.Capacitor.convertFileSrc) {
+                        try {
+                            const localWebUrl = window.Capacitor.convertFileSrc(fileUri);
+                            pdfDoc = await pdfjsLib.getDocument({ url: localWebUrl }).promise;
+                        } catch (convErr) {
+                            console.warn("convertFileSrc fallback:", convErr);
+                        }
+                    }
+
+                    if (!pdfDoc) {
+                        const saved = getSavedPdfList().find(item => item.url === fullUrl);
+                        const readRes = await Filesystem.readFile({
+                            path: saved.safeName,
+                            directory: 'DATA'
+                        });
+                        const uint8 = base64ToUint8Array(readRes.data);
+                        pdfDoc = await pdfjsLib.getDocument({ data: uint8 }).promise;
+                    }
+
+                    const firstPage = await pdfDoc.getPage(1);
+                    const baseViewport = firstPage.getViewport({ scale: 1 });
+                    const containerWidth = Math.max(280, viewportEl.clientWidth - 12);
+                    const initialScale = containerWidth / baseViewport.width;
+
+                    loadedPdfDocs[idx] = {
+                        doc: pdfDoc,
+                        numPages: pdfDoc.numPages,
+                        scale: initialScale,
+                        baseWidth: baseViewport.width,
+                        renderedPages: new Set(),
+                        renderingPages: new Set()
+                    };
+
+                    if (totalPagesEl) totalPagesEl.innerText = toBnDigits(pdfDoc.numPages);
+                    if (statusEl) statusEl.style.display = "none";
+
+                    buildPdfPagePlaceholders(idx);
+                    return;
+
+                } catch (err) {
+                    if (fakeTimer) clearInterval(fakeTimer);
+                    if (progressListener && progressListener.remove) progressListener.remove();
+                    if (statusEl) {
+                        statusEl.style.display = "block";
+                        statusEl.innerHTML = `
+                            <div class="pdf-loader-card">
+                                <div style="color: #fca5a5; font-size: 13.5px; margin-bottom: 10px;">❌ ${err.message}</div>
+                                <button type="button" class="btn-gold" onclick="initPdfViewer(${idx}, '${pdfUrl}')">🔄 আবার চেষ্টা করুন</button>
+                            </div>
+                        `;
+                    }
+                    return;
                 }
             }
+
+            // ২. সাধারণ পিসি/মোবাইল ব্রাউজারে (APK ছাড়া) খুললে ফোলব্যাক
+            if (totalPagesEl) totalPagesEl.innerText = 'PDF';
+            if (statusEl) {
+                statusEl.style.display = "block";
+                statusEl.innerHTML = `
+                    <div class="pdf-loader-card">
+                        <div style="font-size: 13.5px; margin-bottom: 10px;">📖 ব্রাউজারে কিতাব লোড হচ্ছে...</div>
+                        <a href="${fullUrl}" target="_blank" class="btn-gold" style="font-size: 12px; padding: 6px 12px;">📥 সরাসরি ডাউনলোড করুন</a>
+                    </div>
+                `;
+            }
+            const viewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fullUrl)}`;
+            loadedPdfDocs[idx] = { isIframe: true };
+            viewportEl.innerHTML = `
+                <iframe
+                    class="pdf-iframe-viewer"
+                    src="${viewerUrl}"
+                    allowfullscreen
+                    onload="const st = document.getElementById('pdf-status-${idx}'); if(st) st.style.display='none';">
+                </iframe>
+            `;
         }
 
         function buildPdfPagePlaceholders(idx) {
@@ -2611,7 +2691,7 @@
 
         function changePdfZoom(idx, delta) {
             const state = loadedPdfDocs[idx];
-            if (!state) return;
+            if (!state || state.isIframe) return;
             const fitScale = (Math.max(280, (document.getElementById(`pdf-viewport-${idx}`)?.clientWidth || 340) - 12)) / state.baseWidth;
             const minScale = fitScale * 0.75;
             const maxScale = fitScale * 3.2;
@@ -2623,7 +2703,7 @@
         function fitPdfToScreen(idx) {
             const state = loadedPdfDocs[idx];
             const viewportEl = document.getElementById(`pdf-viewport-${idx}`);
-            if (!state || !viewportEl) return;
+            if (!state || state.isIframe || !viewportEl) return;
             const containerWidth = Math.max(280, viewportEl.clientWidth - 12);
             state.scale = containerWidth / state.baseWidth;
             buildPdfPagePlaceholders(idx);
@@ -2631,7 +2711,7 @@
 
         function jumpToPdfPage(idx, pageVal) {
             const state = loadedPdfDocs[idx];
-            if (!state) return;
+            if (!state || state.isIframe) return;
             let targetPage = parseInt(pageVal);
             if (isNaN(targetPage) || targetPage < 1) targetPage = 1;
             if (targetPage > state.numPages) targetPage = state.numPages;
@@ -2684,6 +2764,7 @@
                                             <button type="button" class="pdf-tool-btn" title="স্ক্রিন ফিট" onclick="fitPdfToScreen(${idx})">Fit</button>
                                             <button type="button" class="pdf-tool-btn" title="জুম ইন" onclick="changePdfZoom(${idx}, 0.2)">➕</button>
                                             <button type="button" class="pdf-tool-btn rotate-mode-btn" title="আড়াআড়ি পড়ুন" onclick="toggleLandscapeReading(event, this)">${SVG_ROTATE_PHONE}</button>
+                                            <button type="button" class="pdf-tool-btn" title="ফোন থেকে মুছুন" onclick="deleteOfflinePdf(${idx}, '${pdfUrl}')">🗑️</button>
                                             <button type="button" class="pdf-tool-btn" title="বন্ধ করুন" onclick="closeCurrentBook(${idx})" style="background:#991b1b; color:#fff;">✕</button>
                                         </div>
                                     </div>
