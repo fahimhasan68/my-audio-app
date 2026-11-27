@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>দ্বীনি মেহনত</title>
     <meta name="theme-color" content="#164431">
-    <!-- অ্যাপের ভেতরেই PDF রেন্ডার করার জন্য PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         if (window.pdfjsLib) {
@@ -112,7 +111,6 @@
             transition: padding 0.2s ease;
         }
 
-        /* ফুল-স্ক্রিন রিডিং মোড: কিতাব/প্রবন্ধ খুললে উপরের ও নিচের বার হাইড হবে */
         body.fullscreen-reading header,
         body.fullscreen-reading nav,
         body.fullscreen-reading .font-control-bar {
@@ -135,7 +133,6 @@
             border-left-width: 3px !important;
         }
 
-        /* আড়াআড়ি (Forced Landscape) মোড */
         body.forced-landscape {
             position: fixed !important;
             top: 0 !important;
@@ -169,7 +166,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ব্যানার স্লাইডশো স্টাইল */
         .notice-slider-wrapper {
             position: relative;
             width: 100%;
@@ -285,7 +281,6 @@
             text-align: left;
         }
 
-        /* পুরনো বয়ান ড্রপডাউন স্টাইল */
         .old-bayan-details {
             width: 100%;
             margin-top: 4px;
@@ -367,7 +362,6 @@
             color: #ffffff;
         }
 
-        /* কোণায় ভাসমান ফ্লোটিং কন্ট্রোল */
         .toc-floating-corner {
             position: sticky;
             top: 8px;
@@ -476,7 +470,7 @@
             color: var(--text-muted);
         }
 
-        /* PDF রিডার স্পেশাল কন্টেইনার ও কন্ট্রোল স্টাইল */
+        /* PDF রিডার স্পেশাল কন্টেইনার ও লোডিং প্রগ্রেস বার */
         .pdf-reader-wrapper {
             background: #2b2d30;
             border-top: 1px solid var(--border-subtle);
@@ -494,7 +488,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 6px;
-            background: rgba(15, 48, 34, 0.95);
+            background: rgba(15, 48, 34, 0.96);
             border: 1.5px solid var(--gold-main);
             border-radius: 10px;
             padding: 6px 8px;
@@ -541,6 +535,35 @@
         .pdf-tool-btn.active-mode {
             background: var(--gold-main);
             color: var(--green-dark);
+        }
+
+        .pdf-loader-card {
+            max-width: 340px;
+            margin: 40px auto;
+            background: rgba(15, 48, 34, 0.95);
+            border: 1.5px solid var(--gold-main);
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: center;
+            color: var(--gold-text);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .pdf-progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 12px 0 8px 0;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        .pdf-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--gold-main), #fde047);
+            transition: width 0.2s ease;
         }
 
         .pdf-pages-viewport {
@@ -976,7 +999,6 @@
             line-height: 1.6;
         }
 
-        /* বইয়ের মতো দুই পাশে সমান (Justify) লেখা এবং আরবি-রেফারেন্স স্টাইল */
         .article-content-body {
             text-align: justify !important;
             text-justify: inter-word;
@@ -1208,10 +1230,13 @@
     </nav>
 
     <script>
-        const REMOTE_BASE_URL = "https://fahimhasan68.github.io/my-audio-app/";
+        const GH_OWNER = "fahimhasan68";
+        const GH_REPO = "my-audio-app";
+        const REMOTE_BASE_URL = `https://${GH_OWNER}.github.io/${GH_REPO}/`;
         const DATA_URL = "data.json";
         const AUDIO_CACHE_NAME = "deeni-mehonot-saved-audios-v3";
-        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v12";
+        const PDF_CACHE_NAME = "deeni-mehonot-saved-pdfs-v1";
+        const APP_SHELL_CACHE = "deeni-mehonot-app-shell-v13";
         
         let currentActiveTab = sessionStorage.getItem('active_app_tab') || 'audio';
         if (currentActiveTab === 'notices') currentActiveTab = 'audio';
@@ -1220,7 +1245,7 @@
 
         let activeSocialLinks = { telegram: "", whatsapp: "", youtube: "" };
         const activeBlobUrls = {};
-        const loadedPdfDocs = {}; // লোড হওয়া PDF ডকুমেন্ট স্টোর
+        const loadedPdfDocs = {};
         let sliderInterval = null;
         let currentSlideIdx = 0;
         let totalSlidesCount = 0;
@@ -1726,7 +1751,6 @@
             isAudioLoaded = true;
         }
 
-        // একক অডিও কার্ড HTML তৈরি ফাংশন
         async function buildSingleAudioCardHtml(file, uid, savedList, cache) {
             const displayTitle = file.name.replace(/\.opus$/i, '');
             const savedItem = savedList.find(item => item.name === file.name);
@@ -1818,7 +1842,6 @@
             `;
         }
 
-        // ২. অডিও কার্ড ও পুরনো বয়ান ড্রপডাউন রেন্ডার
         async function renderAudioCards(files, isOfflineMode, oldFiles = []) {
             const container = document.getElementById('audio-list');
             const oldDropdownWrapper = document.getElementById('old-audio-dropdown-wrapper');
@@ -1865,7 +1888,6 @@
             }
         }
 
-        // ৩. সরাসরি রুট DATA ডিরেক্টরিতে সেভ
         async function saveAudioInApp(url, fileName, uid) {
             if (!navigator.onLine) {
                 alert("অডিও ডাউনলোড করার জন্য ইন্টারনেট সংযোগ চালু করুন!");
@@ -2178,7 +2200,6 @@
             }
         }
 
-        // ফুল-স্ক্রিন ও আড়াআড়ি (Landscape) রিডিং কন্ট্রোল ফাংশনসমূহ
         function handleArticleToggle(detailsEl) {
             const cardEl = detailsEl.closest('.article-card-item');
             const idx = detailsEl.dataset.idx;
@@ -2243,7 +2264,6 @@
                 }
             }
 
-            // কোনো PDF খোলা থাকলে নতুন স্ক্রিন প্রস্থ অনুযায়ী জুম ফিট করা
             setTimeout(() => {
                 document.querySelectorAll('.article-card-item.is-open details[data-ispdf="1"]').forEach(d => {
                     const idx = d.dataset.idx;
@@ -2254,7 +2274,6 @@
             }, 150);
         }
 
-        // বড় TXT কিতাবের কোণায় ভাসমান আড়াআড়ি বাটন + গোল সূচিপত্র বাটন + প্রস্থান বাটন
         function formatBookWithTOC(rawText, articleIdx) {
             const lines = rawText.split(/\r?\n/);
             const tocItems = [];
@@ -2324,27 +2343,140 @@
             }
         });
 
-        // অ্যাপের ভেতরে সরাসরি PDF লোড ও রেন্ডার ইঞ্জিন (GitHub Releases CORS সাপোর্টসহ)
-        async function fetchPdfBufferWithFallback(pdfUrl) {
-            const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `${REMOTE_BASE_URL}${pdfUrl}`;
-            const candidates = [
-                fullUrl,
-                `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`
-            ];
+        // GitHub Release Asset API ও প্রগ্রেস পার্সেন্টেজসহ PDF ডাউনলোডার
+        function updatePdfProgressUI(idx, percent, sizeText) {
+            const pctEl = document.getElementById(`pdf-pct-${idx}`);
+            const fillEl = document.getElementById(`pdf-fill-${idx}`);
+            const subEl = document.getElementById(`pdf-sub-${idx}`);
+            if (pctEl) pctEl.innerText = `${toBnDigits(percent)}%`;
+            if (fillEl) fillEl.style.width = `${percent}%`;
+            if (subEl && sizeText) subEl.innerText = sizeText;
+        }
 
-            for (const url of candidates) {
+        async function downloadWithProgress(fetchUrl, headers, idx) {
+            const res = await fetch(fetchUrl, { headers });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const contentLength = parseInt(res.headers.get('Content-Length') || '0', 10);
+            if (!res.body) {
+                const buf = await res.arrayBuffer();
+                updatePdfProgressUI(idx, 100, 'সম্পন্ন');
+                return buf;
+            }
+
+            const reader = res.body.getReader();
+            const chunks = [];
+            let received = 0;
+            let fakePct = 8;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                received += value.length;
+
+                if (contentLength > 0) {
+                    const pct = Math.min(99, Math.round((received / contentLength) * 100));
+                    const recMB = (received / (1024 * 1024)).toFixed(1);
+                    const totMB = (contentLength / (1024 * 1024)).toFixed(1);
+                    updatePdfProgressUI(idx, pct, `${toBnDigits(recMB)} MB / ${toBnDigits(totMB)} MB`);
+                } else {
+                    fakePct = Math.min(92, fakePct + 3);
+                    const recMB = (received / (1024 * 1024)).toFixed(1);
+                    updatePdfProgressUI(idx, fakePct, `ডাউনলোড হয়েছে: ${toBnDigits(recMB)} MB`);
+                }
+            }
+
+            updatePdfProgressUI(idx, 100, 'পৃষ্ঠা প্রস্তুত হচ্ছে...');
+            const fullBuffer = new Uint8Array(received);
+            let offset = 0;
+            for (const chunk of chunks) {
+                fullBuffer.set(chunk, offset);
+                offset += chunk.length;
+            }
+            return fullBuffer.buffer;
+        }
+
+        async function resolveGithubReleaseAssetUrl(pdfUrl) {
+            // URL ফরম্যাট: https://github.com/{owner}/{repo}/releases/download/{tag}/{filename}
+            const match = pdfUrl.match(/github\.com\/([^\/]+)\/([^\/]+)\/releases\/download\/([^\/]+)\/(.+)$/);
+            if (!match) return null;
+
+            const [, owner, repo, tag, rawFileName] = match;
+            const fileName = decodeURIComponent(rawFileName);
+            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`;
+
+            const res = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+            if (!res.ok) return null;
+            const releaseData = await res.json();
+            const asset = (releaseData.assets || []).find(a => a.name === fileName);
+            if (asset && asset.url) {
+                return { apiAssetUrl: asset.url, size: asset.size };
+            }
+            return null;
+        }
+
+        async function fetchPdfBufferWithProgress(pdfUrl, idx) {
+            const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `${REMOTE_BASE_URL}${pdfUrl}`;
+
+            // ১. অফলাইন ক্যাশ চেক করা
+            if ('caches' in window) {
                 try {
-                    const res = await fetch(url);
-                    if (res.ok) {
-                        const buf = await res.arrayBuffer();
-                        if (buf && buf.byteLength > 500) {
-                            return buf;
-                        }
+                    const cache = await caches.open(PDF_CACHE_NAME);
+                    const cached = await cache.match(fullUrl);
+                    if (cached) {
+                        updatePdfProgressUI(idx, 100, 'অফলাইন মেমোরি থেকে খুলছে...');
+                        return await cached.arrayBuffer();
                     }
                 } catch (e) {}
             }
-            throw new Error("PDF ফাইলটি লোড করা সম্ভব হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।");
+
+            let arrayBuffer = null;
+
+            // ২. GitHub Releases Asset API দিয়ে সরাসরি বাইনারি ডাউনলোড (CORS-মুক্ত ও নির্ভুল % সহ)
+            try {
+                updatePdfProgressUI(idx, 5, 'সার্ভারের সাথে সংযোগ হচ্ছে...');
+                const assetInfo = await resolveGithubReleaseAssetUrl(fullUrl);
+                if (assetInfo && assetInfo.apiAssetUrl) {
+                    arrayBuffer = await downloadWithProgress(
+                        assetInfo.apiAssetUrl,
+                        { 'Accept': 'application/octet-stream' },
+                        idx
+                    );
+                }
+            } catch (apiErr) {
+                console.warn("GitHub API asset fetch failed, trying fallback:", apiErr);
+            }
+
+            // ৩. ফোলব্যাক (সরাসরি লিংক বা প্রক্সি)
+            if (!arrayBuffer || arrayBuffer.byteLength < 500) {
+                const fallbacks = [
+                    fullUrl,
+                    `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`
+                ];
+                for (const fbUrl of fallbacks) {
+                    try {
+                        arrayBuffer = await downloadWithProgress(fbUrl, {}, idx);
+                        if (arrayBuffer && arrayBuffer.byteLength > 500) break;
+                    } catch (e) {}
+                }
+            }
+
+            if (!arrayBuffer || arrayBuffer.byteLength < 500) {
+                throw new Error("PDF ফাইলটি পাওয়া যায়নি। নিশ্চিত করুন যে ফাইলটি GitHub Releases-এ আপলোড করা হয়েছে এবং ইন্টারনেট চালু আছে।");
+            }
+
+            // ৪. ভবিষ্যতে অফলাইনে পড়ার জন্য ক্যাশে সেভ করে রাখা
+            if ('caches' in window) {
+                try {
+                    const cache = await caches.open(PDF_CACHE_NAME);
+                    await cache.put(fullUrl, new Response(arrayBuffer.slice(0), {
+                        headers: { 'Content-Type': 'application/pdf' }
+                    }));
+                } catch (e) {}
+            }
+
+            return arrayBuffer;
         }
 
         async function initPdfViewer(idx, pdfUrl) {
@@ -2354,17 +2486,25 @@
             if (!viewportEl) return;
 
             if (!window.pdfjsLib) {
-                if (statusEl) statusEl.innerText = "❌ PDF রিডার লাইব্রেরি লোড হয়নি। ইন্টারনেট চালু করে রিফ্রেশ দিন।";
+                if (statusEl) statusEl.innerHTML = `<div class="pdf-loader-card">❌ PDF রিডার লাইব্রেরি লোড হয়নি। ইন্টারনেট চালু করে রিফ্রেশ দিন।</div>`;
                 return;
             }
 
             try {
                 if (statusEl) {
                     statusEl.style.display = "block";
-                    statusEl.innerText = "⏳ PDF কিতাব লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...";
+                    statusEl.innerHTML = `
+                        <div class="pdf-loader-card">
+                            <div style="font-size: 14px; font-weight: bold;">📖 কিতাব লোড হচ্ছে... <span id="pdf-pct-${idx}" style="font-size: 16px; color: #fde047;">০%</span></div>
+                            <div class="pdf-progress-track">
+                                <div id="pdf-fill-${idx}" class="pdf-progress-fill"></div>
+                            </div>
+                            <div id="pdf-sub-${idx}" style="font-size: 11.5px; color: #d5dfd9;">অপেক্ষা করুন...</div>
+                        </div>
+                    `;
                 }
 
-                const arrayBuffer = await fetchPdfBufferWithFallback(pdfUrl);
+                const arrayBuffer = await fetchPdfBufferWithProgress(pdfUrl, idx);
                 const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
                 const pdfDoc = await loadingTask.promise;
 
@@ -2389,7 +2529,12 @@
             } catch (err) {
                 if (statusEl) {
                     statusEl.style.display = "block";
-                    statusEl.innerHTML = `❌ ${err.message}<br><button type="button" class="btn-gold" style="margin-top:10px;" onclick="initPdfViewer(${idx}, '${pdfUrl}')">🔄 আবার চেষ্টা করুন</button>`;
+                    statusEl.innerHTML = `
+                        <div class="pdf-loader-card">
+                            <div style="color: #fca5a5; font-size: 13.5px; margin-bottom: 10px;">❌ ${err.message}</div>
+                            <button type="button" class="btn-gold" onclick="initPdfViewer(${idx}, '${pdfUrl}')">🔄 আবার চেষ্টা করুন</button>
+                        </div>
+                    `;
                 }
             }
         }
@@ -2413,7 +2558,6 @@
             }
             viewportEl.innerHTML = boxesHtml;
 
-            // Lazy IntersectionObserver দিয়ে যেসব পৃষ্ঠা স্ক্রিনে আসছে শুধু সেগুলো হাই-রেজোলিউশনে রেন্ডার করা
             const mainEl = document.querySelector('main');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -2433,7 +2577,6 @@
                 if (box) observer.observe(box);
             }
 
-            // প্রথম ২টি পৃষ্ঠা তাৎক্ষণিক রেন্ডার
             renderSinglePdfPage(idx, 1);
             if (state.numPages >= 2) renderSinglePdfPage(idx, 2);
         }
@@ -2557,7 +2700,7 @@
                                             <button type="button" class="pdf-tool-btn" title="বন্ধ করুন" onclick="closeCurrentBook(${idx})" style="background:#991b1b; color:#fff;">✕</button>
                                         </div>
                                     </div>
-                                    <div id="pdf-status-${idx}" style="color:#f0d77b; text-align:center; padding:30px 12px; font-size:14px; font-weight:bold;">লোড হচ্ছে...</div>
+                                    <div id="pdf-status-${idx}"></div>
                                     <div id="pdf-viewport-${idx}" class="pdf-pages-viewport"></div>
                                 </div>
                             </details>
@@ -2566,7 +2709,6 @@
                     continue;
                 }
 
-                // সাধারণ প্রবন্ধ বা TXT কিতাবের জন্য
                 let textContent = item.content || '';
                 if (item.file) {
                     const cacheKey = 'text_cache_' + item.file;
